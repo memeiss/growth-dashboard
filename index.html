@@ -154,6 +154,11 @@ body {
 .tab-btn[data-tab="omni"]   .tab-dot{ background: var(--tab-omni); }
 .tab-btn[data-tab="brand"]  .tab-dot{ background: var(--tab-brand); }
 .tab-btn.active .tab-dot{ background: rgba(255,255,255,0.85); }
+.tab-btn.tab-disabled{
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
 
 /* ════════ MAIN FRAME ════════ */
 .main-frame{
@@ -261,10 +266,10 @@ body {
 <!-- ════════ TAB BAR ════════ -->
 <div class="tab-bar">
   <div class="tab-nav" role="tablist">
-    <button class="tab-btn" data-tab="growth" type="button">
+    <button class="tab-btn tab-disabled" data-tab="growth" type="button" disabled>
       <span class="tab-dot"></span>Growth
     </button>
-    <button class="tab-btn" data-tab="sales" type="button">
+    <button class="tab-btn tab-disabled" data-tab="sales" type="button" disabled>
       <span class="tab-dot"></span>Sales
     </button>
     <button class="tab-btn" data-tab="omni" type="button">
@@ -547,7 +552,10 @@ async function checkFirebaseConnection(){
 }
 
 document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  btn.addEventListener('click', () => {
+    if (btn.disabled) return;
+    switchTab(btn.dataset.tab);
+  });
 });
 document.getElementById('uploadBtn').addEventListener('click', () => {
   document.getElementById('fileInput').click();
