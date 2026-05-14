@@ -8,7 +8,6 @@
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 /* ───────────────────────────────────────
    DESIGN SYSTEM - OMNI Sales Dashboard
@@ -766,107 +765,15 @@ body {
   .channel-pillars{ grid-template-columns: 1fr;}
 }
 
-/* ────────── Upload Bar (top) ────────── */
-.upload-bar{
-  background: linear-gradient(135deg, var(--blue) 0%, var(--blue-2) 100%);
-  position: relative;
-  z-index: 100;
-}
-.upload-bar::after{
-  content:''; position:absolute; inset:0;
-  background: linear-gradient(90deg, rgba(0,0,0,0.06) 0%, transparent 60%);
-  pointer-events:none;
-}
-.upload-inner{
-  display:flex; align-items:center; justify-content:space-between;
-  padding: 11px 32px;
-  gap: 14px; flex-wrap: wrap;
-  position:relative; z-index:1;
-}
-.upload-left{ display:flex; align-items:center; gap: 12px;}
-.upload-icon{
-  width: 34px; height: 34px;
-  background: rgba(255,255,255,0.18);
-  border-radius: 8px;
-  display:flex; align-items:center; justify-content:center;
-  font-size: 16px; flex-shrink: 0;
-}
-.upload-text h3{ color:#fff; font-size:13px; font-weight:700; letter-spacing:-0.2px;}
-.upload-text p{ color: rgba(255,255,255,0.78); font-size:11px; margin-top:2px; font-weight: 500;}
-
-.upload-right{ display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
-.upload-btn{
-  display:inline-flex; align-items:center; gap:7px;
-  background:#fff; color: var(--blue);
-  border:none; padding: 8px 16px;
-  border-radius: 7px; font-size: 12px; font-weight: 700;
-  font-family: inherit; cursor: pointer;
-  transition: all 0.18s ease;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-}
-.upload-btn:hover{ background: var(--blue-lt); transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,0.2);}
-.upload-btn:disabled{ opacity: 0.6; cursor: not-allowed; transform: none;}
-.upload-btn svg{ width: 14px; height: 14px;}
-.upload-btn.outline{
-  background: transparent; color: #fff;
-  border: 1.5px solid rgba(255,255,255,0.4);
-  box-shadow: none;
-}
-.upload-btn.outline:hover{ background: rgba(255,255,255,0.12); border-color: #fff;}
-
-#fileInput{ display: none;}
-
-.upload-status{
-  color: rgba(255,255,255,0.92);
-  font-size: 12px;
-  display: flex; align-items: center; gap: 7px;
-  font-weight: 500;
-}
-.status-dot{
-  width: 7px; height: 7px; border-radius: 50%;
-  background: #86EFAC;
-  animation: statusPulse 2s infinite;
-}
-.status-dot.connecting{ background: #FCD34D; }
-.status-dot.error{ background: #FCA5A5; }
-@keyframes statusPulse {
-  0%, 100% { opacity: 1; transform: scale(1);}
-  50% { opacity: 0.55; transform: scale(1.4);}
-}
 
 /* ─── Loading overlay ─── */
-.loading-overlay{
-  position: fixed; inset: 0;
-  background: rgba(15, 23, 42, 0.55);
-  backdrop-filter: blur(2px);
-  display: none;
-  align-items: center; justify-content: center;
-  z-index: 9998;
-}
-.loading-overlay.show{ display: flex; }
-.loading-card{
-  background: #fff;
-  padding: 24px 32px;
-  border-radius: 14px;
-  box-shadow: var(--shadow-lg);
-  display: flex; flex-direction: column;
-  align-items: center; gap: 12px;
-  min-width: 240px;
-}
-.spinner{
-  width: 36px; height: 36px;
-  border: 3px solid var(--surface2);
-  border-top-color: var(--blue);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg);} }
-.loading-text{
-  font-size: 13px; font-weight: 700; color: var(--text);
-}
-.loading-sub{
-  font-size: 11px; color: var(--muted); font-weight: 500;
-}
+
+
+
+
+ }
+
+
 
 /* ─── 데이터 없음 안내 ─── */
 .no-data-banner{
@@ -891,8 +798,8 @@ body {
 /* Print friendly */
 @media print {
   body{ background:#fff;}
-  .header, .upload-bar{ position:static; box-shadow:none;}
-  .upload-bar{ display:none; }
+  .header, 
+  
 }
 
 /* ────────── Comment Boxes (Insight) ────────── */
@@ -1058,7 +965,7 @@ body {
 }
 
 /* ───── Embedded mode (iframe 안에서 호출될 때 상단 업로드 바 숨김) ───── */
-html[data-embedded="1"] .upload-bar { display: none !important; }
+html[data-embedded="1"] 
 html[data-embedded="1"] body { background: var(--bg); }
 html[data-embedded="1"] .back-link { display: none !important; }
 </style>
@@ -1076,43 +983,8 @@ html[data-embedded="1"] .back-link { display: none !important; }
 </script>
 
 <!-- ────────── UPLOAD BAR ────────── -->
-<div class="upload-bar">
-  <div class="upload-inner">
-    <div class="upload-left">
-      <div class="upload-icon">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:#fff"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      </div>
-      <div class="upload-text">
-        <h3>월별 매출 데이터 업로드</h3>
-        <p>엑셀 양식에 입력한 후 업로드하면 Firebase에 저장되고 대시보드에 즉시 반영됩니다.</p>
-      </div>
-    </div>
-    <div class="upload-right">
-      <div class="upload-status">
-        <span class="status-dot connecting" id="dbStatusDot"></span>
-        <span id="dbStatusText">Firebase 연결 중…</span>
-      </div>
-      <a href="OMNI_월매출_업로드양식.xlsx" download class="upload-btn outline" title="엑셀 양식 다운로드">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        양식 다운로드
-      </a>
-      <input type="file" id="fileInput" accept=".xlsx,.xls" />
-      <button class="upload-btn" id="uploadBtn" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        엑셀 업로드
-      </button>
-    </div>
-  </div>
-</div>
 
-<!-- ────────── LOADING OVERLAY ────────── -->
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="loading-card">
-    <div class="spinner"></div>
-    <div class="loading-text" id="loadingText">처리 중…</div>
-    <div class="loading-sub" id="loadingSub"></div>
-  </div>
-</div>
+
 
 <!-- ────────── HEADER ────────── -->
 <header class="header">
@@ -2260,7 +2132,7 @@ cmtInit();
 </script>
 
 <!-- ════════════════════════════════════════════════════════════
-     DATA RENDERING (Hardcoded from Excel upload)
+     DATA RENDERING (Hardcoded static data)
 ════════════════════════════════════════════════════════════ -->
 <script>
 // ── Hardcoded month data from Excel files ──
@@ -2293,22 +2165,7 @@ const fmtNum = (n) => (n == null || isNaN(n)) ? '—' : Math.round(Number(n)).to
 const fmtPct = (n, decimals = 1) => (n == null || isNaN(n)) ? '—' : `${Number(n).toFixed(decimals)}%`;
 const safeDiv = (a, b) => (b > 0) ? (a / b) : null;
 
-function setStatus(state, msg){
-  const dot = document.getElementById('dbStatusDot');
-  const txt = document.getElementById('dbStatusText');
-  dot.classList.remove('connecting','error');
-  if (state === 'connecting') dot.classList.add('connecting');
-  else if (state === 'error') dot.classList.add('error');
-  txt.textContent = msg;
-}
 
-function showLoading(show, text='처리 중…', sub=''){
-  const ov = document.getElementById('loadingOverlay');
-  document.getElementById('loadingText').textContent = text;
-  document.getElementById('loadingSub').textContent = sub;
-  if (show) ov.classList.add('show');
-  else ov.classList.remove('show');
-}
 
 function showToast(msg){
   let t = document.getElementById('cmtToast');
@@ -2380,8 +2237,7 @@ function signed(n, decimals = 1){
 }
 
 async function renderForMonth(year, month){
-  showLoading(true, '데이터 불러오는 중…', `${year}년 ${month}월`);
-
+  
   const allMonths = loadAllMonthsStatic(year);
   const annualTargets = null;
   const prevYearMonth = null;
@@ -2389,8 +2245,7 @@ async function renderForMonth(year, month){
 
   setStatus('ok', `데이터 로드됨 · ${year}-${String(month).padStart(2,'0')} 기준`);
   doRender({ year, month, allMonths, prevYearMonth, prevYearCumByMonth, annualTargets });
-  showLoading(false);
-}
+  }
 
 function doRender(ctx){
   const { year, month, allMonths, prevYearMonth, prevYearCumByMonth, annualTargets } = ctx;
@@ -2469,7 +2324,7 @@ function doRender(ctx){
   }
   prevCumOmni = Object.values(prevCumByCh).reduce((a,b)=>a+b,0);
 
-  // 엑셀값(prevYear 누적) 우선, 없으면 전년도 Firebase 누적
+  // 엑셀값(prevYear 누적) 우선
   CHANNELS.forEach(ch => {
     if (cumByChPrev[ch] === 0 && prevCumByCh[ch] > 0) {
       cumByChPrev[ch] = prevCumByCh[ch];
@@ -2656,7 +2511,7 @@ function doRender(ctx){
       const r = rollupForMonth(m, ch);
       monthlyByCh[ch].push(r ? r.sales : null);
     });
-    // 전년 동월 = 채널 합 (엑셀 prevYear 우선, 없으면 전년 Firebase)
+    // 전년 동월 = 채널 합 (엑셀 prevYear 우선)
     const monthData = getMonth(m);
     let prevSum = null;
     if (monthData) {
@@ -2793,7 +2648,7 @@ function doRender(ctx){
         }
       }
     }
-    // prevM이 null이면 전년 Firebase에서 보완
+    // prevM 보완
     if (prevM == null) {
       const pm = prevYearCumByMonth[month-1];
       if (pm) {
@@ -2857,7 +2712,7 @@ function doRender(ctx){
       });
     }
     if (!hasP) {
-      // 전년 Firebase로 보완
+      // 전년 데이터 보완
       const pm = prevYearCumByMonth[month-1];
       if (pm) {
         CHANNELS.forEach(ch => {
@@ -2879,118 +2734,9 @@ function doRender(ctx){
   // (data-k="month-label" 이미 처리됨; 테이블 헤더는 유지하거나 별도 처리 가능)
 }
 
-// ── 엑셀 파싱 (in-memory 업데이트) ──
-async function handleExcelUpload(file){
-  showLoading(true, '엑셀 파일 분석 중…');
-  try {
-    const buf = await file.arrayBuffer();
-    const wb = XLSX.read(buf, { type: 'array' });
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
 
-    let year = null, month = null;
-    for (const r of rows) {
-      if (!r) continue;
-      const a = (r[0]||'').toString();
-      const c = (r[2]||'').toString();
-      if (a.includes('기준 년도') || a === '기준 년도') year = Number(r[1]) || null;
-      if (a.includes('기준 월') || c.includes('기준 월') || c === '기준 월') {
-        month = Number(r[3]) || Number(r[1]) || null;
-      }
-    }
-    let headerIdx = rows.findIndex(r => r && r[0] && r[0].toString().includes('채널 구분'));
-    if (headerIdx < 0) throw new Error('엑셀 양식이 잘못됐습니다. 채널 구분 헤더를 찾을 수 없습니다.');
-    const dataRows = rows.slice(headerIdx + 1).filter(r => {
-      if (!r || r.length === 0) return false;
-      const v = (r[1]||'').toString();
-      if (v.includes('OMNI 총합')) return false;
-      if (r[0] && r[0].toString().startsWith('📘')) return false;
-      if (r[0] && /^[0-9]+\./.test(r[0].toString())) return false;
-      return true;
-    });
-
-    if (!year || !month) throw new Error('기준 년도/월을 읽을 수 없습니다.');
-
-    showLoading(true, '데이터 업데이트 중…', `${year}년 ${month}월 데이터`);
-    const data = buildMonthData(year, month, dataRows);
-    // Update in-memory data
-    if (year === 2026) {
-      STATIC_MONTH_DATA[String(month)] = data;
-    }
-
-    curYear = year;
-    curMonth = month;
-    document.getElementById('yearSel').value = String(year);
-    const monthSel = document.getElementById('monthSel');
-    monthSel.selectedIndex = month - 1;
-
-    await renderForMonth(year, month);
-    showToast(`✓ ${year}년 ${month}월 데이터가 업데이트되었습니다.`);
-  } catch(e) {
-    console.error(e);
-    showToast('업로드 실패: ' + e.message);
-    showLoading(false);
-  }
-}
-
-function buildMonthData(year, month, sheetRows){
-  const channels = { d2c:{subs:{}}, b2c:{subs:{}}, etc:{subs:{}}, off:{subs:{}} };
-  const NAME_TO_CH = { 'D2C':'d2c', 'B2C':'b2c', '기타':'etc', '오프라인':'off' };
-  const SUB_NAME_TO_KEY = {
-    '브랜드몰':'brandshop', '네이버':'naver',
-    'SSG':'ssg', '현대투홈':'hyundai', 'KB헬스케어':'kb', '기타':'b2c_etc',
-    '신세계 강남':'sinsegae_gn', '신세계 청담':'sinsegae_cd'
-  };
-
-  let currentParent = null;
-  for (const r of sheetRows) {
-    if (!r || r.length < 4) continue;
-    const chName = (r[1] || '').toString().trim();
-    const subName = (r[2] || '').toString().trim().replace(/^└\s*/,'').replace(/^\(.*\)$/,'').trim();
-    const sales = Number(r[3]) || 0;
-    const target = Number(r[4]) || 0;
-    const prev = (r[5] === '' || r[5] == null) ? null : Number(r[5]);
-    const maxDate = (r[6] || '').toString().trim();
-    const maxAmt = (r[7] === '' || r[7] == null) ? null : Number(r[7]);
-    const minDate = (r[8] || '').toString().trim();
-    const minAmt = (r[9] === '' || r[9] == null) ? null : Number(r[9]);
-
-    if (NAME_TO_CH[chName]) {
-      currentParent = NAME_TO_CH[chName];
-      const isParentRow = !subName || subName === '' || /합계/.test(r[2]||'');
-      if (currentParent === 'etc' && SUBS_OF.etc.length === 0 && isParentRow) {
-        channels.etc.sales = sales;
-        channels.etc.target = target;
-        channels.etc.prevYear = prev;
-        if (maxDate || maxAmt != null) channels.etc.max = { date: maxDate, amount: maxAmt };
-        if (minDate || minAmt != null) channels.etc.min = { date: minDate, amount: minAmt };
-      }
-      continue;
-    }
-    if (currentParent && subName) {
-      const subKey = SUB_NAME_TO_KEY[subName];
-      if (!subKey) continue;
-      channels[currentParent].subs[subKey] = {
-        sales, target,
-        prevYear: prev,
-        max: (maxDate || maxAmt != null) ? { date: maxDate, amount: maxAmt } : null,
-        min: (minDate || minAmt != null) ? { date: minDate, amount: minAmt } : null,
-      };
-    }
-  }
-
-  return { year, month, uploadedAt: new Date().toISOString(), channels };
-}
 
 // ── 이벤트 바인딩 ──
-document.getElementById('uploadBtn').addEventListener('click', () => {
-  document.getElementById('fileInput').click();
-});
-document.getElementById('fileInput').addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (file) handleExcelUpload(file);
-  e.target.value = '';
-});
 
 document.getElementById('yearSel').addEventListener('change', (e) => {
   curYear = Number(e.target.value);
@@ -3004,15 +2750,12 @@ document.getElementById('monthSel').addEventListener('change', (e) => {
 });
 
 // ── 초기 실행 ──
-setStatus('connecting', '데이터 로드 중…');
 renderForMonth(curYear, curMonth).then(() => {
   const badge = document.querySelector('.period-badge');
   if (badge) badge.textContent = `${curYear}.${String(curMonth).padStart(2,'0')} 기준`;
 }).catch(e => {
   console.error(e);
-  setStatus('error', '로드 실패: ' + e.message);
-  showLoading(false);
-});
+    });
 </script>
 </body>
 </html>
