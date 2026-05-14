@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -2236,15 +2237,12 @@ function signed(n, decimals = 1){
 }
 
 async function renderForMonth(year, month){
-  
   const allMonths = loadAllMonthsStatic(year);
   const annualTargets = null;
   const prevYearMonth = null;
   const prevYearCumByMonth = Array(12).fill(null);
-
-  setStatus('ok', `데이터 로드됨 · ${year}-${String(month).padStart(2,'0')} 기준`);
   doRender({ year, month, allMonths, prevYearMonth, prevYearCumByMonth, annualTargets });
-  }
+}
 
 function doRender(ctx){
   const { year, month, allMonths, prevYearMonth, prevYearCumByMonth, annualTargets } = ctx;
