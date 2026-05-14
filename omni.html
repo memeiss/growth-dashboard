@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -1399,7 +1400,7 @@ html[data-embedded="1"] .back-link { display: none !important; }
           </thead>
           <tbody>
             <!-- 온라인 -->
-            <tr class="row-cat"><td colspan="19">온라인 채널</td></tr>
+            <tr class="row-cat" style="display:none"><td colspan="19">온라인 채널</td></tr>
 
             <!-- D2C (parent) -->
             <tr class="row-parent" data-group="d2c">
@@ -1478,7 +1479,7 @@ html[data-embedded="1"] .back-link { display: none !important; }
             </tr>
 
             <!-- B2C (parent) -->
-            <tr class="row-parent" data-group="b2c">
+            <tr class="row-parent" data-group="b2c" style="display:none">
               <td>
                 <div class="expand-cell">
                   <button class="expand-btn" type="button" aria-expanded="false" aria-label="B2C 하위채널 펼치기" data-toggle="b2c">
@@ -1509,7 +1510,7 @@ html[data-embedded="1"] .back-link { display: none !important; }
               <td class="month-cell cell-empty">—</td>
             </tr>
             <!-- B2C : SSG -->
-            <tr class="row-sub" data-parent="b2c" data-sub-key="ssg">
+            <tr class="row-sub" data-parent="b2c" data-sub-key="ssg" style="display:none">
               <td><span class="sub-name">└ SSG</span></td>
               <td>2,580</td>
               <td>560</td>
@@ -1531,7 +1532,7 @@ html[data-embedded="1"] .back-link { display: none !important; }
               <td class="month-cell cell-empty">—</td>
             </tr>
             <!-- B2C : 현대투홈 -->
-            <tr class="row-sub" data-parent="b2c" data-sub-key="hyundai">
+            <tr class="row-sub" data-parent="b2c" data-sub-key="hyundai" style="display:none">
               <td><span class="sub-name">└ 현대투홈</span></td>
               <td>1,890</td>
               <td>400</td>
@@ -1553,7 +1554,7 @@ html[data-embedded="1"] .back-link { display: none !important; }
               <td class="month-cell cell-empty">—</td>
             </tr>
             <!-- B2C : KB헬스케어 -->
-            <tr class="row-sub" data-parent="b2c" data-sub-key="kb">
+            <tr class="row-sub" data-parent="b2c" data-sub-key="kb" style="display:none">
               <td><span class="sub-name">└ KB헬스케어</span></td>
               <td>1,520</td>
               <td>320</td>
@@ -1575,7 +1576,7 @@ html[data-embedded="1"] .back-link { display: none !important; }
               <td class="month-cell cell-empty">—</td>
             </tr>
             <!-- B2C : 기타 -->
-            <tr class="row-sub" data-parent="b2c" data-sub-key="b2c_etc">
+            <tr class="row-sub" data-parent="b2c" data-sub-key="b2c_etc" style="display:none">
               <td><span class="sub-name">└ 기타</span></td>
               <td>930</td>
               <td>200</td>
@@ -1598,7 +1599,7 @@ html[data-embedded="1"] .back-link { display: none !important; }
             </tr>
 
             <!-- 기타 (하위채널 없음 → 펼치기 버튼 없이 spacer) -->
-            <tr data-group="etc">
+            <tr data-group="etc" style="display:none">
               <td>
                 <div class="expand-cell">
                   <span class="btn-spacer"></span>
@@ -1761,7 +1762,7 @@ if (window.ChartDataLabels) {
   Chart.defaults.plugins.datalabels = { display: false };
 }
 
-const fmt = (n) => n.toLocaleString('ko-KR');
+const fmt = (n) => Math.round(n).toLocaleString('ko-KR');
 
 /* ──────────────────────────────────────────
    1) Quarterly Chart (stacked bar by channel)
@@ -2259,25 +2260,11 @@ cmtInit();
 </script>
 
 <!-- ════════════════════════════════════════════════════════════
-     FIREBASE + EXCEL UPLOAD + DATA RENDERING (ESM Module)
+     DATA RENDERING (Hardcoded from Excel upload)
 ════════════════════════════════════════════════════════════ -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-// ── Firebase init ──
-const firebaseConfig = {
-  apiKey: "AIzaSyDSlAHgeIlezNolFRAZMN01_ufv7H2B0os",
-  authDomain: "omni-dashboard-f8c8f.firebaseapp.com",
-  projectId: "omni-dashboard-f8c8f",
-  storageBucket: "omni-dashboard-f8c8f.firebasestorage.app",
-  messagingSenderId: "870860751768",
-  appId: "1:870860751768:web:bbb95c387ed9cc967161ed"
-};
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+<script>
+// ── Hardcoded month data from Excel files ──
+const STATIC_MONTH_DATA = {"1": {"year": 2026, "month": 1, "channels": {"d2c": {"subs": {"brandshop": {"sales": 12479.4444, "target": 11067.0, "prevYear": 3943.465, "max": {"date": "1/19", "amount": 631.8043}, "min": {"date": "1/24", "amount": null}}, "naver": {"sales": 762.419, "target": 0, "prevYear": 1013.697, "max": {"date": "1/5", "amount": 64.12}, "min": {"date": "1/13", "amount": null}}}}, "b2c": {"subs": {"ssg": {"sales": 0, "target": 0, "prevYear": null, "max": null, "min": null}, "hyundai": {"sales": 0, "target": 0, "prevYear": null, "max": null, "min": null}, "kb": {"sales": 0, "target": 0, "prevYear": null, "max": null, "min": null}, "b2c_etc": {"sales": 0, "target": 0, "prevYear": null, "max": null, "min": null}}}, "etc": {"subs": {}}, "off": {"subs": {"sinsegae_gn": {"sales": 464.0384, "target": 1000.0, "prevYear": null, "max": {"date": "1/18", "amount": 34.9}, "min": {"date": "1/1", "amount": null}}, "sinsegae_cd": {"sales": 104.007, "target": 0, "prevYear": null, "max": {"date": "1/18", "amount": 11.438}, "min": {"date": "1/1", "amount": null}}}}}}, "2": {"year": 2026, "month": 2, "channels": {"d2c": {"subs": {"brandshop": {"sales": 10042.146, "target": 11067.0, "prevYear": 3136.894, "max": {"date": "2/2", "amount": 605.825}, "min": {"date": "2/16", "amount": null}}, "naver": {"sales": 1163.193, "target": 0, "prevYear": 1012.043, "max": {"date": "2/12", "amount": 523.6}, "min": {"date": "2/5", "amount": null}}}}, "b2c": {"subs": {"ssg": {"sales": 0, "target": 0, "prevYear": null, "max": null, "min": null}, "hyundai": {"sales": 0, "target": 0, "prevYear": null, "max": null, "min": null}, "kb": {"sales": 0, "target": 0, "prevYear": null, "max": null, "min": null}, "b2c_etc": {"sales": 0, "target": 0, "prevYear": null, "max": null, "min": null}}}, "etc": {"subs": {}}, "off": {"subs": {"sinsegae_gn": {"sales": 403.0978, "target": 1000.0, "prevYear": 204.474, "max": {"date": "2/12", "amount": 33.944}, "min": {"date": "2/16", "amount": null}}, "sinsegae_cd": {"sales": 109.341, "target": 0, "prevYear": null, "max": {"date": "2/6", "amount": 14.77}, "min": {"date": "2/5", "amount": null}}}}}}, "3": {"year": 2026, "month": 3, "channels": {"d2c": {"subs": {"brandshop": {"sales": 13118.347, "target": 16150.2935, "prevYear": 5099.622, "max": {"date": "3/25", "amount": 711.77}, "min": {"date": "4/5", "amount": null}}, "naver": {"sales": 718.386, "target": 0, "prevYear": 1019.72, "max": {"date": "3/3", "amount": 122.05}, "min": {"date": "3/1", "amount": null}}}}, "b2c": {"subs": {"ssg": {"sales": 0, "target": 0, "prevYear": null, "max": null, "min": null}, "hyundai": {"sales": 0, "target": 0, "prevYear": null, "max": null, "min": null}, "kb": {"sales": 0, "target": 0, "prevYear": null, "max": null, "min": null}, "b2c_etc": {"sales": 0, "target": 0, "prevYear": null, "max": null, "min": null}}}, "etc": {"subs": {}}, "off": {"subs": {"sinsegae_gn": {"sales": 521.429, "target": 1000.0, "prevYear": 894.6275, "max": {"date": "3/31", "amount": 44.167}, "min": {"date": "3/23", "amount": null}}, "sinsegae_cd": {"sales": 148.541, "target": 0, "prevYear": null, "max": {"date": "3/28", "amount": 22.44}, "min": {"date": "3/1", "amount": null}}}}}}, "4": {"year": 2026, "month": 4, "channels": {"d2c": {"subs": {"brandshop": {"sales": 15187.038, "target": 14033.622, "prevYear": 5705.961, "max": {"date": "4/1", "amount": 714.036}, "min": {"date": "4/5", "amount": null}}, "naver": {"sales": 789.173, "target": 0, "prevYear": 634.341, "max": {"date": "4/30", "amount": 57.752}, "min": {"date": "4/7", "amount": null}}}}, "b2c": {"subs": {"ssg": {"sales": 0, "target": 0, "prevYear": null, "max": null, "min": null}, "hyundai": {"sales": 0, "target": 0, "prevYear": null, "max": null, "min": null}, "kb": {"sales": 0, "target": 0, "prevYear": null, "max": null, "min": null}, "b2c_etc": {"sales": 0, "target": 0, "prevYear": null, "max": null, "min": null}}}, "etc": {"subs": {}}, "off": {"subs": {"sinsegae_gn": {"sales": 774.1036, "target": 1000.0, "prevYear": 894.6275, "max": {"date": "4/23", "amount": 65.428}, "min": {"date": "4/13", "amount": null}}, "sinsegae_cd": {"sales": 92.84, "target": 0, "prevYear": null, "max": {"date": "4/12", "amount": 17.956}, "min": {"date": "4/7", "amount": null}}}}}}, "5": {"year": 2026, "month": 5, "channels": {"d2c": {"subs": {"brandshop": {"sales": 7982.652, "target": 22327.0, "prevYear": 2746.161, "max": {"date": "5/11", "amount": 1041.46}, "min": {"date": "5/2", "amount": null}}, "naver": {"sales": 260.902, "target": 0, "prevYear": 256.79, "max": {"date": "5/11", "amount": 61.563}, "min": {"date": "5/2", "amount": null}}}}, "b2c": {"subs": {"ssg": {"sales": 0, "target": 0, "prevYear": null, "max": null, "min": null}, "hyundai": {"sales": 0, "target": 0, "prevYear": null, "max": null, "min": null}, "kb": {"sales": 0, "target": 0, "prevYear": null, "max": null, "min": null}, "b2c_etc": {"sales": 0, "target": 0, "prevYear": null, "max": null, "min": null}}}, "etc": {"subs": {}}, "off": {"subs": {"sinsegae_gn": {"sales": 205.266, "target": 1000.0, "prevYear": 361.872, "max": {"date": "5/8", "amount": 30.666}, "min": {"date": "5/1", "amount": null}}, "sinsegae_cd": {"sales": 69.653, "target": 0, "prevYear": null, "max": {"date": "5/12", "amount": 25.163}, "min": {"date": "5/5", "amount": null}}}}}}};
 
 // ── 상태 ──
 const CHANNELS = ['d2c','b2c','etc','off'];
@@ -2299,12 +2286,10 @@ const SUBS_OF = {
   off: ['sinsegae_gn','sinsegae_cd']
 };
 
-// 현재 선택 년/월
 let curYear = 2026;
 let curMonth = 5;
 
-// ── 유틸 ──
-const fmtNum = (n) => (n == null || isNaN(n)) ? '—' : Number(n).toLocaleString('ko-KR');
+const fmtNum = (n) => (n == null || isNaN(n)) ? '—' : Math.round(Number(n)).toLocaleString('ko-KR');
 const fmtPct = (n, decimals = 1) => (n == null || isNaN(n)) ? '—' : `${Number(n).toFixed(decimals)}%`;
 const safeDiv = (a, b) => (b > 0) ? (a / b) : null;
 
@@ -2338,13 +2323,11 @@ function showToast(msg){
   setTimeout(() => t.classList.remove('show'), 2400);
 }
 
-// ── 채널 합계 계산 (하위 합산해서 상위 만들기) ──
 function rollupChannel(chData){
   if (!chData) return null;
   const subs = chData.subs || {};
   const subKeys = Object.keys(subs);
   if (subKeys.length === 0) {
-    // 기타 같은 단독 채널: 직접 입력값 사용
     return {
       sales: Number(chData.sales) || 0,
       target: Number(chData.target) || 0,
@@ -2352,7 +2335,6 @@ function rollupChannel(chData){
       subs: {}
     };
   }
-  // 하위가 있는 경우 합산
   let sales = 0, target = 0, prevYear = 0;
   let hasPrev = false;
   subKeys.forEach(k => {
@@ -2364,100 +2346,18 @@ function rollupChannel(chData){
   return { sales, target, prevYear: hasPrev ? prevYear : null, subs };
 }
 
-// ── 데이터 모델 빌더 (엑셀 → 저장 객체) ──
-function buildMonthData(year, month, sheetRows){
-  // sheetRows: [[채널구분, 채널명, 하위채널, 당월매출, 당월목표, 전년동월, 최고일, 최고액, 최저일, 최저액], ...]
-  // 헤더 행 제외하고 데이터 행만 처리
-  const channels = { d2c:{subs:{}}, b2c:{subs:{}}, etc:{subs:{}}, off:{subs:{}} };
-  const NAME_TO_CH = { 'D2C':'d2c', 'B2C':'b2c', '기타':'etc', '오프라인':'off' };
-  const SUB_NAME_TO_KEY = {
-    '브랜드몰':'brandshop', '네이버':'naver',
-    'SSG':'ssg', '현대투홈':'hyundai', 'KB헬스케어':'kb', '기타':'b2c_etc',
-    '신세계 강남':'sinsegae_gn', '신세계 청담':'sinsegae_cd'
-  };
-
-  let currentParent = null;
-  for (const r of sheetRows) {
-    if (!r || r.length < 4) continue;
-    const chName = (r[1] || '').toString().trim();
-    const subName = (r[2] || '').toString().trim().replace(/^└\s*/,'').replace(/^\(.*\)$/,'').trim();
-    const sales = Number(r[3]) || 0;
-    const target = Number(r[4]) || 0;
-    const prev = (r[5] === '' || r[5] == null) ? null : Number(r[5]);
-    const maxDate = (r[6] || '').toString().trim();
-    const maxAmt = (r[7] === '' || r[7] == null) ? null : Number(r[7]);
-    const minDate = (r[8] || '').toString().trim();
-    const minAmt = (r[9] === '' || r[9] == null) ? null : Number(r[9]);
-
-    if (NAME_TO_CH[chName]) {
-      currentParent = NAME_TO_CH[chName];
-      // 합계 행은 무시 (subName이 (합계))
-      const isParentRow = !subName || subName === '' || /합계/.test(r[2]||'');
-      if (currentParent === 'etc' && SUBS_OF.etc.length === 0 && isParentRow) {
-        // 기타는 단독 채널 → 상위 행이 곧 데이터
-        channels.etc.sales = sales;
-        channels.etc.target = target;
-        channels.etc.prevYear = prev;
-        if (maxDate || maxAmt != null) channels.etc.max = { date: maxDate, amount: maxAmt };
-        if (minDate || minAmt != null) channels.etc.min = { date: minDate, amount: minAmt };
-      }
-      // 다른 채널의 합계 행은 건너뜀 (하위에서 자동 계산)
-      continue;
-    }
-    // 하위 채널 행
-    if (currentParent && subName) {
-      const subKey = SUB_NAME_TO_KEY[subName];
-      if (!subKey) continue;
-      channels[currentParent].subs[subKey] = {
-        sales, target,
-        prevYear: prev,
-        max: (maxDate || maxAmt != null) ? { date: maxDate, amount: maxAmt } : null,
-        min: (minDate || minAmt != null) ? { date: minDate, amount: minAmt } : null,
-      };
-    }
-  }
-
-  return {
-    year, month,
-    uploadedAt: new Date().toISOString(),
-    channels
-  };
+function loadMonthDataStatic(year, month) {
+  if (year !== 2026) return null;
+  return STATIC_MONTH_DATA[String(month)] || null;
 }
 
-// ── Firestore 저장/로드 ──
-const monthDocId = (y, m) => `${y}-${String(m).padStart(2,'0')}`;
-
-async function saveMonthData(data){
-  const id = monthDocId(data.year, data.month);
-  await setDoc(doc(db, 'monthlyData', id), data);
+function loadAllMonthsStatic(year) {
+  if (year !== 2026) return Array(12).fill(null);
+  return Array.from({length:12}, (_, i) => STATIC_MONTH_DATA[String(i+1)] || null);
 }
 
-async function loadMonthData(year, month){
-  const id = monthDocId(year, month);
-  const snap = await getDoc(doc(db, 'monthlyData', id));
-  return snap.exists() ? snap.data() : null;
-}
+const DEFAULT_ANNUAL = { omni: 215526, d2c: 25200, b2c: 18000, etc: 6000, offline: 9000 };
 
-async function loadAllMonthsOfYear(year){
-  // Firestore: monthlyData 컬렉션에서 해당 year의 모든 월 문서를 가져옴
-  // 간단하게는 1~12월 각각 getDoc 호출. 효율 위해 Promise.all 사용.
-  const promises = [];
-  for (let m = 1; m <= 12; m++) {
-    promises.push(loadMonthData(year, m));
-  }
-  return Promise.all(promises); // 배열, index = 월-1
-}
-
-async function loadAnnualTargets(year){
-  const snap = await getDoc(doc(db, 'settings', `annual-${year}`));
-  if (snap.exists()) return snap.data().annualTargets || {};
-  return null;
-}
-
-// 기본 연 목표 (settings 없을 때 fallback)
-const DEFAULT_ANNUAL = { omni: 60000, d2c: 25200, b2c: 18000, etc: 6000, offline: 9000 };
-
-// ── 화면 셀에 데이터 쓰기 ──
 function setText(selector, text){
   document.querySelectorAll(selector).forEach(el => el.textContent = text);
 }
@@ -2479,38 +2379,15 @@ function signed(n, decimals = 1){
   return `${sign}${Number(n).toFixed(decimals)}%`;
 }
 
-// ── 메인 렌더링 ──
 async function renderForMonth(year, month){
   showLoading(true, '데이터 불러오는 중…', `${year}년 ${month}월`);
 
-  let allMonths, annualTargets;
-  try {
-    [allMonths, annualTargets] = await Promise.all([
-      loadAllMonthsOfYear(year),
-      loadAnnualTargets(year)
-    ]);
-  } catch(e) {
-    console.error(e);
-    setStatus('error', 'Firebase 로딩 실패');
-    showLoading(false);
-    showToast('데이터 로딩 실패: ' + e.message);
-    return;
-  }
+  const allMonths = loadAllMonthsStatic(year);
+  const annualTargets = null;
+  const prevYearMonth = null;
+  const prevYearCumByMonth = Array(12).fill(null);
 
-  // 전년 동월 데이터 (없으면 null)
-  let prevYearMonth = null;
-  try {
-    prevYearMonth = await loadMonthData(year - 1, month);
-  } catch(e){ console.warn(e); }
-
-  // 전년 동기 누적 (1월~해당월) 로드
-  let prevYearCumByMonth = [];
-  try {
-    const prevAll = await loadAllMonthsOfYear(year - 1);
-    prevYearCumByMonth = prevAll;
-  } catch(e){ console.warn(e); }
-
-  setStatus('ok', `Firebase 연결됨 · ${year}-${String(month).padStart(2,'0')} 기준`);
+  setStatus('ok', `데이터 로드됨 · ${year}-${String(month).padStart(2,'0')} 기준`);
   doRender({ year, month, allMonths, prevYearMonth, prevYearCumByMonth, annualTargets });
   showLoading(false);
 }
@@ -2866,29 +2743,21 @@ function doRender(ctx){
   }
 
   function cumByMonthFor(ch, subKey){
-    // 1~12월 누적 배열 반환
+    // 1~12월 당월 매출 배열 반환 (누적 아님)
     const out = [];
-    let acc = 0; let hasAny = false;
     for (let m = 1; m <= 12; m++) {
+      if (m > month) { out.push(null); continue; }
       const monthData = getMonth(m);
-      if (!monthData) { out.push(hasAny && m <= month ? acc : null); continue; }
-      let v = 0; let monthHas = false;
+      if (!monthData) { out.push(null); continue; }
       const chData = monthData.channels?.[ch];
-      if (chData) {
-        if (subKey) {
-          const s = chData.subs?.[subKey];
-          if (s) { v = Number(s.sales) || 0; monthHas = true; }
-        } else {
-          const r = rollupChannel(chData);
-          if (r) { v = r.sales; monthHas = true; }
-        }
+      if (!chData) { out.push(null); continue; }
+      if (subKey) {
+        const s = chData.subs?.[subKey];
+        out.push(s ? (Number(s.sales) || 0) : null);
+      } else {
+        const r = rollupChannel(chData);
+        out.push(r ? r.sales : null);
       }
-      if (monthHas) { acc += v; hasAny = true; out.push(acc); }
-      else { out.push(hasAny && m <= month ? acc : null); }
-    }
-    // month 이후는 null
-    for (let m = month + 1; m <= 12; m++) {
-      out[m-1] = null;
     }
     return out;
   }
@@ -2969,19 +2838,17 @@ function doRender(ctx){
     let cum = 0, mSales = 0, mTarget = 0, prevM = 0;
     let hasCum=false, hasS=false, hasT=false, hasP=false;
     const totalMonthlyCum = Array(12).fill(null);
-    let acc = 0; let accStarted = false;
     for (let m = 1; m <= 12; m++) {
+      if (m > month) { totalMonthlyCum[m-1] = null; continue; }
       const md = getMonth(m);
-      if (!md) { totalMonthlyCum[m-1] = (accStarted && m <= month) ? acc : null; continue; }
+      if (!md) { totalMonthlyCum[m-1] = null; continue; }
       let sumM = 0; let monthHas = false;
       CHANNELS.forEach(ch => {
         const r = rollupChannel(md.channels?.[ch]);
         if (r) { sumM += r.sales; monthHas = true; }
       });
-      if (monthHas) { acc += sumM; accStarted = true; totalMonthlyCum[m-1] = acc; if (m <= month) { cum = acc; hasCum = true; }}
-      else { totalMonthlyCum[m-1] = (accStarted && m <= month) ? acc : null; }
+      totalMonthlyCum[m-1] = monthHas ? sumM : null;
     }
-    for (let m = month+1; m<=12; m++) totalMonthlyCum[m-1] = null;
     const cmd = getMonth(month);
     if (cmd) {
       CHANNELS.forEach(ch => {
@@ -3012,7 +2879,7 @@ function doRender(ctx){
   // (data-k="month-label" 이미 처리됨; 테이블 헤더는 유지하거나 별도 처리 가능)
 }
 
-// ── 엑셀 파싱 → 저장 ──
+// ── 엑셀 파싱 (in-memory 업데이트) ──
 async function handleExcelUpload(file){
   showLoading(true, '엑셀 파일 분석 중…');
   try {
@@ -3021,7 +2888,6 @@ async function handleExcelUpload(file){
     const ws = wb.Sheets[wb.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
 
-    // 기준 년/월 추출 (B2, D2)
     let year = null, month = null;
     for (const r of rows) {
       if (!r) continue;
@@ -3029,21 +2895,15 @@ async function handleExcelUpload(file){
       const c = (r[2]||'').toString();
       if (a.includes('기준 년도') || a === '기준 년도') year = Number(r[1]) || null;
       if (a.includes('기준 월') || c.includes('기준 월') || c === '기준 월') {
-        // 기준 월은 D2에 있음 (인덱스 3)
         month = Number(r[3]) || Number(r[1]) || null;
       }
     }
-    // 헤더 찾기: '채널 구분'으로 시작하는 행 이후가 데이터
     let headerIdx = rows.findIndex(r => r && r[0] && r[0].toString().includes('채널 구분'));
     if (headerIdx < 0) throw new Error('엑셀 양식이 잘못됐습니다. 채널 구분 헤더를 찾을 수 없습니다.');
     const dataRows = rows.slice(headerIdx + 1).filter(r => {
-      // 빈 행이거나 안내 행 제거
       if (!r || r.length === 0) return false;
       const v = (r[1]||'').toString();
-      const c = (r[2]||'').toString();
-      // 총합 행도 무시 (B에 'OMNI 총합')
       if (v.includes('OMNI 총합')) return false;
-      // 가이드 행 (📘 입력 가이드 등) 무시
       if (r[0] && r[0].toString().startsWith('📘')) return false;
       if (r[0] && /^[0-9]+\./.test(r[0].toString())) return false;
       return true;
@@ -3051,11 +2911,13 @@ async function handleExcelUpload(file){
 
     if (!year || !month) throw new Error('기준 년도/월을 읽을 수 없습니다.');
 
-    showLoading(true, 'Firebase에 저장 중…', `${year}년 ${month}월 데이터`);
+    showLoading(true, '데이터 업데이트 중…', `${year}년 ${month}월 데이터`);
     const data = buildMonthData(year, month, dataRows);
-    await saveMonthData(data);
+    // Update in-memory data
+    if (year === 2026) {
+      STATIC_MONTH_DATA[String(month)] = data;
+    }
 
-    // 업로드한 월로 자동 전환
     curYear = year;
     curMonth = month;
     document.getElementById('yearSel').value = String(year);
@@ -3063,12 +2925,61 @@ async function handleExcelUpload(file){
     monthSel.selectedIndex = month - 1;
 
     await renderForMonth(year, month);
-    showToast(`✓ ${year}년 ${month}월 데이터가 저장되었습니다.`);
+    showToast(`✓ ${year}년 ${month}월 데이터가 업데이트되었습니다.`);
   } catch(e) {
     console.error(e);
     showToast('업로드 실패: ' + e.message);
     showLoading(false);
   }
+}
+
+function buildMonthData(year, month, sheetRows){
+  const channels = { d2c:{subs:{}}, b2c:{subs:{}}, etc:{subs:{}}, off:{subs:{}} };
+  const NAME_TO_CH = { 'D2C':'d2c', 'B2C':'b2c', '기타':'etc', '오프라인':'off' };
+  const SUB_NAME_TO_KEY = {
+    '브랜드몰':'brandshop', '네이버':'naver',
+    'SSG':'ssg', '현대투홈':'hyundai', 'KB헬스케어':'kb', '기타':'b2c_etc',
+    '신세계 강남':'sinsegae_gn', '신세계 청담':'sinsegae_cd'
+  };
+
+  let currentParent = null;
+  for (const r of sheetRows) {
+    if (!r || r.length < 4) continue;
+    const chName = (r[1] || '').toString().trim();
+    const subName = (r[2] || '').toString().trim().replace(/^└\s*/,'').replace(/^\(.*\)$/,'').trim();
+    const sales = Number(r[3]) || 0;
+    const target = Number(r[4]) || 0;
+    const prev = (r[5] === '' || r[5] == null) ? null : Number(r[5]);
+    const maxDate = (r[6] || '').toString().trim();
+    const maxAmt = (r[7] === '' || r[7] == null) ? null : Number(r[7]);
+    const minDate = (r[8] || '').toString().trim();
+    const minAmt = (r[9] === '' || r[9] == null) ? null : Number(r[9]);
+
+    if (NAME_TO_CH[chName]) {
+      currentParent = NAME_TO_CH[chName];
+      const isParentRow = !subName || subName === '' || /합계/.test(r[2]||'');
+      if (currentParent === 'etc' && SUBS_OF.etc.length === 0 && isParentRow) {
+        channels.etc.sales = sales;
+        channels.etc.target = target;
+        channels.etc.prevYear = prev;
+        if (maxDate || maxAmt != null) channels.etc.max = { date: maxDate, amount: maxAmt };
+        if (minDate || minAmt != null) channels.etc.min = { date: minDate, amount: minAmt };
+      }
+      continue;
+    }
+    if (currentParent && subName) {
+      const subKey = SUB_NAME_TO_KEY[subName];
+      if (!subKey) continue;
+      channels[currentParent].subs[subKey] = {
+        sales, target,
+        prevYear: prev,
+        max: (maxDate || maxAmt != null) ? { date: maxDate, amount: maxAmt } : null,
+        min: (minDate || minAmt != null) ? { date: minDate, amount: minAmt } : null,
+      };
+    }
+  }
+
+  return { year, month, uploadedAt: new Date().toISOString(), channels };
 }
 
 // ── 이벤트 바인딩 ──
@@ -3078,7 +2989,7 @@ document.getElementById('uploadBtn').addEventListener('click', () => {
 document.getElementById('fileInput').addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (file) handleExcelUpload(file);
-  e.target.value = ''; // 동일 파일 재선택 가능하도록
+  e.target.value = '';
 });
 
 document.getElementById('yearSel').addEventListener('change', (e) => {
@@ -3087,21 +2998,19 @@ document.getElementById('yearSel').addEventListener('change', (e) => {
 });
 document.getElementById('monthSel').addEventListener('change', (e) => {
   curMonth = e.target.selectedIndex + 1;
-  // 헤더 배지 업데이트
   const badge = document.querySelector('.period-badge');
   if (badge) badge.textContent = `${curYear}.${String(curMonth).padStart(2,'0')} 기준`;
   renderForMonth(curYear, curMonth);
 });
 
 // ── 초기 실행 ──
-setStatus('connecting', 'Firebase 연결 중…');
+setStatus('connecting', '데이터 로드 중…');
 renderForMonth(curYear, curMonth).then(() => {
-  // 헤더 배지 초기값
   const badge = document.querySelector('.period-badge');
   if (badge) badge.textContent = `${curYear}.${String(curMonth).padStart(2,'0')} 기준`;
 }).catch(e => {
   console.error(e);
-  setStatus('error', '연결 실패: ' + e.message);
+  setStatus('error', '로드 실패: ' + e.message);
   showLoading(false);
 });
 </script>
