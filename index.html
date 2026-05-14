@@ -260,7 +260,7 @@ body {
 <!-- ════════ TAB BAR ════════ -->
 <div class="tab-bar">
   <div class="tab-nav" role="tablist">
-    <button class="tab-btn active" data-tab="growth" type="button">
+    <button class="tab-btn" data-tab="growth" type="button">
       <span class="tab-dot"></span>Growth
     </button>
     <button class="tab-btn" data-tab="sales" type="button">
@@ -269,7 +269,7 @@ body {
     <button class="tab-btn" data-tab="omni" type="button">
       <span class="tab-dot"></span>OMNI
     </button>
-    <button class="tab-btn" data-tab="brand" type="button">
+    <button class="tab-btn active" data-tab="brand" type="button">
       <span class="tab-dot"></span>자사몰
     </button>
   </div>
@@ -309,7 +309,7 @@ const TABS = {
   omni:   { url: 'omni.html?embedded=1',   label: 'OMNI',   template: 'OMNI_월매출_업로드양식.xlsx' },
   brand:  { url: 'brand.html?embedded=1',  label: '자사몰', template: null },
 };
-const DEFAULT_TAB = 'growth';
+const DEFAULT_TAB = 'brand';
 let currentTab = null;
 
 function setStatus(state, msg){
