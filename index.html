@@ -2,580 +2,2388 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>매출 통합 대시보드</title>
-<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Growth 매출 대시보드</title>
+
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
 <style>
-:root {
-  --blue:    #25347A;
-  --blue-2:  #3B4FB8;
-  --blue-lt: #EFF3FF;
-  --green:   #16A34A;
-  --green-lt:#F0FDF4;
-  --red:     #DC2626;
-  --red-lt:  #FEF2F2;
-  --amber:   #D97706;
-  --amber-lt:#FFFBEB;
-  --text:    #0F172A;
-  --text2:   #475569;
-  --muted:   #94A3B8;
-  --bg:      #F1F5F9;
-  --surface: #FFFFFF;
-  --surface2:#F8FAFC;
-  --border:  #E2E8F0;
-  --border-2:#CBD5E1;
-  --shadow:  0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
-  --shadow-md: 0 4px 12px rgba(15,23,42,0.08);
-  --shadow-lg: 0 10px 30px rgba(15,23,42,0.10);
-
-  --tab-growth: #7C3AED;
-  --tab-sales:  #0891B2;
-  --tab-omni:   #25347A;
-  --tab-brand:  #EA580C;
+:root{
+  --navy:#17498F;
+  --cream:#FFF7E8;
+  --gray:#9E9E9E;
+  --navy-light:#E8EEF6;
+  --navy-soft:#3A6AAE;
+  --pos:#2E8B57;     /* 보조: 증가/달성 양호 (녹색 계열) */
+  --neg:#D9534F;     /* 보조: 감소/미달 (붉은색 계열) */
+  --bg:#FAFAF7;
+  --text:#1F2937;
+  --line:#EAEAE4;
+  --white:#fff;
 }
 
-* { margin:0; padding:0; box-sizing:border-box; }
-html, body { height: 100%; overflow: hidden; }
-body {
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  font-size: 14px;
-  -webkit-font-smoothing: antialiased;
-  letter-spacing: -0.01em;
-  display: flex; flex-direction: column;
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  font-family:'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  font-feature-settings:'tnum' on, 'lnum' on;
+  -webkit-font-smoothing:antialiased;
 }
 
-/* ════════ TOP BAR ════════ */
-.top-bar{
-  background: linear-gradient(135deg, var(--blue) 0%, var(--blue-2) 100%);
-  flex-shrink: 0;
-}
-.top-inner{
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 11px 32px; gap: 14px; flex-wrap: wrap;
-}
-.top-left { display:flex; align-items:center; gap: 12px;}
-.top-icon{
-  width: 34px; height: 34px;
-  background: rgba(255,255,255,0.18);
-  border-radius: 8px;
-  display:flex; align-items:center; justify-content:center;
-  flex-shrink: 0;
-}
-.top-text h3 { color:#fff; font-size:13px; font-weight:700; letter-spacing:-0.2px;}
-.top-text p  { color: rgba(255,255,255,0.78); font-size:11px; margin-top:2px; font-weight:500;}
+.app{max-width:1480px;margin:0 auto;padding:32px 28px 60px;}
 
-.top-right{ display:flex; align-items:center; gap: 10px; flex-wrap: wrap;}
-.top-btn{
-  display:inline-flex; align-items:center; gap:7px;
-  background:#fff; color: var(--blue);
-  border:none; padding: 8px 16px;
-  border-radius: 7px; font-size: 12px; font-weight: 700;
-  font-family: inherit; cursor: pointer;
-  transition: all 0.18s ease;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  text-decoration: none;
+/* ===== Header ===== */
+.header{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:24px;
+  padding-bottom:22px;
+  border-bottom:2px solid var(--navy);
+  margin-bottom:28px;
 }
-.top-btn:hover{ background: var(--blue-lt); transform: translateY(-1px);}
-.top-btn svg{ width: 14px; height: 14px;}
-.top-btn.outline{
-  background: transparent; color: #fff;
-  border: 1.5px solid rgba(255,255,255,0.4);
-  box-shadow: none;
+.subtitle-note{
+  margin-top:7px;
+  font-size:12px;
+  color:var(--gray);
+  font-weight:500;
+  letter-spacing:0;
+  line-height:1.5;
 }
-.top-btn.outline:hover{ background: rgba(255,255,255,0.12); border-color: #fff;}
-#fileInput{ display: none; }
-
-.top-status{
-  color: rgba(255,255,255,0.92);
-  font-size: 12px;
-  display: flex; align-items: center; gap: 7px;
-  font-weight: 500;
-}
-.status-dot{
-  width: 7px; height: 7px; border-radius: 50%;
-  background: #86EFAC;
-  animation: statusPulse 2s infinite;
-}
-.status-dot.connecting{ background: #FCD34D; }
-.status-dot.error{ background: #FCA5A5; }
-@keyframes statusPulse {
-  0%, 100% { opacity: 1; transform: scale(1);}
-  50% { opacity: 0.55; transform: scale(1.4);}
+.subtitle-note-em{
+  color:var(--gray);
+  font-weight:500;
 }
 
-/* ════════ TAB BAR ════════ */
-.tab-bar{
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  display: flex; justify-content: center;
-  padding: 14px 32px 10px;
-  flex-shrink: 0;
+.header-left .eyebrow{
+  font-size:12px;
+  letter-spacing:0.18em;
+  color:var(--gray);
+  font-weight:600;
+  text-transform:uppercase;
+  margin-bottom:8px;
 }
-.tab-nav{
-  display: inline-flex;
-  background: var(--surface2);
-  border-radius: 99px;
-  padding: 5px;
-  border: 1px solid var(--border);
+.header-left h1{
+  font-size:34px;
+  font-weight:800;
+  color:var(--navy);
+  letter-spacing:-0.02em;
+  line-height:1.1;
 }
-.tab-btn{
-  border: none;
-  background: transparent;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text2);
-  padding: 9px 24px;
-  border-radius: 99px;
-  cursor: pointer;
-  letter-spacing: -0.2px;
-  transition: all 0.2s ease;
-  display: inline-flex; align-items: center; gap: 7px;
+.header-left h1 .accent{
+  color:var(--gray);
+  font-weight:500;
+  font-size:22px;
+  margin-left:10px;
 }
-.tab-btn:hover:not(.active){
-  color: var(--text);
-  background: rgba(15,23,42,0.04);
+.header-right{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
 }
-.tab-btn.active{ color: #fff; }
-.tab-btn[data-tab="growth"].active{ background: var(--tab-growth);}
-.tab-btn[data-tab="sales"].active { background: var(--tab-sales); }
-.tab-btn[data-tab="omni"].active  { background: var(--tab-omni);  }
-.tab-btn[data-tab="brand"].active { background: var(--tab-brand); }
-
-.tab-dot{
-  width: 7px; height: 7px; border-radius: 50%;
+.upload-btn,.download-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:11px 18px;
+  border-radius:8px;
+  font-weight:600;
+  font-size:13px;
+  cursor:pointer;
+  border:none;
+  transition:all .15s ease;
+  font-family:inherit;
 }
-.tab-btn[data-tab="growth"] .tab-dot{ background: var(--tab-growth); }
-.tab-btn[data-tab="sales"]  .tab-dot{ background: var(--tab-sales); }
-.tab-btn[data-tab="omni"]   .tab-dot{ background: var(--tab-omni); }
-.tab-btn[data-tab="brand"]  .tab-dot{ background: var(--tab-brand); }
-.tab-btn.active .tab-dot{ background: rgba(255,255,255,0.85); }
-.tab-btn.tab-disabled{
-  opacity: 0.35;
-  cursor: not-allowed;
-  pointer-events: none;
+.upload-btn{
+  background:var(--navy);
+  color:#fff;
 }
-
-/* ════════ MAIN FRAME ════════ */
-.main-frame{
-  flex: 1;
-  position: relative;
-  overflow: hidden;
+.upload-btn:hover{background:#0F3771;transform:translateY(-1px);box-shadow:0 4px 12px rgba(23,73,143,.25);}
+.download-btn{
+  background:var(--cream);
+  color:var(--navy);
+  border:1px solid #F0E6D0;
 }
-.dash-frame{
-  width: 100%; height: 100%;
-  border: none;
-  background: var(--bg);
-  display: block;
-}
-.dash-frame.hidden{ display: none; }
-
-.frame-loading{
-  position: absolute;
-  inset: 0;
-  background: var(--bg);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 14px;
-  z-index: 5;
-  transition: opacity 0.25s ease;
-}
-.frame-loading.hidden{ opacity: 0; pointer-events: none; }
-.spinner{
-  width: 36px; height: 36px;
-  border: 3px solid var(--surface2);
-  border-top-color: var(--blue);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg);} }
-.frame-loading .txt{
-  font-size: 13px; font-weight: 700; color: var(--text2);
+.download-btn:hover{background:#FCEFD2;}
+.upload-btn input{display:none;}
+.last-updated{
+  font-size:12px;
+  color:var(--gray);
+  margin-right:8px;
 }
 
-.toast{
-  position: fixed; bottom: 24px; left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: var(--text);
-  color: #fff;
-  font-size: 13px; font-weight: 600;
-  padding: 10px 18px;
-  border-radius: 10px;
-  box-shadow: var(--shadow-lg);
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.25s ease;
-  z-index: 9999;
+/* ===== Section ===== */
+.section{margin-bottom:36px;}
+.section-title{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:14px;
 }
-.toast.show{ opacity: 1; transform: translateX(-50%) translateY(0); }
+.section-title .bar{
+  width:4px;
+  height:18px;
+  background:var(--navy);
+  border-radius:2px;
+}
+.section-title h2{
+  font-size:18px;
+  font-weight:700;
+  color:var(--navy);
+  letter-spacing:-0.01em;
+}
+.section-title .meta{
+  font-size:12px;
+  color:var(--gray);
+  margin-left:auto;
+}
 
-@media (max-width: 820px){
-  .top-inner{ padding: 10px 16px;}
-  .tab-bar{ padding: 12px 16px;}
-  .tab-btn{ padding: 8px 16px; font-size: 12px;}
-  .top-text p{ display: none;}
+/* ===== KPI grid ===== */
+.kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+}
+.kpi{
+  background:var(--white);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:18px 20px 16px;
+  position:relative;
+  overflow:hidden;
+}
+.kpi.featured{
+  background:var(--navy);
+  color:#fff;
+  border-color:var(--navy);
+}
+.kpi.featured-cream{
+  background:var(--cream);
+  border-color:#F0E6D0;
+}
+.kpi .label{
+  font-size:12px;
+  font-weight:600;
+  color:var(--gray);
+  letter-spacing:0.02em;
+  margin-bottom:8px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.kpi.featured .label{color:rgba(255,247,232,.85);}
+.kpi.featured-cream .label{color:var(--navy);opacity:.7;}
+.kpi .value{
+  font-size:24px;
+  font-weight:800;
+  color:var(--navy);
+  letter-spacing:-0.02em;
+  line-height:1.2;
+}
+.kpi.featured .value{color:#fff;}
+.kpi.featured-cream .value{color:var(--navy);}
+.kpi .unit{
+  font-size:13px;
+  font-weight:600;
+  color:var(--gray);
+  margin-left:4px;
+}
+.kpi.featured .unit{color:rgba(255,247,232,.7);}
+.kpi .sub{
+  margin-top:8px;
+  font-size:12px;
+  color:var(--gray);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.kpi.featured .sub{color:rgba(255,247,232,.75);}
+.kpi .progress{
+  margin-top:10px;
+  height:5px;
+  background:#F0F0EC;
+  border-radius:3px;
+  overflow:hidden;
+}
+.kpi.featured .progress{background:rgba(255,255,255,.18);}
+.kpi.featured-cream .progress{background:rgba(23,73,143,.1);}
+.kpi .progress > div{
+  height:100%;
+  background:var(--navy);
+  border-radius:3px;
+  transition:width .8s ease;
+}
+.kpi.featured .progress > div{background:var(--cream);}
+.kpi.featured-cream .progress > div{background:var(--navy);}
+.kpi .achievement{
+  font-weight:700;
+}
+.achievement.high{color:var(--pos);}
+.achievement.mid{color:var(--navy);}
+.achievement.low{color:var(--neg);}
+.kpi.featured .achievement{color:var(--cream);}
+
+/* Channel tag */
+.tag{
+  display:inline-block;
+  padding:2px 8px;
+  font-size:10px;
+  font-weight:700;
+  border-radius:4px;
+  background:var(--cream);
+  color:var(--navy);
+  letter-spacing:0.04em;
+}
+
+/* ===== Two-col layout ===== */
+.row-2{
+  display:grid;
+  grid-template-columns:1.4fr 1fr;
+  gap:18px;
+}
+
+/* ===== Card ===== */
+.card{
+  background:var(--white);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:22px 24px;
+}
+.card-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:16px;
+}
+.card-header h3{
+  font-size:15px;
+  font-weight:700;
+  color:var(--navy);
+}
+.card-header .desc{
+  font-size:12px;
+  color:var(--gray);
+}
+
+/* ===== Weekly table ===== */
+.weekly-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:12px;
+}
+.weekly-card{
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:14px 16px;
+  background:var(--white);
+}
+.weekly-card.total{
+  background:var(--navy);
+  color:#fff;
+  border-color:var(--navy);
+}
+.weekly-card .ch{
+  font-size:11px;
+  font-weight:700;
+  color:var(--gray);
+  letter-spacing:0.06em;
+  margin-bottom:6px;
+}
+.weekly-card.total .ch{color:rgba(255,247,232,.85);}
+.weekly-card .v{
+  font-size:19px;
+  font-weight:800;
+  color:var(--navy);
+  letter-spacing:-0.02em;
+}
+.weekly-card.total .v{color:#fff;}
+.weekly-card .v .u{font-size:12px;font-weight:600;color:var(--gray);margin-left:3px;}
+.weekly-card.total .v .u{color:rgba(255,247,232,.7);}
+.weekly-card .prev{
+  font-size:11px;
+  color:var(--gray);
+  margin-top:6px;
+}
+.weekly-card.total .prev{color:rgba(255,247,232,.7);}
+.weekly-card .delta{
+  margin-top:6px;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  font-size:12px;
+  font-weight:700;
+  padding:2px 8px;
+  border-radius:4px;
+}
+.delta.up{background:rgba(46,139,87,.12);color:var(--pos);}
+.delta.down{background:rgba(217,83,79,.12);color:var(--neg);}
+.weekly-card.total .delta.up{background:rgba(255,255,255,.18);color:#FFE9B7;}
+.weekly-card.total .delta.down{background:rgba(255,255,255,.18);color:#FFC9C7;}
+
+/* ===== Weekly compare card (전주 → 금주) ===== */
+.weekly-card .ch{margin-bottom:10px;}
+.weekly-card .cmp{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  gap:6px;
+  margin-bottom:10px;
+}
+.weekly-card .cmp-item{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.weekly-card .cmp-item.cur{align-items:flex-end;text-align:right;}
+.weekly-card .cmp-lbl{
+  font-size:10px;
+  font-weight:600;
+  color:var(--gray);
+  letter-spacing:0.04em;
+}
+.weekly-card.total .cmp-lbl{color:rgba(255,247,232,.65);}
+.weekly-card .cmp-val{
+  font-size:16px;
+  font-weight:800;
+  color:var(--gray);
+  letter-spacing:-0.01em;
+}
+.weekly-card .cmp-item.cur .cmp-val{color:var(--navy);font-size:18px;}
+.weekly-card.total .cmp-val{color:rgba(255,247,232,.7);}
+.weekly-card.total .cmp-item.cur .cmp-val{color:#fff;}
+.weekly-card .cmp-val .u{font-size:11px;font-weight:600;margin-left:2px;color:inherit;opacity:.7;}
+.weekly-card .cmp-arrow{
+  font-size:14px;
+  font-weight:700;
+  color:var(--gray);
+  padding:0 4px;
+}
+.weekly-card .cmp-arrow.up{color:var(--pos);}
+.weekly-card .cmp-arrow.down{color:var(--neg);}
+.weekly-card.total .cmp-arrow{color:rgba(255,247,232,.6);}
+.weekly-card.total .cmp-arrow.up{color:#A7E0BA;}
+.weekly-card.total .cmp-arrow.down{color:#FFB3B0;}
+
+/* 비교 막대 (시각화) */
+.weekly-card .cmp-bars{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  margin-bottom:8px;
+}
+.weekly-card .cmp-bar-row{
+  display:grid;
+  grid-template-columns:28px 1fr;
+  align-items:center;
+  gap:8px;
+}
+.weekly-card .cmp-bar-lbl{
+  font-size:9px;
+  font-weight:700;
+  color:var(--gray);
+  letter-spacing:0.04em;
+}
+.weekly-card.total .cmp-bar-lbl{color:rgba(255,247,232,.55);}
+.weekly-card .cmp-bar-track{
+  height:7px;
+  background:#F0F0EC;
+  border-radius:4px;
+  overflow:hidden;
+}
+.weekly-card.total .cmp-bar-track{background:rgba(255,255,255,.15);}
+.weekly-card .cmp-bar-fill{
+  height:100%;
+  border-radius:4px;
+  width:0%;
+  transition:width .6s ease;
+}
+.weekly-card .cmp-bar-fill.prev{background:#C7D3E3;}
+.weekly-card .cmp-bar-fill.cur{background:var(--navy);}
+.weekly-card.total .cmp-bar-fill.prev{background:rgba(255,247,232,.4);}
+.weekly-card.total .cmp-bar-fill.cur{background:var(--cream);}
+
+.weekly-meta{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  font-size:12px;
+  color:var(--gray);
+}
+.weekly-meta .wk{
+  background:var(--cream);
+  color:var(--navy);
+  padding:3px 10px;
+  border-radius:4px;
+  font-weight:700;
+}
+
+/* ===== Chart card ===== */
+.chart-wrap{
+  position:relative;
+  height:340px;
+}
+.chart-controls{
+  display:flex;
+  gap:6px;
+}
+.chip{
+  border:1px solid var(--line);
+  background:var(--white);
+  padding:5px 12px;
+  font-size:12px;
+  font-weight:600;
+  color:var(--gray);
+  border-radius:6px;
+  cursor:pointer;
+  font-family:inherit;
+  transition:all .15s;
+}
+.chip:hover{border-color:var(--navy);color:var(--navy);}
+.chip.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+
+/* ===== Channel detail integrated table ===== */
+.detail-card{padding:0;overflow:hidden;}
+.tbl-scroll{overflow-x:auto;}
+
+table.detail-tbl{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  font-size:12px;
+  min-width:1400px;
+}
+
+/* THEAD */
+table.detail-tbl thead th{
+  background:var(--white);
+  color:var(--navy);
+  font-weight:700;
+  font-size:11px;
+  letter-spacing:0.02em;
+  text-align:center;
+  padding:10px 8px;
+  border-bottom:1px solid var(--line);
+  white-space:nowrap;
+  vertical-align:middle;
+}
+table.detail-tbl thead th .sub{
+  font-size:10px;
+  font-weight:500;
+  color:var(--gray);
+  letter-spacing:0;
+}
+table.detail-tbl thead .head-group th{
+  border-bottom:1px solid var(--line);
+}
+table.detail-tbl thead .head-group .month-group{
+  border-bottom:1px solid var(--navy);
+  color:var(--navy);
+  font-weight:800;
+  text-align:left;
+  padding-left:14px;
+  border-left:1px solid var(--line);
+}
+table.detail-tbl thead .head-month th{
+  background:var(--cream);
+  font-size:11px;
+  font-weight:700;
+  border-bottom:1px solid var(--line);
+}
+table.detail-tbl thead .head-month th:first-of-type{
+  border-left:1px solid var(--line);
+}
+
+/* TBODY */
+table.detail-tbl tbody td{
+  padding:11px 10px;
+  font-size:12.5px;
+  text-align:right;
+  border-bottom:1px solid #F0F0EC;
+  white-space:nowrap;
+  color:var(--text);
+}
+table.detail-tbl tbody td.col-ch{
+  text-align:left;
+  font-weight:600;
+}
+table.detail-tbl tbody td.month-start{
+  border-left:1px solid var(--line);
+}
+
+/* 채널 그룹 헤더 row */
+tr.group-row td{
+  background:#F4F7FB;
+  color:var(--navy);
+  font-weight:700;
+  font-size:12px;
+  padding:8px 14px !important;
+  border-bottom:1px solid #E2E8EF;
+  text-align:left !important;
+  letter-spacing:0.02em;
+}
+
+/* 상위 채널 (parent) row */
+tr.parent-row td{
+  font-weight:800;
+  color:var(--navy);
+  background:var(--white);
+  font-size:13px;
+}
+tr.parent-row td.col-ch{
+  padding-left:16px;
+}
+tr.parent-row:hover td{background:#FAFAF4;}
+
+/* 하위 채널 (child) row */
+tr.child-row td{
+  font-weight:500;
+  color:#4B5563;
+  background:var(--white);
+  font-size:12px;
+}
+tr.child-row td.col-ch{
+  padding-left:42px;
+  color:#4B5563;
+  font-weight:500;
+}
+tr.child-row:hover td{background:#FAFAF4;}
+tr.child-row.collapsed{display:none;}
+
+/* 총 합계 row */
+tr.total-row td{
+  background:#F5F0E2;
+  font-weight:800;
+  color:var(--navy);
+  font-size:13px;
+  border-top:2px solid var(--navy);
+  border-bottom:none;
+}
+tr.total-row td.col-ch{padding-left:16px;}
+
+/* 채널 이름 셀 내부 (토글 + 색점 + 텍스트) */
+.ch-cell{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+.ch-toggle{
+  width:16px;
+  height:16px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid #C9D2DE;
+  border-radius:3px;
+  font-size:11px;
+  font-weight:700;
+  color:var(--navy);
+  background:var(--white);
+  cursor:pointer;
+  font-family:inherit;
+  padding:0;
+  line-height:1;
+  user-select:none;
+}
+.ch-toggle:hover{background:var(--cream);border-color:var(--navy);}
+.ch-dot{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  display:inline-block;
+  background:var(--navy);
+}
+.ch-prefix{
+  color:var(--gray);
+  margin-right:2px;
+  font-weight:400;
+}
+
+/* 채널 점 컬러 (시각 구분용 - 보조컬러 사용) */
+.ch-dot.B2B{background:var(--navy);}
+.ch-dot.B2C{background:var(--navy-soft);}
+.ch-dot.D2C{background:#D9A441;}
+.ch-dot.STORE{background:var(--gray);}
+
+/* 달성률 셀 (숫자 + 게이지) */
+.ach-cell{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  white-space:nowrap;
+  justify-content:flex-end;
+  min-width:130px;
+}
+.ach-num{
+  font-weight:700;
+  min-width:44px;
+  text-align:right;
+}
+.ach-num.high{color:var(--pos);}
+.ach-num.mid{color:var(--navy);}
+.ach-num.low{color:var(--neg);}
+.ach-gauge{
+  position:relative;
+  width:60px;
+  height:5px;
+  background:#EEEEE9;
+  border-radius:3px;
+  overflow:hidden;
+  flex-shrink:0;
+}
+.ach-gauge > div{
+  height:100%;
+  border-radius:3px;
+}
+.ach-gauge > div.high{background:var(--pos);}
+.ach-gauge > div.mid{background:var(--navy);}
+.ach-gauge > div.low{background:var(--neg);}
+
+/* YoY 배지 */
+.yoy-badge{
+  display:inline-block;
+  padding:3px 8px;
+  border-radius:4px;
+  font-weight:700;
+  font-size:11.5px;
+  min-width:60px;
+  text-align:center;
+}
+.yoy-badge.up{background:rgba(46,139,87,.12);color:var(--pos);}
+.yoy-badge.down{background:rgba(217,83,79,.10);color:var(--neg);}
+.yoy-badge.flat{background:#F0F0EC;color:var(--gray);}
+
+/* 빈 셀 표시 (실적 없음) */
+.empty-cell{color:#D6D6D0;font-weight:400;}
+
+/* 월별 매출 수치 - 실적 있는 달은 진하게 */
+td.mon-cell{
+  text-align:right;
+  padding:11px 10px;
+  font-variant-numeric:tabular-nums;
+}
+td.mon-cell.has-data{color:var(--text);font-weight:600;}
+td.mon-cell.no-data{color:#D6D6D0;}
+tr.parent-row td.mon-cell.has-data{font-weight:800;color:var(--navy);}
+tr.total-row td.mon-cell{font-weight:800;color:var(--navy);}
+
+/* 컬럼 최소 너비 */
+table.detail-tbl .col-ch{min-width:180px;}
+table.detail-tbl .col-ach{min-width:160px;}
+
+/* Notice / Empty */
+.empty{
+  text-align:center;
+  padding:40px;
+  color:var(--gray);
+  font-size:13px;
+}
+
+.legend-dot{
+  display:inline-block;
+  width:9px;
+  height:9px;
+  border-radius:2px;
+  margin-right:6px;
+  vertical-align:middle;
+}
+
+/* ===== Weekly navigation arrows ===== */
+.wk-nav{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.wk-nav-btn{
+  width:30px;
+  height:30px;
+  border:1.5px solid var(--line);
+  background:var(--white);
+  border-radius:8px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--navy);
+  transition:all .15s;
+  flex-shrink:0;
+}
+.wk-nav-btn:hover{background:var(--navy);color:#fff;border-color:var(--navy);}
+.wk-nav-btn:disabled{opacity:.3;cursor:default;pointer-events:none;}
+.wk-nav-labels{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:var(--white);
+  border:1.5px solid var(--line);
+  border-radius:10px;
+  padding:5px 12px;
+}
+.wk-nav-item{display:flex;align-items:center;gap:6px;}
+.wk-nav-text{font-size:11px;color:var(--gray);font-weight:600;}
+.wk-nav-badge{
+  font-size:12px;
+  font-weight:700;
+  padding:3px 10px;
+  border-radius:5px;
+  white-space:nowrap;
+}
+.cur-badge{background:var(--navy);color:#fff;}
+.prev-badge{background:#EFEFEC;color:var(--gray);}
+.wk-nav-sep{font-size:11px;color:var(--gray);font-weight:600;padding:0 2px;}
+
+
+.ym-selector{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  background:var(--white);
+  border:1.5px solid var(--line);
+  border-radius:10px;
+  padding:6px 10px;
+}
+.ym-group{
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+.ym-label{
+  font-size:10px;
+  font-weight:800;
+  color:var(--gray);
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+}
+.ym-select{
+  font-family:inherit;
+  font-size:13px;
+  font-weight:700;
+  color:var(--navy);
+  border:none;
+  outline:none;
+  background:transparent;
+  cursor:pointer;
+  padding:0 2px;
+  -webkit-appearance:none;
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2317498F' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 2px center;
+  padding-right:16px;
+}
+.ym-select:focus{color:var(--navy);}
+.ym-separator{
+  width:1px;
+  height:16px;
+  background:var(--line);
+  margin:0 2px;
+}
+.ym-badge{
+  background:var(--navy);
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  padding:5px 12px;
+  font-size:12px;
+  font-weight:700;
+  font-family:inherit;
+  cursor:pointer;
+  white-space:nowrap;
+  margin-left:4px;
+  transition:background .15s;
+}
+.ym-badge:hover{background:#0F3771;}
+
+/* ===== Weekly Summary Cards (new simple style) ===== */
+.wk-summary-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:12px;
+  margin-bottom:0;
+}
+.wk-summary-card{
+  background:var(--white);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:16px 18px;
+}
+.wk-summary-card.is-total{
+  background:var(--navy);
+  border-color:var(--navy);
+  color:#fff;
+}
+.wk-summary-card .wk-ch-label{
+  font-size:11px;
+  font-weight:700;
+  color:var(--gray);
+  letter-spacing:0.06em;
+  margin-bottom:10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.wk-summary-card.is-total .wk-ch-label{color:rgba(255,247,232,.75);}
+.wk-summary-card .wk-rows{display:flex;flex-direction:column;gap:7px;}
+.wk-summary-card .wk-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.wk-summary-card .wk-row-lbl{
+  font-size:10px;
+  color:var(--gray);
+  font-weight:600;
+  min-width:32px;
+  white-space:nowrap;
+}
+.wk-summary-card.is-total .wk-row-lbl{color:rgba(255,247,232,.6);}
+.wk-summary-card .wk-bar-wrap{
+  flex:1;
+  height:6px;
+  background:#F0F0EC;
+  border-radius:3px;
+  overflow:hidden;
+}
+.wk-summary-card.is-total .wk-bar-wrap{background:rgba(255,255,255,.18);}
+.wk-summary-card .wk-bar-fill{
+  height:100%;
+  border-radius:3px;
+  transition:width .6s ease;
+}
+.wk-summary-card .wk-bar-fill.cur-fill{background:var(--navy);}
+.wk-summary-card.is-total .wk-bar-fill.cur-fill{background:var(--cream);}
+.wk-summary-card .wk-val{
+  font-size:12px;
+  font-weight:700;
+  color:var(--navy);
+  min-width:70px;
+  text-align:right;
+  white-space:nowrap;
+}
+.wk-summary-card.is-total .wk-val{color:#fff;}
+.wk-summary-card .wk-delta{
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  font-size:11px;
+  font-weight:700;
+  padding:2px 7px;
+  border-radius:4px;
+  margin-top:8px;
+}
+.wk-summary-card .wk-delta.up{background:rgba(46,139,87,.10);color:var(--pos);}
+.wk-summary-card .wk-delta.down{background:rgba(217,83,79,.10);color:var(--neg);}
+.wk-summary-card.is-total .wk-delta.up{background:rgba(255,255,255,.18);color:#FFE9B7;}
+.wk-summary-card.is-total .wk-delta.down{background:rgba(255,255,255,.18);color:#FFC9C7;}
+
+
+  .kpi-grid{grid-template-columns:repeat(2,1fr);}
+  .row-2{grid-template-columns:1fr;}
+  .weekly-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media (max-width:640px){
+  .header{flex-direction:column;align-items:flex-start;}
+  .header-left h1{font-size:26px;}
+  .header-left h1 .accent{display:block;margin-left:0;margin-top:4px;font-size:16px;}
+  .kpi-grid{grid-template-columns:1fr;}
+  .weekly-grid{grid-template-columns:1fr;}
 }
 </style>
 </head>
 <body>
 
-<!-- ════════ TOP BAR ════════ -->
-<div class="top-bar">
-  <div class="top-inner">
-    <div class="top-left">
-      <div class="top-icon">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-        </svg>
-      </div>
-      <div class="top-text">
-        <h3>엑셀 데이터 연동</h3>
-        <p>제공된 엑셀 양식을 업로드하면 대시보드가 자동으로 업데이트됩니다</p>
-      </div>
+<div class="app">
+
+  <!-- ===== Header ===== -->
+  <header class="header">
+    <div class="header-left">
+      <div class="eyebrow">Sales Performance Dashboard · 2026</div>
+      <h1>Growth 매출 대시보드 <span class="accent">B2B · B2C · D2C · STORE</span></h1>
+      <div class="subtitle-note">※ OMS 출고 데이터 기준으로, 실 매출 마감과 차이가 있습니다. <span class="subtitle-note-em">(*D2C/STORE 결제 기준)</span></div>
     </div>
-    <div class="top-right">
-      <div class="top-status">
-        <span class="status-dot connecting" id="dbStatusDot"></span>
-        <span id="dbStatusText">Firebase 연결 중…</span>
+    <div class="header-right">
+      <!-- 연/월 선택 -->
+      <div class="ym-selector">
+        <div class="ym-group">
+          <span class="ym-label">YEAR</span>
+          <select id="selectYear" class="ym-select">
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+            <option value="2026" selected>2026</option>
+            <option value="2027">2027</option>
+          </select>
+        </div>
+        <div class="ym-group">
+          <span class="ym-label">MONTH</span>
+          <select id="selectMonth" class="ym-select">
+            <option value="1">1월</option><option value="2">2월</option><option value="3">3월</option>
+            <option value="4">4월</option><option value="5" selected>5월</option><option value="6">6월</option>
+            <option value="7">7월</option><option value="8">8월</option><option value="9">9월</option>
+            <option value="10">10월</option><option value="11">11월</option><option value="12">12월</option>
+          </select>
+        </div>
+        <button class="ym-badge" id="ymBadgeBtn">2026.05.20 기준</button>
       </div>
-      <a href="OMNI_월매출_업로드양식.xlsx" download class="top-btn outline" id="downloadTemplateBtn" title="현재 탭의 엑셀 양식 다운로드">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="7 10 12 15 17 10"/>
-          <line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
-        양식 다운로드
-      </a>
-      <input type="file" id="fileInput" accept=".xlsx,.xls" />
-      <button class="top-btn" id="uploadBtn" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="17 8 12 3 7 8"/>
-          <line x1="12" y1="3" x2="12" y2="15"/>
-        </svg>
-        엑셀 파일 업로드
+      <span class="last-updated" id="lastUpdated">2026년 5월 20일 기준</span>
+      <button class="download-btn" id="downloadTemplate" type="button">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        엑셀 양식 다운로드
       </button>
+      <label class="upload-btn" for="fileInput">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        엑셀 업로드
+        <input type="file" id="fileInput" accept=".xlsx,.xls" />
+      </label>
     </div>
+  </header>
+
+  <!-- ===== 전체 매출 현황 ===== -->
+  <section class="section">
+    <div class="section-title">
+      <div class="bar"></div>
+      <h2>전체 매출 현황</h2>
+      <div class="meta" id="currentMonthLabel">2026년 5월 기준</div>
+    </div>
+
+    <!-- 통합 요약 카드 -->
+    <div class="kpi" style="background:var(--navy);border-color:var(--navy);border-radius:14px;padding:24px 28px;margin-bottom:14px;color:#fff;">
+      <div style="display:grid;grid-template-columns:1fr 1px 1fr;gap:0;align-items:stretch;">
+        <!-- 왼쪽: 1~5월 누적 진도율 -->
+        <div style="padding-right:28px;">
+          <div class="label" style="color:rgba(255,247,232,.75);font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;">
+            📅 1~5월 누적 진도율 <span style="font-size:10px;opacity:.7;font-weight:500;">(1~5월 실적 ÷ 1~5월 목표)</span>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;">
+            <div>
+              <div style="font-size:11px;color:rgba(255,247,232,.6);margin-bottom:3px;">누적 실적</div>
+              <div style="font-size:28px;font-weight:800;color:#fff;letter-spacing:-0.02em;line-height:1;"><span id="kSumYtdAct">-</span><span style="font-size:14px;font-weight:600;color:rgba(255,247,232,.7);margin-left:3px;">만원</span></div>
+            </div>
+            <div style="font-size:20px;color:rgba(255,247,232,.4);">÷</div>
+            <div>
+              <div style="font-size:11px;color:rgba(255,247,232,.6);margin-bottom:3px;">1~5월 목표</div>
+              <div style="font-size:22px;font-weight:700;color:rgba(255,247,232,.85);letter-spacing:-0.01em;line-height:1;"><span id="kSumYtdTgt">-</span><span style="font-size:13px;font-weight:600;color:rgba(255,247,232,.5);margin-left:3px;">만원</span></div>
+            </div>
+            <div style="margin-left:auto;text-align:right;">
+              <div style="font-size:11px;color:rgba(255,247,232,.6);margin-bottom:3px;">진도율</div>
+              <div class="value achievement" id="kSumYtdAch" style="font-size:30px;font-weight:900;color:#FFE27A;letter-spacing:-0.02em;line-height:1;">-</div>
+            </div>
+          </div>
+          <div class="progress" style="margin-top:12px;height:6px;background:rgba(255,255,255,.18);">
+            <div id="kSumYtdBar" style="width:0%;height:100%;background:#FFE27A;border-radius:3px;transition:width .8s ease;"></div>
+          </div>
+        </div>
+        <!-- 구분선 -->
+        <div style="background:rgba(255,255,255,.15);width:1px;"></div>
+        <!-- 오른쪽: 연간 진도율 -->
+        <div style="padding-left:28px;">
+          <div class="label" style="color:rgba(255,247,232,.75);font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;">
+            📆 연간 진도율 <span style="font-size:10px;opacity:.7;font-weight:500;">(1~5월 실적 ÷ 연간 전체 목표)</span>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;">
+            <div>
+              <div style="font-size:11px;color:rgba(255,247,232,.6);margin-bottom:3px;">누적 실적</div>
+              <div style="font-size:28px;font-weight:800;color:#fff;letter-spacing:-0.02em;line-height:1;"><span id="kYtdAct">-</span><span style="font-size:14px;font-weight:600;color:rgba(255,247,232,.7);margin-left:3px;">만원</span></div>
+            </div>
+            <div style="font-size:20px;color:rgba(255,247,232,.4);">÷</div>
+            <div>
+              <div style="font-size:11px;color:rgba(255,247,232,.6);margin-bottom:3px;">연간 목표</div>
+              <div style="font-size:22px;font-weight:700;color:rgba(255,247,232,.85);letter-spacing:-0.01em;line-height:1;"><span id="kYtdTgt">-</span><span style="font-size:13px;font-weight:600;color:rgba(255,247,232,.5);margin-left:3px;">만원</span></div>
+            </div>
+            <div style="margin-left:auto;text-align:right;">
+              <div style="font-size:11px;color:rgba(255,247,232,.6);margin-bottom:3px;">진도율</div>
+              <div class="value achievement" id="kYtdAch" style="font-size:30px;font-weight:900;color:var(--cream);letter-spacing:-0.02em;line-height:1;">-</div>
+            </div>
+          </div>
+          <div class="progress" style="margin-top:12px;height:6px;background:rgba(255,255,255,.18);">
+            <div id="kYtdBar" style="width:0%;height:100%;background:var(--cream);border-radius:3px;transition:width .8s ease;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5월 당월 + 채널별 -->
+    <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr);">
+      <div class="kpi featured-cream">
+        <div class="label">5월 전체 실적</div>
+        <div class="value"><span id="kMonthAct">-</span><span class="unit">만원</span></div>
+        <div class="sub">5월 목표 <span id="kMonthTgt">-</span>만원</div>
+        <div class="progress"><div id="kMonthBar" style="width:0%"></div></div>
+        <div class="sub" style="margin-top:8px;">
+          <span>달성율</span>
+          <span class="achievement" id="kMonthAch">-</span>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="label"><span class="tag">B2B</span> 5월 실적</div>
+        <div class="value"><span id="kB2BAct">-</span><span class="unit">만원</span></div>
+        <div class="sub">목표 <span id="kB2BTgt">-</span>만원</div>
+        <div class="progress"><div id="kB2BBar" style="width:0%"></div></div>
+        <div class="sub" style="margin-top:8px;">
+          <span>달성율</span>
+          <span class="achievement" id="kB2BAch">-</span>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="label"><span class="tag">B2C</span> 5월 실적</div>
+        <div class="value"><span id="kB2CAct">-</span><span class="unit">만원</span></div>
+        <div class="sub">목표 <span id="kB2CTgt">-</span>만원</div>
+        <div class="progress"><div id="kB2CBar" style="width:0%"></div></div>
+        <div class="sub" style="margin-top:8px;">
+          <span>달성율</span>
+          <span class="achievement" id="kB2CAch">-</span>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="label"><span class="tag">D2C</span> 5월 실적</div>
+        <div class="value"><span id="kD2CAct">-</span><span class="unit">만원</span></div>
+        <div class="sub">목표 <span id="kD2CTgt">-</span>만원</div>
+        <div class="progress"><div id="kD2CBar" style="width:0%"></div></div>
+        <div class="sub" style="margin-top:8px;">
+          <span>달성율</span>
+          <span class="achievement" id="kD2CAch">-</span>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="label"><span class="tag">STORE</span> 5월 실적</div>
+        <div class="value"><span id="kSTOREAct">-</span><span class="unit">만원</span></div>
+        <div class="sub">목표 <span id="kSTORETgt">-</span>만원</div>
+        <div class="progress"><div id="kSTOREBar" style="width:0%"></div></div>
+        <div class="sub" style="margin-top:8px;">
+          <span>달성율</span>
+          <span class="achievement" id="kSTOREAch">-</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 주차별 매출 현황 ===== -->
+  <section class="section">
+    <div class="section-title">
+      <div class="bar"></div>
+      <h2>주차별 매출 현황</h2>
+      <div class="wk-nav" style="margin-left:auto;">
+        <button class="wk-nav-btn" id="wkPrevBtn" title="이전 주">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="wk-nav-labels">
+          <div class="wk-nav-item cur">
+            <span class="wk-nav-badge cur-badge" id="curWkLabel">-</span>
+            <span class="wk-nav-text">금주</span>
+          </div>
+          <div class="wk-nav-sep">vs</div>
+          <div class="wk-nav-item prev">
+            <span class="wk-nav-text">전주</span>
+            <span class="wk-nav-badge prev-badge" id="prevWkLabel">-</span>
+          </div>
+        </div>
+        <button class="wk-nav-btn" id="wkNextBtn" title="다음 주">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 주차 실적 카드 (금주 실적 심플 표기) -->
+    <div class="weekly-grid" id="weeklyCardGrid"></div>
+
+    <!-- 주차별 추이 막대 차트 -->
+    <div class="card" style="margin-top:18px;">
+      <div class="card-header">
+        <div>
+          <h3>주차별 매출 추이</h3>
+          <div class="desc" style="margin-top:4px;">최근 7주간 채널별 매출 막대 차트</div>
+        </div>
+        <div class="chart-controls">
+          <button class="chip active" data-wseries="all">전체</button>
+          <button class="chip" data-wseries="B2B">B2B</button>
+          <button class="chip" data-wseries="B2C">B2C</button>
+          <button class="chip" data-wseries="D2C">D2C</button>
+          <button class="chip" data-wseries="STORE">STORE</button>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:300px;">
+        <canvas id="weeklyChart"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 일자별 매출 추이 ===== -->
+  <section class="section">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h3>일자별 매출 추이</h3>
+          <div class="desc" style="margin-top:4px;">전체 및 채널별 일자별 매출 변화</div>
+        </div>
+        <div class="chart-controls">
+          <button class="chip active" data-series="all">전체</button>
+          <button class="chip" data-series="B2B">B2B</button>
+          <button class="chip" data-series="B2C">B2C</button>
+          <button class="chip" data-series="D2C">D2C</button>
+          <button class="chip" data-series="STORE">STORE</button>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="dailyChart"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 채널별 매출 상세 ===== -->
+  <section class="section">
+    <div class="section-title">
+      <div class="bar"></div>
+      <h2>채널별 매출 상세</h2>
+      <div class="meta">단위: 만원 · 채널 좌측 ⊟ 클릭으로 하위 채널 펼침/접기</div>
+    </div>
+
+    <div class="card detail-card">
+      <div class="tbl-scroll">
+        <table class="detail-tbl" id="detailTbl">
+          <thead>
+            <tr class="head-group">
+              <th rowspan="2" class="col-ch sticky-l">채널</th>
+              <th rowspan="2" id="thYtdTgt">금년 목표<br/><span class="sub">(1~5월)</span></th>
+              <th rowspan="2" id="thYtd">금년 실적<br/><span class="sub">(1~5월)</span></th>
+              <th rowspan="2" id="thCurMon">5월 매출</th>
+              <th rowspan="2" id="thTarget">5월 목표</th>
+              <th rowspan="2" class="col-ach" id="thAch">달성률<br/><span class="sub">(5월 기준)</span></th>
+              <th colspan="12" class="month-group">월별 매출 추이</th>
+            </tr>
+            <tr class="head-month">
+              <th>1월</th><th>2월</th><th>3월</th><th>4월</th><th>5월</th>
+              <th>6월</th><th>7월</th><th>8월</th><th>9월</th>
+              <th>10월</th><th>11월</th><th>12월</th>
+            </tr>
+          </thead>
+          <tbody id="detailBody"></tbody>
+          <tfoot id="detailFoot"></tfoot>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div style="text-align:center;color:var(--gray);font-size:11px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line);">
+    Growth Sales Dashboard · Powered by Pretendard · 데이터를 갱신하려면 상단의 엑셀 업로드를 이용하세요.
   </div>
+
 </div>
 
-<!-- ════════ TAB BAR ════════ -->
-<div class="tab-bar">
-  <div class="tab-nav" role="tablist">
-    <button class="tab-btn tab-disabled" data-tab="growth" type="button" disabled>
-      <span class="tab-dot"></span>Growth
-    </button>
-    <button class="tab-btn tab-disabled" data-tab="sales" type="button" disabled>
-      <span class="tab-dot"></span>Sales
-    </button>
-    <button class="tab-btn" data-tab="omni" type="button">
-      <span class="tab-dot"></span>OMNI
-    </button>
-    <button class="tab-btn active" data-tab="brand" type="button">
-      <span class="tab-dot"></span>자사몰
-    </button>
-  </div>
-</div>
+<script>
+/* =========================================================
+ *  Growth 매출 대시보드 - JavaScript
+ * ========================================================= */
 
-<!-- ════════ MAIN FRAME ════════ -->
-<div class="main-frame">
-  <div class="frame-loading" id="frameLoading">
-    <div class="spinner"></div>
-    <div class="txt" id="frameLoadingText">대시보드 불러오는 중…</div>
-  </div>
-  <iframe class="dash-frame hidden" data-tab="growth" id="frame-growth" title="Growth 대시보드"></iframe>
-  <iframe class="dash-frame hidden" data-tab="sales"  id="frame-sales"  title="Sales 대시보드"></iframe>
-  <iframe class="dash-frame hidden" data-tab="omni"   id="frame-omni"   title="OMNI 대시보드"></iframe>
-  <iframe class="dash-frame hidden" data-tab="brand"  id="frame-brand"  title="자사몰 대시보드"></iframe>
-</div>
+const CHANNELS = ['B2B', 'B2C', 'D2C', 'STORE'];
+const MONTHS = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 
-<!-- ════════ FIREBASE + 엑셀 업로드 ════════ -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDSlAHgeIlezNolFRAZMN01_ufv7H2B0os",
-  authDomain: "omni-dashboard-f8c8f.firebaseapp.com",
-  projectId: "omni-dashboard-f8c8f",
-  storageBucket: "omni-dashboard-f8c8f.firebasestorage.app",
-  messagingSenderId: "870860751768",
-  appId: "1:870860751768:web:bbb95c387ed9cc967161ed"
-};
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-const TABS = {
-  growth: { url: 'growth.html?embedded=1', label: 'Growth', template: null },
-  sales:  { url: 'sales.html?embedded=1',  label: 'Sales',  template: 'SALES_월매출_업로드양식.xlsx' },
-  omni:   { url: 'omni.html?embedded=1',   label: 'OMNI',   template: 'OMNI_월매출_업로드양식.xlsx' },
-  brand:  { url: 'brand.html?embedded=1',  label: '자사몰', template: null },
-};
-const DEFAULT_TAB = 'brand';
-let currentTab = null;
-
-function setStatus(state, msg){
-  const dot = document.getElementById('dbStatusDot');
-  const txt = document.getElementById('dbStatusText');
-  dot.classList.remove('connecting','error');
-  if (state === 'connecting') dot.classList.add('connecting');
-  else if (state === 'error') dot.classList.add('error');
-  txt.textContent = msg;
-}
-
-function showToast(msg){
-  let t = document.getElementById('shellToast');
-  if (!t) {
-    t = document.createElement('div');
-    t.id = 'shellToast';
-    t.className = 'toast';
-    document.body.appendChild(t);
-  }
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2400);
-}
-
-function switchTab(tabKey){
-  if (!TABS[tabKey] || currentTab === tabKey) return;
-
-  document.querySelectorAll('.tab-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.tab === tabKey);
-  });
-  document.querySelectorAll('.dash-frame').forEach(f => {
-    f.classList.toggle('hidden', f.dataset.tab !== tabKey);
-  });
-
-  const frame = document.getElementById('frame-' + tabKey);
-  const loading = document.getElementById('frameLoading');
-  const loadingText = document.getElementById('frameLoadingText');
-  if (!frame.src || frame.src === 'about:blank' || frame.src.endsWith('/')) {
-    loadingText.textContent = `${TABS[tabKey].label} 대시보드 불러오는 중…`;
-    loading.classList.remove('hidden');
-    frame.onload = () => loading.classList.add('hidden');
-    frame.onerror = () => { loadingText.textContent = `${TABS[tabKey].label} 대시보드를 불러올 수 없습니다.`; };
-    frame.src = TABS[tabKey].url;
-  } else {
-    loading.classList.add('hidden');
-  }
-
-  const dlBtn = document.getElementById('downloadTemplateBtn');
-  const template = TABS[tabKey].template;
-  if (template) {
-    dlBtn.href = template;
-    dlBtn.style.display = '';
-    dlBtn.title = `${TABS[tabKey].label} 엑셀 양식 다운로드`;
-  } else {
-    dlBtn.style.display = 'none';
-  }
-
-  if (window.location.hash !== '#' + tabKey) {
-    history.replaceState(null, '', '#' + tabKey);
-  }
-  currentTab = tabKey;
-}
-
-const monthDocId = (y, m) => `${y}-${String(m).padStart(2,'0')}`;
-
-async function handleExcelUpload(file){
-  const loading = document.getElementById('frameLoading');
-  const loadingText = document.getElementById('frameLoadingText');
-  loadingText.textContent = '엑셀 파일 분석 중…';
-  loading.classList.remove('hidden');
-
-  try {
-    const buf = await file.arrayBuffer();
-    const wb = XLSX.read(buf, { type: 'array' });
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-
-    let year = null, month = null;
-    for (const r of rows) {
-      if (!r) continue;
-      const a = (r[0]||'').toString();
-      const c = (r[2]||'').toString();
-      if (a.includes('기준 년도')) year = Number(r[1]) || null;
-      if (a.includes('기준 월') || c.includes('기준 월')) {
-        month = Number(r[3]) || Number(r[1]) || null;
-      }
+// ---------- 샘플(초기) 데이터 -----------------------------
+const initialData = {
+  currentMonthIndex: 4, // 5월 (0-indexed)
+  monthly: {
+    B2B: {
+      target: [154000000,228370000,581330000,560750000,613340000,611900000,566020000,575420000,688570000,679120000,685390000,623950000],
+      actual: [143023490,107844862,119273001,211788382,98109725,0,0,0,0,0,0,0],
+      prevMay: 0
+    },
+    B2C: {
+      target: [434470000,53570000,102900000,278710000,155250000,731850000,198380000,366080000,257360000,858970000,465700000,378600000],
+      actual: [303106133,30096468,48234266,46759080,26607766,0,0,0,0,0,0,0],
+      prevMay: 0
+    },
+    D2C: {
+      target: [132070000,110670000,161500000,140340000,223260000,150080000,158370000,171310000,171700000,231540000,246020000,258400000],
+      actual: [132418634,112053390,138367330,159762110,136488690,0,0,0,0,0,0,0],
+      prevMay: 0
+    },
+    STORE: {
+      target: [45000000,45000000,80000000,80000000,80000000,80000000,80000000,80000000,80000000,80000000,80000000,80000000],
+      actual: [23137454,19621297,23517700,26328617,4703190,0,0,0,0,0,0,0],
+      prevMay: 0
     }
-    if (!year || !month) throw new Error('기준 년도/월을 읽을 수 없습니다.');
+  },
+  weekly: [
+    { wk:'WK14', period:'03.30-04.05', B2B:23666379,  B2C:1193621,  D2C:26983720,  STORE:5083669  },
+    { wk:'WK15', period:'04.06-04.12', B2B:45227248,  B2C:17589798, D2C:38519670,  STORE:5449105  },
+    { wk:'WK16', period:'04.13-04.19', B2B:38464019,  B2C:3718790,  D2C:38963870,  STORE:6440277  },
+    { wk:'WK17', period:'04.20-04.26', B2B:26642264,  B2C:7874114,  D2C:33231700,  STORE:5806820  },
+    { wk:'WK18', period:'04.27-05.03', B2B:23395669,  B2C:8368967,  D2C:34485170,  STORE:4983490  },
+    { wk:'WK19', period:'05.04-05.10', B2B:30147150,  B2C:3483907,  D2C:40737920,  STORE:4656770  },
+    { wk:'WK20', period:'05.11-05.17', B2B:41285310,  B2C:11006935, D2C:58664020,  STORE:4435195  },
+    { wk:'WK21', period:'05.18-05.24', B2B:18740765,  B2C:10495224, D2C:24664730,  STORE:1296875  }
+  ],
+  daily: [
+    // 4월 (Excel serial → 실제 날짜 변환)
+    { date:'2026-04-01', B2B:3975895,  B2C:209570,   D2C:7612780,  STORE:1426500 },
+    { date:'2026-04-02', B2B:6152124,  B2C:0,        D2C:6717900,  STORE:1219660 },
+    { date:'2026-04-03', B2B:6507985,  B2C:984051,   D2C:5856630,  STORE:1911019 },
+    { date:'2026-04-04', B2B:7030375,  B2C:0,        D2C:3512370,  STORE:277110  },
+    { date:'2026-04-05', B2B:0,        B2C:0,        D2C:3284040,  STORE:249380  },
+    { date:'2026-04-06', B2B:11374495, B2C:0,        D2C:6527530,  STORE:1000150 },
+    { date:'2026-04-07', B2B:8886735,  B2C:6379322,  D2C:5129400,  STORE:782490  },
+    { date:'2026-04-08', B2B:5540425,  B2C:0,        D2C:5437150,  STORE:1010120 },
+    { date:'2026-04-09', B2B:5912995,  B2C:578787,   D2C:6761160,  STORE:740310  },
+    { date:'2026-04-10', B2B:4890083,  B2C:108999,   D2C:4995040,  STORE:1124225 },
+    { date:'2026-04-11', B2B:8622515,  B2C:10522690, D2C:4803350,  STORE:547750  },
+    { date:'2026-04-12', B2B:0,        B2C:0,        D2C:4866040,  STORE:244060  },
+    { date:'2026-04-13', B2B:8888220,  B2C:1369910,  D2C:6879630,  STORE:694607  },
+    { date:'2026-04-14', B2B:5784680,  B2C:81756,    D2C:6717390,  STORE:980220  },
+    { date:'2026-04-15', B2B:5616710,  B2C:1163829,  D2C:6576700,  STORE:1108400 },
+    { date:'2026-04-16', B2B:6517170,  B2C:107846,   D2C:6810410,  STORE:1160300 },
+    { date:'2026-04-17', B2B:6361179,  B2C:962752,   D2C:4951110,  STORE:1344050 },
+    { date:'2026-04-18', B2B:5296060,  B2C:32697,    D2C:3405800,  STORE:487510  },
+    { date:'2026-04-19', B2B:0,        B2C:0,        D2C:3622830,  STORE:665190  },
+    { date:'2026-04-20', B2B:5611045,  B2C:755370,   D2C:5612130,  STORE:845400  },
+    { date:'2026-04-21', B2B:4427280,  B2C:5702891,  D2C:5164040,  STORE:1202980 },
+    { date:'2026-04-22', B2B:5291770,  B2C:975329,   D2C:4681950,  STORE:979860  },
+    { date:'2026-04-23', B2B:4568025,  B2C:108999,   D2C:4730460,  STORE:1415780 },
+    { date:'2026-04-24', B2B:5216739,  B2C:251790,   D2C:6669200,  STORE:1165950 },
+    { date:'2026-04-25', B2B:1527405,  B2C:79735,    D2C:2843450,  STORE:95260   },
+    { date:'2026-04-26', B2B:0,        B2C:0,        D2C:3530470,  STORE:101590  },
+    { date:'2026-04-27', B2B:3003165,  B2C:1007160,  D2C:5553580,  STORE:1167440 },
+    { date:'2026-04-28', B2B:1842940,  B2C:4657783,  D2C:6831640,  STORE:895600  },
+    { date:'2026-04-29', B2B:4440480,  B2C:834669,   D2C:4611230,  STORE:1366000 },
+    { date:'2026-04-30', B2B:6172584,  B2C:247655,   D2C:5066700,  STORE:980700  },
+    // 5월
+    { date:'2026-05-01', B2B:3332450,  B2C:1621700,  D2C:5323980,  STORE:97700   },
+    { date:'2026-05-02', B2B:4604050,  B2C:0,        D2C:3244300,  STORE:193700  },
+    { date:'2026-05-03', B2B:0,        B2C:0,        D2C:3853740,  STORE:282350  },
+    { date:'2026-05-04', B2B:10236600, B2C:0,        D2C:6882100,  STORE:793000  },
+    { date:'2026-05-05', B2B:2024715,  B2C:0,        D2C:5889700,  STORE:233700  },
+    { date:'2026-05-06', B2B:5852000,  B2C:503580,   D2C:6787700,  STORE:1100280 },
+    { date:'2026-05-07', B2B:4538600,  B2C:280366,   D2C:6171620,  STORE:864500  },
+    { date:'2026-05-08', B2B:4060045,  B2C:2517900,  D2C:5276600,  STORE:1412010 },
+    { date:'2026-05-09', B2B:3435190,  B2C:182061,   D2C:4815260,  STORE:163100  },
+    { date:'2026-05-10', B2B:0,        B2C:0,        D2C:4914940,  STORE:90180   },
+    { date:'2026-05-11', B2B:4679455,  B2C:251790,   D2C:11030230, STORE:647355  },
+    { date:'2026-05-12', B2B:4461325,  B2C:4056160,  D2C:8921740,  STORE:1063230 },
+    { date:'2026-05-13', B2B:9480900,  B2C:742466,   D2C:9323630,  STORE:1112910 },
+    { date:'2026-05-14', B2B:8873975,  B2C:10900,    D2C:7188410,  STORE:849700  },
+    { date:'2026-05-15', B2B:9223665,  B2C:1007160,  D2C:7937100,  STORE:762000  },
+    { date:'2026-05-16', B2B:4565990,  B2C:4938459,  D2C:6685370,  STORE:0       },
+    { date:'2026-05-17', B2B:0,        B2C:0,        D2C:7577540,  STORE:0       },
+    { date:'2026-05-18', B2B:6714455,  B2C:503580,   D2C:9293650,  STORE:488500  },
+    { date:'2026-05-19', B2B:5301570,  B2C:8038363,  D2C:7969730,  STORE:438000  },
+    { date:'2026-05-20', B2B:6724740,  B2C:1953281,  D2C:7401350,  STORE:370375  }
+  ],
+  subChannels: [
+    { top:'B2B', sub:'웰스토리',       target:250000000,  actual:96430620,  ytd:572166400,  prevMay:0,
+      monthlyActual:[137865140,104581871,115185241,118103528,96430620,0,0,0,0,0,0,0] },
+    { top:'B2B', sub:'스타벅스',       target:270000000,  actual:0,         ytd:56003400,   prevMay:0,
+      monthlyActual:[0,0,0,56003400,0,0,0,0,0,0,0,0] },
+    { top:'B2B', sub:'CJ프레시웨이',   target:11100000,   actual:1508155,   ytd:9991625,    prevMay:0,
+      monthlyActual:[2202050,1304200,2398840,2578380,1508155,0,0,0,0,0,0,0] },
+    { top:'B2B', sub:'캠퍼스파트너스', target:74240000,   actual:0,         ytd:0,          prevMay:0,
+      monthlyActual:[0,0,0,0,0,0,0,0,0,0,0,0] },
+    { top:'B2B', sub:'기타',           target:8000000,    actual:170950,    ytd:41878035,   prevMay:0,
+      monthlyActual:[2956300,1958791,1688920,35103074,170950,0,0,0,0,0,0,0] },
 
-    const headerIdx = rows.findIndex(r => r && r[0] && r[0].toString().includes('채널 구분'));
-    if (headerIdx < 0) throw new Error('엑셀 양식이 잘못됐습니다.');
+    { top:'B2C', sub:'HSP',            target:6850000,    actual:0,         ytd:291709152,  prevMay:0,
+      monthlyActual:[270915172,7694354,6944444,6155182,0,0,0,0,0,0,0,0] },
+    { top:'B2C', sub:'컬리',           target:50000000,   actual:11247940,  ytd:87088024,   prevMay:0,
+      monthlyActual:[14859927,9380287,27314657,24285213,11247940,0,0,0,0,0,0,0] },
+    { top:'B2C', sub:'롯데마트',       target:9000000,    actual:8671820,   ytd:32388201,   prevMay:0,
+      monthlyActual:[5722500,5264700,5586721,7142460,8671820,0,0,0,0,0,0,0] },
+    { top:'B2C', sub:'이마트',         target:2000000,    actual:0,         ytd:0,          prevMay:0,
+      monthlyActual:[0,0,0,0,0,0,0,0,0,0,0,0] },
+    { top:'B2C', sub:'SSG-직매입',     target:51200000,   actual:0,         ytd:623700,     prevMay:0,
+      monthlyActual:[0,623700,0,0,0,0,0,0,0,0,0,0] },
+    { top:'B2C', sub:'GS리테일',       target:35200000,   actual:0,         ytd:0,          prevMay:0,
+      monthlyActual:[0,0,0,0,0,0,0,0,0,0,0,0] },
+    { top:'B2C', sub:'기타',           target:1000000,    actual:6688006,   ytd:42994636,   prevMay:0,
+      monthlyActual:[11608534,7133428,8388443,9176225,6688006,0,0,0,0,0,0,0] },
 
-    const dataRows = rows.slice(headerIdx + 1).filter(r => {
-      if (!r || r.length === 0) return false;
-      const v = (r[1]||'').toString();
-      if (v.includes('총합')) return false;
-      if (r[0] && r[0].toString().startsWith('📘')) return false;
-      if (r[0] && /^[0-9]+\./.test(r[0].toString())) return false;
-      return true;
+    { top:'D2C', sub:'브랜드몰',       target:207020000,  actual:132688530, ytd:640958284,  prevMay:0,
+      monthlyActual:[124794444,100421460,131183470,151870380,132688530,0,0,0,0,0,0,0] },
+    { top:'D2C', sub:'네이버',         target:12992000,   actual:3356460,   ytd:29423540,   prevMay:0,
+      monthlyActual:[6876110,4919230,6825660,7446080,3356460,0,0,0,0,0,0,0] },
+    { top:'D2C', sub:'기타',           target:3248000,    actual:443700,    ytd:8708330,    prevMay:0,
+      monthlyActual:[748080,6712700,358200,445650,443700,0,0,0,0,0,0,0] },
+
+    { top:'STORE', sub:'완반',         target:70000000,   actual:2052660,   ytd:68483750,   prevMay:0,
+      monthlyActual:[17457000,14496909,16818000,17659181,2052660,0,0,0,0,0,0,0] },
+    { top:'STORE', sub:'신세계 강남',  target:7500000,    actual:696530,    ytd:22323218,   prevMay:0,
+      monthlyActual:[4640384,4030978,5214290,7741036,696530,0,0,0,0,0,0,0] },
+    { top:'STORE', sub:'신세계 청담',  target:2500000,    actual:1954000,   ytd:6501290,    prevMay:0,
+      monthlyActual:[1040070,1093410,1485410,928400,1954000,0,0,0,0,0,0,0] }
+  ]
+};
+
+let data = JSON.parse(JSON.stringify(initialData));
+let currentChannel = 'B2B';
+let currentSeries = 'all';
+let dailyChart = null;
+
+// ---------- 포맷 유틸 -------------------------------------
+const fmt = {
+  eok: v => Math.round(v/1e4).toLocaleString(),  // 만원 단위
+  mil: v => Math.round(v/1e4).toLocaleString(),  // 만원 단위 (테이블용)
+  pct: v => (v*100).toFixed(1) + '%',
+  comma: v => v.toLocaleString(),
+  sign: v => (v>=0?'+':'') + (v*100).toFixed(1) + '%'
+};
+
+function classifyAch(rate){
+  if(rate>=1) return 'high';
+  if(rate>=0.9) return 'mid';
+  return 'low';
+}
+
+function setText(id, val){
+  const el = document.getElementById(id);
+  if(el) el.textContent = val;
+}
+
+function setAch(id, rate){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.textContent = (rate*100).toFixed(1)+'%';
+  el.classList.remove('high','mid','low');
+  el.classList.add(classifyAch(rate));
+}
+
+function setBar(id, rate){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.style.width = Math.min(100, Math.max(0, rate*100)) + '%';
+}
+
+// ---------- 전체 매출 현황 렌더 ---------------------------
+function renderOverview(){
+  const m = data.currentMonthIndex;
+  const monthName = (m+1) + '월';
+  const yr = parseInt(document.getElementById('selectYear').value) || 2026;
+  // 해당 월의 마지막 데이터 일자 산출
+  const m0 = m + 1;
+  const dailyForMon = data.daily.filter(d => {
+    const [dy, dm] = d.date.split('-').map(Number);
+    return dy === yr && dm === m0;
+  });
+  let dayStr = '';
+  if(dailyForMon.length > 0){
+    const lastDate = dailyForMon[dailyForMon.length - 1].date;
+    const dd = parseInt(lastDate.split('-')[2]);
+    dayStr = ` ${dd}일`;
+  }
+  setText('currentMonthLabel', `${yr}년 ${monthName}${dayStr} 기준`);
+
+  // 채널별 5월 실적/목표
+  const monthSums = {tgt:0, act:0};
+  const ytdSums = {tgt:0, act:0};
+
+  CHANNELS.forEach(ch=>{
+    const t = data.monthly[ch].target[m];
+    const a = data.monthly[ch].actual[m];
+    const rate = t>0 ? a/t : 0;
+    setText(`k${ch}Act`, fmt.eok(a));
+    setText(`k${ch}Tgt`, fmt.eok(t));
+    setBar(`k${ch}Bar`, rate);
+    setAch(`k${ch}Ach`, rate);
+
+    monthSums.tgt += t;
+    monthSums.act += a;
+
+    // YTD (1월~현재월)
+    for(let i=0;i<=m;i++){
+      ytdSums.tgt += data.monthly[ch].target[i];
+      ytdSums.act += data.monthly[ch].actual[i];
+    }
+  });
+
+  // 월 전체 (5월 당월)
+  setText('kMonthAct', fmt.eok(monthSums.act));
+  setText('kMonthTgt', fmt.eok(monthSums.tgt));
+  const monthRate = monthSums.tgt>0 ? monthSums.act/monthSums.tgt : 0;
+  setBar('kMonthBar', monthRate);
+  setAch('kMonthAch', monthRate);
+
+  // 1~5월 누적 진도율 (1~5월 실적 ÷ 1~5월 목표)
+  setText('kSumYtdAct', fmt.eok(ytdSums.act));
+  setText('kSumYtdTgt', fmt.eok(ytdSums.tgt));
+  const sumRate = ytdSums.tgt>0 ? ytdSums.act/ytdSums.tgt : 0;
+  const kSumBar = document.getElementById('kSumYtdBar');
+  if(kSumBar) kSumBar.style.width = Math.min(100, Math.max(0, sumRate*100)) + '%';
+  setAch('kSumYtdAch', sumRate);
+
+  // 연간 진도율 (1~5월 실적 ÷ 연간 전체 목표)
+  let annualTgt = 0;
+  CHANNELS.forEach(ch=>{
+    annualTgt += data.monthly[ch].target.reduce((s,v)=>s+v,0);
+  });
+  setText('kYtdAct', fmt.eok(ytdSums.act));
+  setText('kYtdTgt', fmt.eok(annualTgt));
+  const ytdRate = annualTgt>0 ? ytdSums.act/annualTgt : 0;
+  setBar('kYtdBar', ytdRate);
+  setAch('kYtdAch', ytdRate);
+}
+
+// ---------- 주차별 매출 현황 렌더 -------------------------
+let weeklyChart = null;
+let currentWSeries = 'all';
+let currentWkIdx = -1; // -1 = 해당 월 마지막 주 자동
+
+// period 문자열("04.27-05.03")에서 시작/끝 월일 추출
+function parsePeriod(period){
+  // "MM.DD-MM.DD" 형식
+  const parts = period.split('-');
+  if(parts.length !== 2) return null;
+  const [sm, sd] = parts[0].split('.').map(Number);
+  const [em, ed] = parts[1].split('.').map(Number);
+  return { sm, sd, em, ed };
+}
+
+// 주차가 선택 월에 속하는지 판단 (기간 내에 해당 월 날짜가 하나라도 있으면 포함)
+function wkBelongsToMonth(wk, mon){
+  const p = parsePeriod(wk.period);
+  if(!p) return false;
+  // 시작월 또는 종료월이 mon이면 포함
+  return p.sm === mon || p.em === mon;
+}
+
+// 선택 월 기준 주차 배열 반환 (해당 월 기간이 걸치는 주차 전체)
+function getWeeklyForMonth(mon){
+  return data.weekly.filter(w => wkBelongsToMonth(w, mon));
+}
+
+// 선택 월 기준 기본 currentWkIdx 결정
+//  - 현재 월 = 마지막 데이터가 있는 주차 (진행 중인 주 기준)
+//  - 지난 달 = 해당 월 기간에 걸친 마지막 주
+function getDefaultWkIdxForMonth(mon, filteredWeekly){
+  // filteredWeekly 안에서 마지막 인덱스
+  return filteredWeekly.length > 0 ? filteredWeekly.length - 1 : 0;
+}
+
+function getWkIdx(){
+  const selMon = parseInt(document.getElementById('selectMonth').value) || 5;
+  const fw = getWeeklyForMonth(selMon);
+  if(fw.length === 0) return -1; // 데이터 없음
+  if(currentWkIdx < 0 || currentWkIdx >= fw.length){
+    return fw.length - 1; // 기본: 마지막 주
+  }
+  return currentWkIdx;
+}
+
+function renderWeekly(){
+  const selMon = parseInt(document.getElementById('selectMonth').value) || 5;
+  const fw = getWeeklyForMonth(selMon);
+
+  if(fw.length < 1){
+    const grid = document.getElementById('weeklyCardGrid');
+    grid.className = 'wk-summary-grid';
+    grid.innerHTML = '<div style="padding:20px;color:var(--gray);font-size:13px;">해당 월의 주차 데이터가 없습니다.</div>';
+    return;
+  }
+
+  const idx  = getWkIdx();
+  const cur  = fw[idx];
+  const prev = idx > 0 ? fw[idx - 1] : null;
+
+  setText('curWkLabel',  `${cur.wk} (${cur.period})`);
+  setText('prevWkLabel', prev ? `${prev.wk} (${prev.period})` : '—');
+
+  // 화살표 버튼 활성/비활성
+  const prevBtn = document.getElementById('wkPrevBtn');
+  const nextBtn = document.getElementById('wkNextBtn');
+  if(prevBtn) prevBtn.disabled = (idx <= 0);
+  if(nextBtn) nextBtn.disabled = (idx >= fw.length - 1);
+
+  const curTotal  = CHANNELS.reduce((s,ch)=>s+(cur[ch]||0),0);
+  const prevTotal = prev ? CHANNELS.reduce((s,ch)=>s+(prev[ch]||0),0) : 0;
+
+  const grid = document.getElementById('weeklyCardGrid');
+  grid.className = 'wk-summary-grid';
+  grid.innerHTML = '';
+
+  grid.appendChild(buildWkCard('전체', curTotal, prevTotal, true));
+  CHANNELS.forEach(ch => {
+    grid.appendChild(buildWkCard(ch, cur[ch]||0, prev ? (prev[ch]||0) : 0, false));
+  });
+
+  renderWeeklyChart();
+}
+
+function buildWkCard(label, cur, prev, isTotal){
+  const hasPrev = prev > 0;
+  const delta   = hasPrev ? (cur - prev) / prev : 0;
+  const up      = delta >= 0;
+  const maxVal  = Math.max(cur, prev, 1);
+
+  const card = document.createElement('div');
+  card.className = 'wk-summary-card' + (isTotal ? ' is-total' : '');
+
+  const deltaHtml = hasPrev
+    ? `<span class="wk-delta ${up?'up':'down'}">${up?'▲':'▼'} ${Math.abs(delta*100).toFixed(1)}%</span>`
+    : `<span class="wk-delta" style="opacity:.4">—</span>`;
+
+  card.innerHTML = `
+    <div class="wk-ch-label">
+      <span>${label}</span>
+      ${deltaHtml}
+    </div>
+    <div class="wk-rows">
+      <div class="wk-row">
+        <span class="wk-row-lbl">금주</span>
+        <div class="wk-bar-wrap"><div class="wk-bar-fill cur-fill" style="width:${(cur/maxVal*100).toFixed(1)}%"></div></div>
+        <span class="wk-val">${fmt.eok(cur)}만원</span>
+      </div>
+      <div class="wk-row">
+        <span class="wk-row-lbl">전주</span>
+        <div class="wk-bar-wrap"><div class="wk-bar-fill" style="width:${(prev/maxVal*100).toFixed(1)}%;background:${isTotal?'rgba(255,255,255,.3)':'#C7D3E3'};"></div></div>
+        <span class="wk-val" style="color:${isTotal?'rgba(255,247,232,.65)':'var(--gray)'}">${hasPrev ? fmt.eok(prev)+'만원' : '—'}</span>
+      </div>
+    </div>
+  `;
+  return card;
+}
+
+// 화살표 버튼 이벤트 바인딩 (DOM 준비 후)
+function bindWkNavBtns(){
+  const pb = document.getElementById('wkPrevBtn');
+  const nb = document.getElementById('wkNextBtn');
+  if(pb) pb.addEventListener('click', ()=>{
+    const selMon = parseInt(document.getElementById('selectMonth').value) || 5;
+    const fw  = getWeeklyForMonth(selMon);
+    const idx = getWkIdx();
+    if(idx > 0){ currentWkIdx = idx - 1; renderWeekly(); }
+  });
+  if(nb) nb.addEventListener('click', ()=>{
+    const selMon = parseInt(document.getElementById('selectMonth').value) || 5;
+    const fw  = getWeeklyForMonth(selMon);
+    const idx = getWkIdx();
+    if(idx < fw.length - 1){ currentWkIdx = idx + 1; renderWeekly(); }
+  });
+}
+
+// 주차별 막대 차트 (해당 월 주차 + 꺾은선 증감)
+function renderWeeklyChart(){
+  const ctx = document.getElementById('weeklyChart');
+  if(!ctx) return;
+
+  const channelColors = {
+    B2B:   '#17498F',
+    B2C:   '#3A6AAE',
+    D2C:   '#D9A441',
+    STORE: '#9E9E9E'
+  };
+
+  const selMon = parseInt(document.getElementById('selectMonth').value) || 5;
+  const fw = getWeeklyForMonth(selMon);
+
+  // x축 라벨: WK21 (05.18-05.24) 형식 — 두 줄로 표현
+  const labels = fw.map(w => w.wk);
+
+  // 주차별 전체 합계 (꺾은선용)
+  const totals = fw.map(w => Math.round(CHANNELS.reduce((s,ch)=>s+(w[ch]||0),0)/1e4));
+
+  let barDatasets;
+  if(currentWSeries==='all'){
+    barDatasets = CHANNELS.map(ch=>({
+      type: 'bar',
+      label: ch,
+      data: fw.map(w=>Math.round((w[ch]||0)/1e4)),
+      backgroundColor: channelColors[ch],
+      borderRadius: 3,
+      barPercentage: 0.65,
+      categoryPercentage: 0.7,
+      stack: 'a',
+      yAxisID: 'y'
+    }));
+  } else {
+    const lastIdx = fw.length - 1;
+    barDatasets = [{
+      type: 'bar',
+      label: currentWSeries,
+      data: fw.map(w=>Math.round((w[currentWSeries]||0)/1e4)),
+      backgroundColor: fw.map((_,i)=> i===lastIdx ? channelColors[currentWSeries] : hexA(channelColors[currentWSeries],0.45)),
+      borderRadius: 4,
+      barPercentage: 0.55,
+      categoryPercentage: 0.8,
+      stack: 'b',
+      yAxisID: 'y'
+    }];
+  }
+
+  // 꺾은선: 전체 합계 추이
+  const lineDataset = {
+    type: 'line',
+    label: '합계',
+    data: totals,
+    borderColor: '#E05A2B',
+    backgroundColor: '#E05A2B',
+    borderWidth: 2.2,
+    pointRadius: 5,
+    pointHoverRadius: 7,
+    pointBackgroundColor: '#E05A2B',
+    pointBorderColor: '#fff',
+    pointBorderWidth: 2,
+    fill: false,
+    tension: 0,
+    yAxisID: 'y',
+    stack: undefined,
+    order: 0,         // 막대보다 앞에 그리기
+    datalabels: false
+  };
+
+  const datasets = [...barDatasets, lineDataset];
+
+  if(weeklyChart) weeklyChart.destroy();
+
+  weeklyChart = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: { padding: { top: 36 } },
+      plugins: {
+        legend: {
+          display: currentWSeries==='all',
+          position: 'top',
+          align: 'end',
+          labels: {
+            font:{family:'Pretendard',size:11,weight:'600'}, color:'#1F2937',
+            padding:14, boxWidth:10, boxHeight:10, usePointStyle:true, pointStyle:'rect',
+            filter: item => item.text !== '합계'   // 꺾은선은 범례에서 제외
+          }
+        },
+        tooltip: {
+          backgroundColor:'#17498F', titleColor:'#FFF7E8', bodyColor:'#fff',
+          titleFont:{family:'Pretendard',weight:'700',size:12},
+          bodyFont:{family:'Pretendard',size:12},
+          padding:12, cornerRadius:6, boxPadding:6,
+          callbacks:{
+            title: items => {
+              const wk = fw[items[0].dataIndex];
+              return wk ? `${wk.wk} (${wk.period})` : '';
+            },
+            label: c => {
+              if(c.dataset.label === '합계'){
+                return `합계  ${c.parsed.y.toLocaleString()}만원`;
+              }
+              if(currentWSeries==='all'){
+                const wk = fw[c.dataIndex];
+                const total = CHANNELS.reduce((s,ch)=>s+(wk[ch]||0),0);
+                const val = wk[c.dataset.label]||0;
+                const pct = total>0 ? (val/total*100).toFixed(1) : '0.0';
+                return `${c.dataset.label}  ${Math.round(val/1e4).toLocaleString()}만원 (${pct}%)`;
+              }
+              return `${c.dataset.label}  ${Math.round(c.parsed.y).toLocaleString()}만원`;
+            }
+          }
+        },
+        datalabels: false
+      },
+      scales: {
+        x: {
+          stacked: currentWSeries==='all',
+          ticks:{
+            font:{family:'Pretendard',size:10,weight:'600'},
+            color:'#1F2937',
+            maxRotation: 0,
+            callback: function(val){
+              const wk = fw[val];
+              if(!wk) return '';
+              return [`${wk.wk}`, `(${wk.period})`];
+            }
+          },
+          grid:{display:false},
+          border:{color:'#EAEAE4'}
+        },
+        y: {
+          stacked: currentWSeries==='all',
+          beginAtZero:true,
+          ticks:{
+            font:{family:'Pretendard',size:11}, color:'#9E9E9E',
+            callback: v => Math.round(v).toLocaleString()+'만'
+          },
+          grid:{color:'#F0F0EC', drawBorder:false},
+          border:{display:false}
+        }
+      }
+    },
+    plugins: [
+      {
+        // ① 막대 안 채널 비중 % 레이블
+        id: 'stackedBarLabels',
+        afterDraw(chart) {
+          if(currentWSeries !== 'all') return;
+          const ctx2 = chart.ctx;
+          // bar 데이터셋만 처리 (꺾은선 제외)
+          chart.data.datasets.forEach((dataset, di) => {
+            if(dataset.type === 'line') return;
+            const meta = chart.getDatasetMeta(di);
+            meta.data.forEach((bar, idx) => {
+              const wk = fw[idx];
+              if(!wk) return;
+              const total = CHANNELS.reduce((s,ch)=>s+(wk[ch]||0),0);
+              const val = wk[dataset.label]||0;
+              if(total<=0 || val<=0) return;
+              const pct = (val/total*100).toFixed(0);
+              const barH = Math.abs(bar.height||0);
+              if(barH < 14) return;
+              ctx2.save();
+              ctx2.font = 'bold 10px Pretendard, sans-serif';
+              ctx2.fillStyle = '#fff';
+              ctx2.textAlign = 'center';
+              ctx2.textBaseline = 'middle';
+              ctx2.fillText(pct+'%', bar.x, bar.y + barH/2);
+              ctx2.restore();
+            });
+          });
+        }
+      },
+      {
+        // ② 꺾은선 포인트 위에 증감 레이블 (만원 + WoW%)
+        id: 'lineValueLabels',
+        afterDraw(chart) {
+          const ctx2 = chart.ctx;
+          // 꺾은선 데이터셋 찾기
+          const lineIdx = chart.data.datasets.findIndex(d => d.label === '합계');
+          if(lineIdx < 0) return;
+          const meta = chart.getDatasetMeta(lineIdx);
+
+          meta.data.forEach((point, idx) => {
+            const cur  = totals[idx];
+            const prev = idx > 0 ? totals[idx - 1] : null;
+            if(cur == null) return;
+
+            const wow = prev != null && prev > 0
+              ? ((cur - prev) / prev * 100).toFixed(1)
+              : null;
+            const up  = wow != null ? parseFloat(wow) >= 0 : true;
+            const wowTxt = wow != null
+              ? `${up ? '▲' : '▼'} ${Math.abs(parseFloat(wow))}%`
+              : '';
+
+            const valTxt = cur.toLocaleString() + '만';
+
+            ctx2.save();
+            // 값 (만원)
+            ctx2.font = 'bold 10.5px Pretendard, sans-serif';
+            ctx2.fillStyle = '#E05A2B';
+            ctx2.textAlign = 'center';
+            ctx2.textBaseline = 'bottom';
+            ctx2.fillText(valTxt, point.x, point.y - 4);
+
+            // 증감 %
+            if(wowTxt){
+              ctx2.font = 'bold 9.5px Pretendard, sans-serif';
+              ctx2.fillStyle = up ? '#2E8B57' : '#D9534F';
+              ctx2.fillText(wowTxt, point.x, point.y - 16);
+            }
+            ctx2.restore();
+          });
+        }
+      }
+    ]
+  });
+}
+
+// ---------- 일자별 차트 ------------------------------------
+function renderDailyChart(){
+  const ctx = document.getElementById('dailyChart');
+
+  // 선택된 연/월에 맞는 데이터만 필터링
+  const selYr  = parseInt(document.getElementById('selectYear').value)  || 2026;
+  const selMon = parseInt(document.getElementById('selectMonth').value) || 5;
+  const filtered = data.daily.filter(d => {
+    const [dy, dm] = d.date.split('-').map(Number);
+    return dy === selYr && dm === selMon;
+  });
+
+  const labels = filtered.map(d=>{
+    const [,mo,da] = d.date.split('-');
+    return `${parseInt(mo)}/${parseInt(da)}`;
+  });
+
+  const channelColors = {
+    B2B:   '#17498F',
+    B2C:   '#3A6AAE',
+    D2C:   '#D9A441',
+    STORE: '#9E9E9E'
+  };
+
+  // null 값은 그대로 둠 → Chart.js가 자동으로 점/선 표시 안함
+  const toMil = v => (v==null ? null : Math.round(v/1e4));
+
+  let datasets;
+  if(currentSeries==='all'){
+    datasets = CHANNELS.map(ch=>({
+      label: ch,
+      data: filtered.map(d=>toMil(d[ch])),
+      borderColor: channelColors[ch],
+      backgroundColor: channelColors[ch],
+      borderWidth: 2,
+      fill: false,
+      tension: 0,                  // 직선
+      pointRadius: 2.5,
+      pointHoverRadius: 5,
+      pointBackgroundColor: channelColors[ch],
+      pointBorderWidth: 0,
+      spanGaps: false              // null 구간은 끊어서 표시
+    }));
+  } else {
+    datasets = [{
+      label: currentSeries,
+      data: filtered.map(d=>toMil(d[currentSeries])),
+      borderColor: channelColors[currentSeries],
+      backgroundColor: channelColors[currentSeries],
+      borderWidth: 2.2,
+      fill: false,
+      tension: 0,                  // 직선
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      pointBackgroundColor: channelColors[currentSeries],
+      pointBorderWidth: 0,
+      spanGaps: false
+    }];
+  }
+
+  if(dailyChart) dailyChart.destroy();
+
+  dailyChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      layout: { padding: { top: 28 } },
+      plugins: {
+        legend: {
+          display: currentSeries==='all',
+          position: 'top',
+          align: 'end',
+          labels: { font:{family:'Pretendard',size:11,weight:'600'}, color:'#1F2937', padding:14, boxWidth:10, boxHeight:10, usePointStyle:true, pointStyle:'rect' }
+        },
+        tooltip: {
+          backgroundColor:'#17498F', titleColor:'#FFF7E8', bodyColor:'#fff',
+          titleFont:{family:'Pretendard',weight:'700',size:12},
+          bodyFont:{family:'Pretendard',size:12},
+          padding:12, cornerRadius:6, boxPadding:6,
+          filter: (item) => item.parsed.y != null,
+          callbacks:{
+            label: c => `${c.dataset.label}  ${c.parsed.y != null ? c.parsed.y.toLocaleString()+'만원' : '-'}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks:{
+            font:{family:'Pretendard',size:10},
+            color:'#9E9E9E',
+            autoSkip:false,
+            maxRotation:0,
+            minRotation:0,
+            callback: function(val, idx){
+              const lbl = this.getLabelForValue(val);
+              return lbl;
+            }
+          },
+          grid:{display:false},
+          border:{color:'#EAEAE4'}
+        },
+        y: {
+          beginAtZero:true,
+          ticks:{
+            font:{family:'Pretendard',size:11}, color:'#9E9E9E',
+            callback: v => Math.round(v).toLocaleString()+'만'
+          },
+          grid:{color:'#F0F0EC', drawBorder:false},
+          border:{display:false}
+        }
+      }
+    },
+    plugins: [{
+      id: 'dailyValueLabels',
+      afterDraw(chart) {
+        const ctx2 = chart.ctx;
+        if(currentSeries === 'all'){
+          // 전체 탭: 각 날짜별 채널 합계를 가장 위 포인트 위에 표시
+          const numPts = chart.data.datasets[0]?.data?.length || 0;
+          for(let idx=0; idx<numPts; idx++){
+            // 해당 날짜의 합계 (null 제외)
+            let total = 0;
+            let hasAny = false;
+            chart.data.datasets.forEach(ds => {
+              const v = ds.data[idx];
+              if(v != null){ total += v; hasAny = true; }
+            });
+            if(!hasAny || total === 0) continue;
+            // 가장 위쪽 포인트의 y 좌표 찾기
+            let minY = Infinity;
+            chart.data.datasets.forEach(ds => {
+              const meta = chart.getDatasetMeta(chart.data.datasets.indexOf(ds));
+              if(meta.data[idx]) minY = Math.min(minY, meta.data[idx].y);
+            });
+            if(minY === Infinity) continue;
+            ctx2.save();
+            ctx2.font = 'bold 9px Pretendard, sans-serif';
+            ctx2.fillStyle = '#374151';
+            ctx2.textAlign = 'center';
+            ctx2.textBaseline = 'bottom';
+            ctx2.fillText(total.toLocaleString()+'만', chart.getDatasetMeta(0).data[idx].x, minY - 4);
+            ctx2.restore();
+          }
+        } else {
+          // 단일 채널: 해당 채널 값 표시
+          chart.data.datasets.forEach((dataset) => {
+            const meta = chart.getDatasetMeta(0);
+            meta.data.forEach((point, idx) => {
+              const v = dataset.data[idx];
+              if(v == null || v === 0) return;
+              ctx2.save();
+              ctx2.font = 'bold 9.5px Pretendard, sans-serif';
+              ctx2.fillStyle = channelColors[dataset.label] || '#17498F';
+              ctx2.textAlign = 'center';
+              ctx2.textBaseline = 'bottom';
+              ctx2.fillText(v.toLocaleString()+'만', point.x, point.y - 5);
+              ctx2.restore();
+            });
+          });
+        }
+      }
+    }]
+  });
+}
+
+function hexA(hex, a){
+  const h = hex.replace('#','');
+  const r = parseInt(h.substring(0,2),16),
+        g = parseInt(h.substring(2,4),16),
+        b = parseInt(h.substring(4,6),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+// ---------- 채널 상세 통합 테이블 --------------------------
+// 펼침/접기 상태 (기본: 모두 펼침)
+const expandedState = {B2B:true, B2C:true, D2C:true, STORE:true};
+
+function renderChannelDetail(){
+  const m = data.currentMonthIndex;
+  const tbody = document.getElementById('detailBody');
+  const tfoot = document.getElementById('detailFoot');
+  tbody.innerHTML = '';
+  tfoot.innerHTML = '';
+
+  // 테이블 헤더 동적 업데이트
+  const monName = (m+1)+'월';
+  const el_ytdTgt = document.getElementById('thYtdTgt');
+  const el_ytd    = document.getElementById('thYtd');
+  const el_mon    = document.getElementById('thCurMon');
+  const el_tgt    = document.getElementById('thTarget');
+  const el_ach    = document.getElementById('thAch');
+  if(el_ytdTgt) el_ytdTgt.innerHTML = `금년 목표<br/><span class="sub">(1~${m+1}월)</span>`;
+  if(el_ytd)    el_ytd.innerHTML    = `금년 실적<br/><span class="sub">(1~${m+1}월)</span>`;
+  if(el_mon)    el_mon.innerHTML    = `${monName} 매출`;
+  if(el_tgt)    el_tgt.innerHTML    = `${monName} 목표`;
+  if(el_ach)    el_ach.innerHTML    = `달성률<br/><span class="sub">(${monName} 기준)</span>`;
+
+  // 채널별 누적 합계
+  const grand = {
+    ytdTgt:0, ytd:0, may:0, tgt:0,
+    monthly: Array(12).fill(0)
+  };
+
+  CHANNELS.forEach(ch=>{
+    // 1) 채널 그룹 라벨 row
+    const groupTr = document.createElement('tr');
+    groupTr.className = 'group-row';
+    groupTr.innerHTML = `<td colspan="18">${ch} 채널</td>`;
+    tbody.appendChild(groupTr);
+
+    // 2) 상위 채널 row 데이터 계산
+    const tgts = data.monthly[ch].target;
+    const acts = data.monthly[ch].actual;
+    const ytd    = acts.slice(0, m+1).reduce((s,v)=>s+v, 0);
+    const ytdTgt = tgts.slice(0, m+1).reduce((s,v)=>s+v, 0);
+    const may    = acts[m];
+    const mayTgt = tgts[m];
+    const ach    = mayTgt>0 ? may/mayTgt : 0;
+
+    grand.ytdTgt += ytdTgt;
+    grand.ytd    += ytd;
+    grand.may    += may;
+    grand.tgt    += mayTgt;
+    for(let i=0;i<12;i++) grand.monthly[i] += acts[i];
+
+    const parentTr = document.createElement('tr');
+    parentTr.className = 'parent-row';
+    parentTr.dataset.channel = ch;
+    parentTr.innerHTML = renderRowHTML({
+      isParent: true,
+      channel: ch,
+      label: ch,
+      ytdTgt, ytd, may, mayTgt, ach,
+      monthlyActual: acts,
+      curMonthIdx: m
     });
+    tbody.appendChild(parentTr);
 
-    const channelNames = dataRows.filter(r => r && r[1]).map(r => r[1].toString().trim());
-    const isOmni  = channelNames.includes('D2C') || channelNames.includes('오프라인');
-    const isSales = channelNames.includes('B2B');
+    // 토글 이벤트 바인딩
+    const toggleBtn = parentTr.querySelector('.ch-toggle');
+    if(toggleBtn){
+      toggleBtn.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        expandedState[ch] = !expandedState[ch];
+        toggleBtn.textContent = expandedState[ch] ? '⊟' : '⊞';
+        document.querySelectorAll(`tr.child-row[data-parent="${ch}"]`).forEach(r=>{
+          r.classList.toggle('collapsed', !expandedState[ch]);
+        });
+      });
+    }
 
-    let data;
-    if (isOmni) data = parseOmniExcel(year, month, dataRows);
-    else if (isSales) data = parseSalesExcel(year, month, dataRows);
-    else throw new Error('알 수 없는 엑셀 양식입니다.');
+    // 3) 하위 채널 rows
+    const subs = data.subChannels.filter(s => s.top===ch);
+    subs.forEach(s=>{
+      const sYtd = s.ytd || 0;
+      const sMay = s.actual || 0;
+      const sTgt = s.target || 0;
+      const sAch = sTgt>0 ? sMay/sTgt : 0;
+      const monAct = s.monthlyActual || Array(12).fill(0);
 
-    loadingText.textContent = 'Firebase에 저장 중…';
-    await setDoc(doc(db, 'monthlyData', monthDocId(year, month)), data);
+      const childTr = document.createElement('tr');
+      childTr.className = 'child-row' + (expandedState[ch] ? '' : ' collapsed');
+      childTr.dataset.parent = ch;
+      // 하위 채널 ytdTgt: monthlyActual 기반으로 1~m월 목표 합산 (target이 없으므로 비례 추정)
+      // 없는 경우 0으로 처리
+      const sYtdTgt = (s.ytdTarget !== undefined) ? s.ytdTarget : 0;
+      childTr.innerHTML = renderRowHTML({
+        isParent: false,
+        channel: ch,
+        label: s.sub,
+        ytdTgt: sYtdTgt, ytd: sYtd, may: sMay, mayTgt: sTgt, ach: sAch,
+        monthlyActual: monAct,
+        curMonthIdx: m
+      });
+      tbody.appendChild(childTr);
+    });
+  });
 
-    refreshAllFrames();
-    const type = isOmni ? 'OMNI' : 'SALES';
-    showToast(`✓ ${type} ${year}년 ${month}월 데이터가 저장되었습니다.`);
-  } catch(e) {
-    console.error(e);
-    showToast('업로드 실패: ' + (e.message || e));
-  } finally {
-    setTimeout(() => document.getElementById('frameLoading').classList.add('hidden'), 300);
-  }
+  // 4) 총 합계 row
+  const grandAch = grand.tgt>0 ? grand.may/grand.tgt : 0;
+  const totalTr = document.createElement('tr');
+  totalTr.className = 'total-row';
+  totalTr.innerHTML = renderRowHTML({
+    isParent: true,
+    isTotal: true,
+    label: '총 합계',
+    ytdTgt: grand.ytdTgt, ytd: grand.ytd, may: grand.may, mayTgt: grand.tgt, ach: grandAch,
+    monthlyActual: grand.monthly,
+    curMonthIdx: m
+  });
+  tfoot.appendChild(totalTr);
 }
 
-function parseOmniExcel(year, month, dataRows){
-  const channels = { d2c:{subs:{}}, b2c:{subs:{}}, etc:{subs:{}}, off:{subs:{}} };
-  const NAME_TO_CH = { 'D2C':'d2c', 'B2C':'b2c', '기타':'etc', '오프라인':'off' };
-  const SUB_NAME_TO_KEY = {
-    '브랜드몰':'brandshop', '네이버':'naver',
-    'SSG':'ssg', '현대투홈':'hyundai', 'KB헬스케어':'kb', '기타':'b2c_etc',
-    '신세계 강남':'sinsegae_gn', '신세계 청담':'sinsegae_cd'
-  };
-  let currentParent = null;
-  for (const r of dataRows) {
-    const chName = (r[1] || '').toString().trim();
-    const subName = (r[2] || '').toString().trim().replace(/^└\s*/,'').replace(/^\(.*\)$/,'').trim();
-    const sales = Number(r[3]) || 0;
-    const target = Number(r[4]) || 0;
-    const prev = (r[5] === '' || r[5] == null) ? null : Number(r[5]);
-    const maxDate = (r[6] || '').toString().trim();
-    const maxAmt = (r[7] === '' || r[7] == null) ? null : Number(r[7]);
-    const minDate = (r[8] || '').toString().trim();
-    const minAmt = (r[9] === '' || r[9] == null) ? null : Number(r[9]);
+// 통합 테이블 row HTML 생성 (전년/YOY 제거, 월별 = 각 월 단독 매출)
+function renderRowHTML(opts){
+  const {isParent, isTotal, channel, label, ytdTgt, ytd, may, mayTgt, ach, monthlyActual, curMonthIdx} = opts;
+  const achCls = classifyAch(ach);
+  const achPct = (ach*100).toFixed(1) + '%';
 
-    if (NAME_TO_CH[chName]) {
-      currentParent = NAME_TO_CH[chName];
-      const isParentRow = !subName || /합계/.test(r[2]||'');
-      if (currentParent === 'etc' && isParentRow) {
-        channels.etc.sales = sales;
-        channels.etc.target = target;
-        channels.etc.prevYear = prev;
-        if (maxDate || maxAmt != null) channels.etc.max = { date: maxDate, amount: maxAmt };
-        if (minDate || minAmt != null) channels.etc.min = { date: minDate, amount: minAmt };
-      }
-      continue;
-    }
-    if (currentParent && subName) {
-      const subKey = SUB_NAME_TO_KEY[subName];
-      if (!subKey) continue;
-      channels[currentParent].subs[subKey] = {
-        sales, target, prevYear: prev,
-        max: (maxDate || maxAmt != null) ? { date: maxDate, amount: maxAmt } : null,
-        min: (minDate || minAmt != null) ? { date: minDate, amount: minAmt } : null,
-      };
-    }
+  // 채널 이름 셀
+  let chCell;
+  if(isTotal){
+    chCell = `<span class="ch-cell"><span style="font-weight:800;color:var(--navy);">${label}</span></span>`;
+  } else if(isParent){
+    chCell = `<span class="ch-cell">
+      <button class="ch-toggle" type="button" aria-label="펼치기/접기">⊟</button>
+      <span class="ch-dot ${channel}"></span>
+      <span>${label}</span>
+    </span>`;
+  } else {
+    chCell = `<span class="ch-cell" style="padding-left:0;">
+      <span class="ch-prefix">└</span>
+      <span>${label}</span>
+    </span>`;
   }
-  return { year, month, uploadedAt: new Date().toISOString(), channels };
+
+  // 월별 셀 (각 월의 단독 매출)
+  let monthCells = '';
+  for(let i=0;i<12;i++){
+    const v = monthlyActual[i] || 0;
+    const hasData = i <= curMonthIdx && v > 0;
+    const cls = (i===0?'mon-cell month-start':'mon-cell') + ' ' + (hasData?'has-data':'no-data');
+    monthCells += `<td class="${cls}">${hasData ? fmt.mil(v) : '—'}</td>`;
+  }
+
+  return `
+    <td class="col-ch">${chCell}</td>
+    <td>${ytdTgt > 0 ? fmt.mil(ytdTgt) : '—'}</td>
+    <td>${fmt.mil(ytd)}</td>
+    <td>${fmt.mil(may)}</td>
+    <td>${fmt.mil(mayTgt)}</td>
+    <td class="col-ach">
+      <span class="ach-cell">
+        <span class="ach-num ${achCls}">${achPct}</span>
+        <span class="ach-gauge"><div class="${achCls}" style="width:${Math.min(100, Math.max(0, ach*100))}%"></div></span>
+      </span>
+    </td>
+    ${monthCells}
+  `;
 }
 
-function parseSalesExcel(year, month, dataRows){
-  const channels = { b2b:{subs:{}}, b2c:{subs:{}} };
-  const NAME_TO_CH = { 'B2B':'b2b', 'B2C':'b2c' };
-  const SUB_NAME_TO_KEY = {
-    '웰스토리':'welstory', '스타벅스':'starbucks', 'CJ프레시웨이':'cj', '캠퍼스파트너스':'campus',
-    'HSP':'hsp', '컬리':'kurly', '롯데마트':'lottemart', '이마트':'emart',
-    'SSG-직매입':'ssg_direct', 'SSG 직매입':'ssg_direct',
-    'GS리테일':'gs', 'GS 리테일':'gs',
-  };
-  let currentParent = null;
-  for (const r of dataRows) {
-    const chName = (r[1] || '').toString().trim();
-    const subName = (r[2] || '').toString().trim().replace(/^└\s*/,'').replace(/^\(.*\)$/,'').trim();
-    const sales = Number(r[3]) || 0;
-    const target = Number(r[4]) || 0;
-    const prev = (r[5] === '' || r[5] == null) ? null : Number(r[5]);
-    const maxDate = (r[6] || '').toString().trim();
-    const maxAmt = (r[7] === '' || r[7] == null) ? null : Number(r[7]);
-    const minDate = (r[8] || '').toString().trim();
-    const minAmt = (r[9] === '' || r[9] == null) ? null : Number(r[9]);
 
-    if (NAME_TO_CH[chName]) {
-      currentParent = NAME_TO_CH[chName];
-      continue;
+// 같은 chart-controls 컨테이너 내의 칩만 active 토글
+document.querySelectorAll('.chip').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const parent = btn.closest('.chart-controls');
+    if(parent){
+      parent.querySelectorAll('.chip').forEach(b=>b.classList.remove('active'));
     }
-    if (currentParent && subName) {
-      let subKey = SUB_NAME_TO_KEY[subName];
-      if (!subKey && subName === '기타') subKey = currentParent + '_etc';
-      if (!subKey) continue;
-      channels[currentParent].subs[subKey] = {
-        sales, target, prevYear: prev,
-        max: (maxDate || maxAmt != null) ? { date: maxDate, amount: maxAmt } : null,
-        min: (minDate || minAmt != null) ? { date: minDate, amount: minAmt } : null,
-      };
-    }
-  }
-  return { year, month, uploadedAt: new Date().toISOString(), channels };
-}
-
-function refreshAllFrames(){
-  document.querySelectorAll('.dash-frame').forEach(f => {
-    if (f.src && f.src !== 'about:blank' && !f.src.endsWith('/')) {
-      try {
-        f.contentWindow.location.reload();
-      } catch(e) {
-        const s = f.src; f.src = ''; f.src = s;
-      }
+    btn.classList.add('active');
+    if(btn.dataset.series){
+      currentSeries = btn.dataset.series;
+      renderDailyChart();
+    } else if(btn.dataset.wseries){
+      currentWSeries = btn.dataset.wseries;
+      renderWeeklyChart();
     }
   });
-}
-
-async function checkFirebaseConnection(){
-  setStatus('connecting', 'Firebase 연결 확인 중…');
-  try {
-    await getDoc(doc(db, 'monthlyData', '__connection_test__'));
-    setStatus('ok', '서버 데이터 연동됨');
-  } catch(e) {
-    console.error('Firebase connection failed:', e);
-    if (location.protocol === 'file:') {
-      setStatus('error', '로컬 파일로 열렸음 — http 서버 필요');
-    } else {
-      setStatus('error', 'Firebase 연결 실패');
-    }
-  }
-}
-
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    if (btn.disabled) return;
-    switchTab(btn.dataset.tab);
-  });
 });
-document.getElementById('uploadBtn').addEventListener('click', () => {
-  document.getElementById('fileInput').click();
-});
-document.getElementById('fileInput').addEventListener('change', (e) => {
+
+// ---------- 엑셀 업로드 ------------------------------------
+document.getElementById('fileInput').addEventListener('change', async (e)=>{
   const file = e.target.files[0];
-  if (file) handleExcelUpload(file);
-  e.target.value = '';
-});
-window.addEventListener('hashchange', () => {
-  const tab = location.hash.replace('#','');
-  if (TABS[tab]) switchTab(tab);
+  if(!file) return;
+  try{
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, {type:'array'});
+    parseExcel(wb);
+    setText('lastUpdated', `업로드 완료 · ${file.name}`);
+    document.getElementById('lastUpdated').style.color = 'var(--pos)';
+    renderAll();
+  }catch(err){
+    alert('엑셀 파일을 읽는 중 오류가 발생했습니다.\n양식을 확인해 주세요.\n\n' + err.message);
+    console.error(err);
+  }
 });
 
-// 초기
-checkFirebaseConnection();
-const initialTab = (location.hash && TABS[location.hash.replace('#','')])
-  ? location.hash.replace('#','')
-  : DEFAULT_TAB;
-switchTab(initialTab);
+function parseExcel(wb){
+  // 1. 월별 목표·실적
+  const sheetName1 = wb.SheetNames.find(n=>n.includes('월별'));
+  if(sheetName1){
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName1], {header:1, defval:0});
+    // 헤더 행 찾기 (1월이 포함된 행)
+    let headerIdx = rows.findIndex(r=>r && r.includes('1월'));
+    if(headerIdx>=0){
+      for(let i=headerIdx+1;i<rows.length;i++){
+        const r = rows[i];
+        if(!r || !r[0]) continue;
+        const ch = String(r[0]).trim();
+        const type = String(r[1]||'').trim();
+        if(!CHANNELS.includes(ch)) continue;
+        if(!data.monthly[ch]) data.monthly[ch] = {target:[],actual:[],prevMay:0};
+        if(type.includes('전년5월') || type.includes('전년 5월')){
+          data.monthly[ch].prevMay = Number(r[2])||0;
+          continue;
+        }
+        const arr = [];
+        for(let j=0;j<12;j++){
+          arr.push(Number(r[2+j])||0);
+        }
+        if(type.includes('목표')) data.monthly[ch].target = arr;
+        else if(type.includes('실적')) data.monthly[ch].actual = arr;
+      }
+    }
+  }
+
+  // 2. 주차별 실적
+  const sheetName2 = wb.SheetNames.find(n=>n.includes('주차'));
+  if(sheetName2){
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName2], {header:1, defval:0});
+    const headerIdx = rows.findIndex(r=>r && r[0]==='WK');
+    if(headerIdx>=0){
+      const newWeekly = [];
+      for(let i=headerIdx+1;i<rows.length;i++){
+        const r = rows[i];
+        if(!r || !r[0]) continue;
+        newWeekly.push({
+          wk: String(r[0]),
+          period: String(r[1]||''),
+          B2B: Number(r[2])||0,
+          B2C: Number(r[3])||0,
+          D2C: Number(r[4])||0,
+          STORE: Number(r[5])||0
+        });
+      }
+      if(newWeekly.length>0) data.weekly = newWeekly;
+    }
+  }
+
+  // 3. 일자별 실적
+  const sheetName3 = wb.SheetNames.find(n=>n.includes('일자'));
+  if(sheetName3){
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName3], {header:1, defval:0});
+    const headerIdx = rows.findIndex(r=>r && r[0]==='일자');
+    if(headerIdx>=0){
+      const newDaily = [];
+      for(let i=headerIdx+1;i<rows.length;i++){
+        const r = rows[i];
+        if(!r || !r[0]) continue;
+        let date = r[0];
+        if(typeof date === 'number'){
+          // Excel serial date
+          const d = new Date(Math.round((date-25569)*86400*1000));
+          date = d.toISOString().slice(0,10);
+        }
+        newDaily.push({
+          date: String(date).slice(0,10),
+          B2B: Number(r[1])||0,
+          B2C: Number(r[2])||0,
+          D2C: Number(r[3])||0,
+          STORE: Number(r[4])||0
+        });
+      }
+      if(newDaily.length>0) data.daily = newDaily;
+    }
+  }
+
+  // 4. 하위 채널별 실적
+  const sheetName4 = wb.SheetNames.find(n=>n.includes('하위'));
+  if(sheetName4){
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName4], {header:1, defval:0});
+    const headerIdx = rows.findIndex(r=>r && String(r[0]||'').includes('상위'));
+    if(headerIdx>=0){
+      const newSub = [];
+      for(let i=headerIdx+1;i<rows.length;i++){
+        const r = rows[i];
+        if(!r || !r[0] || !r[1]) continue;
+        const monArr = [];
+        for(let j=0;j<12;j++){
+          monArr.push(Number(r[6+j])||0);
+        }
+        newSub.push({
+          top: String(r[0]).trim(),
+          sub: String(r[1]).trim(),
+          target: Number(r[2])||0,
+          actual: Number(r[3])||0,
+          ytd: Number(r[4])||0,
+          prevMay: Number(r[5])||0,
+          monthlyActual: monArr
+        });
+      }
+      if(newSub.length>0) data.subChannels = newSub;
+    }
+  }
+}
+
+// ---------- 엑셀 양식 다운로드 -----------------------------
+document.getElementById('downloadTemplate').addEventListener('click', ()=>{
+  const wb = XLSX.utils.book_new();
+
+  // 안내
+  const guide = [
+    ['Growth 매출 대시보드 데이터 업로드 양식'],
+    [],
+    ['◾ 본 엑셀은 대시보드 (growth.html) 데이터 업로드용 양식입니다.'],
+    ['◾ 각 시트의 양식을 그대로 유지하고, 셀의 숫자 값만 수정해 주세요.'],
+    ['◾ 모든 금액 단위는 "원" 입니다. (예: 10,000,000 = 1천만원)'],
+    [],
+    ['◾ 시트 구성:'],
+    ['  1. 월별 목표·실적: 채널별 월별 목표/실적/전년5월 (1월~12월 + 전년5월 row)'],
+    ['  2. 주차별 실적: WK 단위 채널별 실적'],
+    ['  3. 일자별 실적: 일자별 채널별 매출 추이'],
+    ['  4. 하위 채널별 실적: 하위 채널의 5월 목표/실적/누적/전년5월/월별 매출(1~12월)'],
+    [],
+    ['◾ 채널 구분: B2B / B2C / D2C / STORE'],
+    ['◾ 데이터 입력 후 파일을 저장하고 "엑셀 업로드" 버튼으로 업로드 하세요.']
+  ];
+  const ws0 = XLSX.utils.aoa_to_sheet(guide);
+  ws0['!cols'] = [{wch:80}];
+  XLSX.utils.book_append_sheet(wb, ws0, '안내');
+
+  // 월별
+  const monthRows = [['월별 목표 및 실적 (단위: 원)'], [], ['채널','구분',...MONTHS]];
+  CHANNELS.forEach(ch=>{
+    monthRows.push([ch,'목표',...data.monthly[ch].target]);
+    monthRows.push([ch,'실적',...data.monthly[ch].actual]);
+    monthRows.push([ch,'전년5월',data.monthly[ch].prevMay||0]);
+  });
+  const ws1 = XLSX.utils.aoa_to_sheet(monthRows);
+  ws1['!cols'] = [{wch:10},{wch:12},...Array(12).fill({wch:16})];
+  XLSX.utils.book_append_sheet(wb, ws1, '월별 목표·실적');
+
+  // 주차별
+  const wkRows = [['주차별 실적 (단위: 원)'], [], ['WK','기간','B2B','B2C','D2C','STORE','비고']];
+  data.weekly.forEach(w=>wkRows.push([w.wk,w.period,w.B2B,w.B2C,w.D2C,w.STORE,'']));
+  const ws2 = XLSX.utils.aoa_to_sheet(wkRows);
+  ws2['!cols'] = [{wch:10},{wch:18},{wch:16},{wch:16},{wch:16},{wch:16},{wch:12}];
+  XLSX.utils.book_append_sheet(wb, ws2, '주차별 실적');
+
+  // 일자별
+  const dRows = [['일자별 실적 (단위: 원)'], [], ['일자','B2B','B2C','D2C','STORE']];
+  data.daily.forEach(d=>dRows.push([d.date,d.B2B,d.B2C,d.D2C,d.STORE]));
+  const ws3 = XLSX.utils.aoa_to_sheet(dRows);
+  ws3['!cols'] = [{wch:14},{wch:16},{wch:16},{wch:16},{wch:16}];
+  XLSX.utils.book_append_sheet(wb, ws3, '일자별 실적');
+
+  // 하위 (전년5월 + 1~12월 추가)
+  const sRows = [
+    ['하위 채널별 실적 (단위: 원)'],
+    [],
+    ['상위 채널','하위 채널','당월 목표','당월 실적','누적 실적(YTD)','전년 5월',...MONTHS]
+  ];
+  data.subChannels.forEach(s=>{
+    const monArr = s.monthlyActual || Array(12).fill(0);
+    sRows.push([s.top,s.sub,s.target,s.actual,s.ytd,s.prevMay||0,...monArr]);
+  });
+  const ws4 = XLSX.utils.aoa_to_sheet(sRows);
+  ws4['!cols'] = [{wch:12},{wch:20},{wch:16},{wch:16},{wch:18},{wch:14},...Array(12).fill({wch:14})];
+  XLSX.utils.book_append_sheet(wb, ws4, '하위 채널별 실적');
+
+  XLSX.writeFile(wb, 'growth_data_template.xlsx');
+});
+
+// ---------- 연/월 선택 -----------------------------------
+function applyYearMonth(){
+  const yr  = parseInt(document.getElementById('selectYear').value);
+  const mon = parseInt(document.getElementById('selectMonth').value);
+  data.currentMonthIndex = mon - 1;
+  currentWkIdx = -1; // 월 바뀌면 해당 월 마지막 주로 리셋
+  // 마지막 일자 데이터 기준으로 배지 날짜 산출
+  const dailyForMon = data.daily.filter(d => {
+    const [dy, dm] = d.date.split('-').map(Number);
+    return dy === yr && dm === mon;
+  });
+  let lastDay = '';
+  if(dailyForMon.length > 0){
+    const last = dailyForMon[dailyForMon.length - 1].date;
+    const [,, dd] = last.split('-');
+    lastDay = `.${parseInt(dd)}`;
+  }
+  document.getElementById('ymBadgeBtn').textContent = `${yr}.${String(mon).padStart(2,'0')}${lastDay} 기준`;
+  setText('lastUpdated', `${yr}년 ${mon}월${lastDay ? ' '+parseInt(lastDay.slice(1))+'일' : ''} 기준`);
+  renderAll();
+}
+
+document.getElementById('ymBadgeBtn').addEventListener('click', applyYearMonth);
+document.getElementById('selectYear').addEventListener('change', applyYearMonth);
+document.getElementById('selectMonth').addEventListener('change', applyYearMonth);
+
+// ---------- 전체 렌더 -------------------------------------
+function renderAll(){
+  renderOverview();
+  renderWeekly();
+  renderDailyChart();
+  renderChannelDetail();
+}
+
+// 초기 렌더
+renderAll();
+bindWkNavBtns();
 </script>
+
 </body>
 </html>
