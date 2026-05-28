@@ -1585,6 +1585,65 @@ function parsePeriod(period){
   return { sm, sd, em, ed };
 }
 
+// 주차 기간(period)에 해당하는 일자(YYYY-MM-DD) 목록을 연도 기준으로 생성
+//  - 월 경계를 넘는 주(예: 04.27-05.03)도 올바르게 처리
+function getWeekDates(period, year){
+  const p = parsePeriod(period);
+  if(!p) return [];
+  // 시작일 Date 객체 (시작월/일 기준)
+  const start = new Date(year, p.sm - 1, p.sd);
+  const end   = new Date(year, p.em - 1, p.ed);
+  // 종료일이 시작일보다 앞서면(연말→연초 경계) 종료 연도를 +1
+  if(end < start) end.setFullYear(year + 1);
+  const dates = [];
+  const cur = new Date(start);
+  while(cur <= end){
+    const y = cur.getFullYear();
+    const m = String(cur.getMonth() + 1).padStart(2, '0');
+    const d = String(cur.getDate()).padStart(2, '0');
+    dates.push(`${y}-${m}-${d}`);
+    cur.setDate(cur.getDate() + 1);
+  }
+  return dates;
+}
+
+// 일자별 데이터를 빠르게 조회하기 위한 Map (date → row)
+function buildDailyMap(){
+  const map = {};
+  data.daily.forEach(d => { map[d.date] = d; });
+  return map;
+}
+
+// 특정 주차의 채널별 합계를 "일자별 데이터"에서 계산
+//  - dayLimit 지정 시: 주 시작일부터 앞 N일까지만 합산 (전주 동일 일수 비교용)
+//  - 반환: { B2B, B2C, D2C, STORE, _days }  (_days = 실제 데이터가 존재한 일수)
+function weekTotalsFromDaily(period, year, dailyMap, dayLimit){
+  const result = { B2B:0, B2C:0, D2C:0, STORE:0, _days:0 };
+  const dates = getWeekDates(period, year);
+  let counted = 0;
+  for(const dateStr of dates){
+    const row = dailyMap[dateStr];
+    if(!row) continue;                       // 해당 일자 데이터 없음 → 건너뜀
+    // 그 날 매출이 0이어도 "데이터가 존재"하면 1일로 카운트
+    const dayHasData = CHANNELS.some(ch => (row[ch] || 0) !== 0) || (dateStr in dailyMap);
+    if(dayLimit != null && counted >= dayLimit) break;  // 앞 N일까지만
+    CHANNELS.forEach(ch => { result[ch] += (row[ch] || 0); });
+    if(dayHasData) result._days++;
+    counted++;
+  }
+  return result;
+}
+
+// 해당 주차가 "현재 입력된 일자 수"를 반환 (전주 truncate 기준)
+function weekFilledDayCount(period, year, dailyMap){
+  const dates = getWeekDates(period, year);
+  let n = 0;
+  for(const dateStr of dates){
+    if(dateStr in dailyMap) n++;
+  }
+  return n;
+}
+
 // 주차가 선택 월에 속하는지 판단 (기간 내에 해당 월 날짜가 하나라도 있으면 포함)
 function wkBelongsToMonth(wk, mon){
   const p = parsePeriod(wk.period);
@@ -1618,6 +1677,7 @@ function getWkIdx(){
 
 function renderWeekly(){
   const selMon = parseInt(document.getElementById('selectMonth').value) || 5;
+  const selYr  = parseInt(document.getElementById('selectYear').value) || 2026;
   const fw = getWeeklyForMonth(selMon);
 
   if(fw.length < 1){
@@ -1627,12 +1687,33 @@ function renderWeekly(){
     return;
   }
 
-  const idx  = getWkIdx();
-  const cur  = fw[idx];
-  const prev = idx > 0 ? fw[idx - 1] : null;
+  const idx     = getWkIdx();
+  const curWk   = fw[idx];
+  const prevWk  = idx > 0 ? fw[idx - 1] : null;
 
-  setText('curWkLabel',  `${cur.wk} (${cur.period})`);
-  setText('prevWkLabel', prev ? `${prev.wk} (${prev.period})` : '—');
+  const dailyMap = buildDailyMap();
+
+  // 금주: 일자별 데이터에서 실제 합계 계산
+  const cur = weekTotalsFromDaily(curWk.period, selYr, dailyMap);
+  // 금주에 실제 입력된 일수 (부분 주차면 7일 미만)
+  const curDays = cur._days;
+  // 금주 기간 전체 일수 (보통 7)
+  const curSpan = getWeekDates(curWk.period, selYr).length;
+  // 금주가 "부분 데이터"인지 여부 (입력 일수 < 기간 전체)
+  const isPartial = curDays > 0 && curDays < curSpan;
+
+  // 전주: 금주가 부분이면 같은 일수(curDays)만큼만 잘라서 비교
+  let prev = null;
+  if(prevWk){
+    prev = isPartial
+      ? weekTotalsFromDaily(prevWk.period, selYr, dailyMap, curDays)
+      : weekTotalsFromDaily(prevWk.period, selYr, dailyMap);
+  }
+
+  // 라벨: 부분 비교일 때는 "(앞 N일)" 표기 추가
+  const cmpNote = (isPartial && prevWk) ? ` · 앞 ${curDays}일 비교` : '';
+  setText('curWkLabel',  `${curWk.wk} (${curWk.period})`);
+  setText('prevWkLabel', prevWk ? `${prevWk.wk} (${prevWk.period})${cmpNote}` : '—');
 
   // 화살표 버튼 활성/비활성
   const prevBtn = document.getElementById('wkPrevBtn');
@@ -1720,20 +1801,25 @@ function renderWeeklyChart(){
   };
 
   const selMon = parseInt(document.getElementById('selectMonth').value) || 5;
+  const selYr  = parseInt(document.getElementById('selectYear').value) || 2026;
   const fw = getWeeklyForMonth(selMon);
+
+  // 각 주차의 채널별 합계를 일자별 데이터에서 계산 (차트는 전체 추이이므로 truncate 없음)
+  const dailyMap = buildDailyMap();
+  const wkTotals = fw.map(w => weekTotalsFromDaily(w.period, selYr, dailyMap));
 
   // x축 라벨: WK21 (05.18-05.24) 형식 — 두 줄로 표현
   const labels = fw.map(w => w.wk);
 
   // 주차별 전체 합계 (꺾은선용)
-  const totals = fw.map(w => Math.round(CHANNELS.reduce((s,ch)=>s+(w[ch]||0),0)/1e4));
+  const totals = wkTotals.map(t => Math.round(CHANNELS.reduce((s,ch)=>s+(t[ch]||0),0)/1e4));
 
   let barDatasets;
   if(currentWSeries==='all'){
     barDatasets = CHANNELS.map(ch=>({
       type: 'bar',
       label: ch,
-      data: fw.map(w=>Math.round((w[ch]||0)/1e4)),
+      data: wkTotals.map(t=>Math.round((t[ch]||0)/1e4)),
       backgroundColor: channelColors[ch],
       borderRadius: 3,
       barPercentage: 0.65,
@@ -1746,7 +1832,7 @@ function renderWeeklyChart(){
     barDatasets = [{
       type: 'bar',
       label: currentWSeries,
-      data: fw.map(w=>Math.round((w[currentWSeries]||0)/1e4)),
+      data: wkTotals.map(t=>Math.round((t[currentWSeries]||0)/1e4)),
       backgroundColor: fw.map((_,i)=> i===lastIdx ? channelColors[currentWSeries] : hexA(channelColors[currentWSeries],0.45)),
       borderRadius: 4,
       barPercentage: 0.55,
@@ -1814,9 +1900,9 @@ function renderWeeklyChart(){
                 return `합계  ${c.parsed.y.toLocaleString()}만원`;
               }
               if(currentWSeries==='all'){
-                const wk = fw[c.dataIndex];
-                const total = CHANNELS.reduce((s,ch)=>s+(wk[ch]||0),0);
-                const val = wk[c.dataset.label]||0;
+                const t = wkTotals[c.dataIndex] || {};
+                const total = CHANNELS.reduce((s,ch)=>s+(t[ch]||0),0);
+                const val = t[c.dataset.label]||0;
                 const pct = total>0 ? (val/total*100).toFixed(1) : '0.0';
                 return `${c.dataset.label}  ${Math.round(val/1e4).toLocaleString()}만원 (${pct}%)`;
               }
@@ -1866,10 +1952,10 @@ function renderWeeklyChart(){
             if(dataset.type === 'line') return;
             const meta = chart.getDatasetMeta(di);
             meta.data.forEach((bar, idx) => {
-              const wk = fw[idx];
-              if(!wk) return;
-              const total = CHANNELS.reduce((s,ch)=>s+(wk[ch]||0),0);
-              const val = wk[dataset.label]||0;
+              const t = wkTotals[idx];
+              if(!t) return;
+              const total = CHANNELS.reduce((s,ch)=>s+(t[ch]||0),0);
+              const val = t[dataset.label]||0;
               if(total<=0 || val<=0) return;
               const pct = (val/total*100).toFixed(0);
               const barH = Math.abs(bar.height||0);
