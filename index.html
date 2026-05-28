@@ -44,6 +44,7 @@ html,body{
 
 /* ===== Header ===== */
 .header{
+  position:relative;
   display:flex;
   align-items:flex-end;
   justify-content:space-between;
@@ -124,14 +125,19 @@ html,body{
   margin-right:8px;
 }
 .sync-status{
+  position:absolute;
+  top:0;
+  right:0;
   font-size:11px;
   font-weight:600;
-  padding:5px 10px;
+  padding:5px 12px;
   border-radius:6px;
   background:#F0F0EC;
   color:var(--gray);
   white-space:nowrap;
   transition:all .2s ease;
+  z-index:5;
+  box-shadow:0 1px 4px rgba(0,0,0,.08);
 }
 .sync-status.ok{background:#E7F4EC;color:var(--pos);}
 .sync-status.err{background:#FBE9E8;color:var(--neg);}
@@ -921,6 +927,7 @@ table.detail-tbl .col-ach{min-width:160px;}
 
   <!-- ===== Header ===== -->
   <header class="header">
+    <span class="sync-status" id="syncStatus" title="Firebase 연동 상태">● 연결 확인 중…</span>
     <div class="header-left">
       <div class="eyebrow">Sales Performance Dashboard · 2026</div>
       <h1>Growth 주차별 매출 현황 <span class="accent">B2B · B2C · D2C · STORE</span></h1>
@@ -950,7 +957,6 @@ table.detail-tbl .col-ach{min-width:160px;}
         <button class="ym-badge" id="ymBadgeBtn">2026.05.20 기준</button>
       </div>
       <span class="last-updated" id="lastUpdated">2026년 5월 20일 기준</span>
-      <span class="sync-status" id="syncStatus" title="Firebase 연동 상태">● 연결 확인 중…</span>
       <button class="download-btn" id="downloadTemplate" type="button">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         엑셀 양식 다운로드
