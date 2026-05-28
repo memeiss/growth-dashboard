@@ -265,6 +265,19 @@ html,body{
   color:var(--navy);
   letter-spacing:0.04em;
 }
+/* 채널별 5월 실적 비중 배지 (라벨 우측) */
+.kpi-share{
+  margin-left:auto;
+  font-size:11px;
+  font-weight:700;
+  color:var(--navy);
+  background:var(--navy-light);
+  padding:2px 8px;
+  border-radius:10px;
+  letter-spacing:0;
+  line-height:1.4;
+  white-space:nowrap;
+}
 
 /* ===== Two-col layout ===== */
 .row-2{
@@ -1047,7 +1060,7 @@ table.detail-tbl .col-ach{min-width:160px;}
       </div>
 
       <div class="kpi">
-        <div class="label"><span class="tag">B2B</span> 5월 실적</div>
+        <div class="label"><span class="tag">B2B</span> 5월 실적<span class="kpi-share" id="kB2BShare">-</span></div>
         <div class="value"><span id="kB2BAct">-</span><span class="unit">만원</span></div>
         <div class="sub">목표 <span id="kB2BTgt">-</span>만원</div>
         <div class="progress"><div id="kB2BBar" style="width:0%"></div></div>
@@ -1058,7 +1071,7 @@ table.detail-tbl .col-ach{min-width:160px;}
       </div>
 
       <div class="kpi">
-        <div class="label"><span class="tag">B2C</span> 5월 실적</div>
+        <div class="label"><span class="tag">B2C</span> 5월 실적<span class="kpi-share" id="kB2CShare">-</span></div>
         <div class="value"><span id="kB2CAct">-</span><span class="unit">만원</span></div>
         <div class="sub">목표 <span id="kB2CTgt">-</span>만원</div>
         <div class="progress"><div id="kB2CBar" style="width:0%"></div></div>
@@ -1069,7 +1082,7 @@ table.detail-tbl .col-ach{min-width:160px;}
       </div>
 
       <div class="kpi">
-        <div class="label"><span class="tag">D2C</span> 5월 실적</div>
+        <div class="label"><span class="tag">D2C</span> 5월 실적<span class="kpi-share" id="kD2CShare">-</span></div>
         <div class="value"><span id="kD2CAct">-</span><span class="unit">만원</span></div>
         <div class="sub">목표 <span id="kD2CTgt">-</span>만원</div>
         <div class="progress"><div id="kD2CBar" style="width:0%"></div></div>
@@ -1080,7 +1093,7 @@ table.detail-tbl .col-ach{min-width:160px;}
       </div>
 
       <div class="kpi">
-        <div class="label"><span class="tag">STORE</span> 5월 실적</div>
+        <div class="label"><span class="tag">STORE</span> 5월 실적<span class="kpi-share" id="kSTOREShare">-</span></div>
         <div class="value"><span id="kSTOREAct">-</span><span class="unit">만원</span></div>
         <div class="sub">목표 <span id="kSTORETgt">-</span>만원</div>
         <div class="progress"><div id="kSTOREBar" style="width:0%"></div></div>
@@ -1524,6 +1537,9 @@ function renderOverview(){
   const monthSums = {tgt:0, act:0};
   const ytdSums = {tgt:0, act:0};
 
+  // 비중 계산용: 당월 전체 실적 합계 (각 채널 share = 채널 실적 ÷ 전체 실적)
+  const monthActTotal = CHANNELS.reduce((s,ch)=>s+(data.monthly[ch].actual[m]||0), 0);
+
   CHANNELS.forEach(ch=>{
     const t = data.monthly[ch].target[m];
     const a = data.monthly[ch].actual[m];
@@ -1532,6 +1548,10 @@ function renderOverview(){
     setText(`k${ch}Tgt`, fmt.eok(t));
     setBar(`k${ch}Bar`, rate);
     setAch(`k${ch}Ach`, rate);
+
+    // 당월 전체 실적 대비 채널 비중(%)
+    const share = monthActTotal > 0 ? (a / monthActTotal * 100) : 0;
+    setText(`k${ch}Share`, monthActTotal > 0 ? `${share.toFixed(1)}%` : '—');
 
     monthSums.tgt += t;
     monthSums.act += a;
