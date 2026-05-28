@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -10,6 +11,10 @@
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<!-- ===== Firebase SDK (v10 compat) ===== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <style>
 :root{
@@ -118,6 +123,19 @@ html,body{
   color:var(--gray);
   margin-right:8px;
 }
+.sync-status{
+  font-size:11px;
+  font-weight:600;
+  padding:5px 10px;
+  border-radius:6px;
+  background:#F0F0EC;
+  color:var(--gray);
+  white-space:nowrap;
+  transition:all .2s ease;
+}
+.sync-status.ok{background:#E7F4EC;color:var(--pos);}
+.sync-status.err{background:#FBE9E8;color:var(--neg);}
+.sync-status.busy{background:var(--navy-light);color:var(--navy);}
 
 /* ===== Section ===== */
 .section{margin-bottom:36px;}
@@ -932,6 +950,7 @@ table.detail-tbl .col-ach{min-width:160px;}
         <button class="ym-badge" id="ymBadgeBtn">2026.05.20 기준</button>
       </div>
       <span class="last-updated" id="lastUpdated">2026년 5월 20일 기준</span>
+      <span class="sync-status" id="syncStatus" title="Firebase 연동 상태">● 연결 확인 중…</span>
       <button class="download-btn" id="downloadTemplate" type="button">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         엑셀 양식 다운로드
@@ -1324,6 +1343,123 @@ let data = JSON.parse(JSON.stringify(initialData));
 let currentChannel = 'B2B';
 let currentSeries = 'all';
 let dailyChart = null;
+
+/* =========================================================
+ *  Firebase 연동
+ * =========================================================
+ *  ▶ 아래 firebaseConfig 값을 본인 Firebase 프로젝트 값으로 교체하세요.
+ *    (Firebase Console → 프로젝트 설정 → 일반 → 내 앱 → SDK 설정 및 구성)
+ *
+ *  ▶ Firestore 보안 규칙 예시 (테스트용 - 누구나 읽기/쓰기 가능):
+ *      rules_version = '2';
+ *      service cloud.firestore {
+ *        match /databases/{database}/documents {
+ *          match /{document=**} { allow read, write: if true; }
+ *        }
+ *      }
+ *    실제 운영 시에는 인증(Authentication) 기반으로 제한하는 것을 권장합니다.
+ *
+ *  ▶ 데이터는 Firestore의  dashboards/growth  문서에 통째로 저장됩니다.
+ * ========================================================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyBs642NacjW0QsEwjZ83ojxk2yP1wDMbS0",
+  authDomain: "growth-dashboard-a61c8.firebaseapp.com",
+  projectId: "growth-dashboard-a61c8",
+  storageBucket: "growth-dashboard-a61c8.firebasestorage.app",
+  messagingSenderId: "956569804672",
+  appId: "1:956569804672:web:d747dcdce4e1705e876b65"
+};
+
+// Firestore 저장 위치
+const FS_COLLECTION = 'dashboards';
+const FS_DOC_ID     = 'growth';
+
+let db = null;                 // Firestore 인스턴스
+let firebaseReady = false;     // config가 올바르게 설정됐는지 여부
+
+function setSyncStatus(text, kind){
+  const el = document.getElementById('syncStatus');
+  if(!el) return;
+  el.textContent = '● ' + text;
+  el.className = 'sync-status' + (kind ? ' ' + kind : '');
+}
+
+// Firebase 초기화 (config 미설정 시 로컬 모드로 동작)
+function initFirebase(){
+  const notConfigured =
+    !firebaseConfig.projectId ||
+    firebaseConfig.projectId === 'YOUR_PROJECT_ID' ||
+    firebaseConfig.apiKey === 'YOUR_API_KEY';
+
+  if(notConfigured){
+    firebaseReady = false;
+    setSyncStatus('Firebase 미설정 (로컬 모드)', 'err');
+    console.warn('[Firebase] firebaseConfig 값이 설정되지 않아 로컬 모드로 동작합니다. 코드 상단의 firebaseConfig를 본인 프로젝트 값으로 교체하세요.');
+    return false;
+  }
+  try{
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    firebaseReady = true;
+    return true;
+  }catch(err){
+    firebaseReady = false;
+    setSyncStatus('Firebase 초기화 실패', 'err');
+    console.error('[Firebase] 초기화 오류:', err);
+    return false;
+  }
+}
+
+// Firestore → 대시보드 데이터 불러오기
+async function loadDataFromFirebase(){
+  if(!firebaseReady) return false;
+  setSyncStatus('데이터 불러오는 중…', 'busy');
+  try{
+    const snap = await db.collection(FS_COLLECTION).doc(FS_DOC_ID).get();
+    if(snap.exists){
+      const remote = snap.data();
+      if(remote && remote.payload){
+        // payload는 data 객체를 JSON 문자열로 저장한 것
+        const parsed = JSON.parse(remote.payload);
+        data = parsed;
+        const ts = remote.updatedAt
+          ? new Date(remote.updatedAt).toLocaleString('ko-KR')
+          : '';
+        setSyncStatus('동기화 완료' + (ts ? ' · ' + ts : ''), 'ok');
+        return true;
+      }
+    }
+    setSyncStatus('서버 데이터 없음 (초기값 사용)', 'busy');
+    return false;
+  }catch(err){
+    setSyncStatus('불러오기 실패', 'err');
+    console.error('[Firebase] 불러오기 오류:', err);
+    return false;
+  }
+}
+
+// 현재 data 객체를 Firestore에 저장
+async function saveDataToFirebase(fileName){
+  if(!firebaseReady){
+    console.warn('[Firebase] 미설정 상태 — 저장을 건너뜁니다.');
+    return false;
+  }
+  setSyncStatus('서버에 저장 중…', 'busy');
+  try{
+    await db.collection(FS_COLLECTION).doc(FS_DOC_ID).set({
+      payload:    JSON.stringify(data),  // data 객체 전체를 문자열로 저장
+      updatedAt:  Date.now(),
+      sourceFile: fileName || '',
+    });
+    setSyncStatus('서버 저장 완료 · ' + new Date().toLocaleString('ko-KR'), 'ok');
+    return true;
+  }catch(err){
+    setSyncStatus('저장 실패', 'err');
+    console.error('[Firebase] 저장 오류:', err);
+    alert('Firebase 저장 중 오류가 발생했습니다.\n\n' + err.message);
+    return false;
+  }
+}
 
 // ---------- 포맷 유틸 -------------------------------------
 const fmt = {
@@ -2164,6 +2300,8 @@ document.getElementById('fileInput').addEventListener('change', async (e)=>{
     setText('lastUpdated', `업로드 완료 · ${file.name}`);
     document.getElementById('lastUpdated').style.color = 'var(--pos)';
     renderAll();
+    // ▶ 업로드된 데이터를 Firebase에 저장하여 서버에 반영
+    await saveDataToFirebase(file.name);
   }catch(err){
     alert('엑셀 파일을 읽는 중 오류가 발생했습니다.\n양식을 확인해 주세요.\n\n' + err.message);
     console.error(err);
@@ -2380,9 +2518,14 @@ function renderAll(){
   renderChannelDetail();
 }
 
-// 초기 렌더
-renderAll();
-bindWkNavBtns();
+// ---------- 초기 구동 -------------------------------------
+// Firebase에서 저장된 데이터를 먼저 불러온 뒤 화면을 렌더링
+(async function init(){
+  initFirebase();
+  await loadDataFromFirebase();   // 서버 데이터가 있으면 data를 덮어씀
+  renderAll();
+  bindWkNavBtns();
+})();
 </script>
 
 </body>
