@@ -2303,9 +2303,7 @@ document.getElementById('fileInput').addEventListener('change', async (e)=>{
     const buf = await file.arrayBuffer();
     const wb = XLSX.read(buf, {type:'array'});
     parseExcel(wb);
-    setText('lastUpdated', `업로드 완료 · ${file.name}`);
-    document.getElementById('lastUpdated').style.color = 'var(--pos)';
-    renderAll();
+    applyYearMonth();   // 새 데이터의 마지막 일자 기준으로 날짜 라벨(배지·기준일) 갱신 + 렌더
     // ▶ 업로드된 데이터를 Firebase에 저장하여 서버에 반영
     await saveDataToFirebase(file.name);
   }catch(err){
@@ -2529,7 +2527,7 @@ function renderAll(){
 (async function init(){
   initFirebase();
   await loadDataFromFirebase();   // 서버 데이터가 있으면 data를 덮어씀
-  renderAll();
+  applyYearMonth();               // 불러온 데이터의 마지막 일자 기준으로 날짜 라벨 갱신
   bindWkNavBtns();
 })();
 </script>
