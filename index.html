@@ -2659,6 +2659,7 @@ function renderDailyChart(){
             let total = 0;
             let hasAny = false;
             chart.data.datasets.forEach(ds => {
+              if(ds.label === '전체') return; // 전체 막대 제외 — 채널합만 계산
               const v = ds.data[idx];
               if(v != null){ total += v; hasAny = true; }
             });
