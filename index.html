@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -257,14 +258,18 @@ html,body{
 /* Channel tag */
 .tag{
   display:inline-block;
-  padding:2px 8px;
-  font-size:10px;
-  font-weight:700;
-  border-radius:4px;
-  background:var(--cream);
-  color:var(--navy);
-  letter-spacing:0.04em;
+  padding:3px 9px;
+  font-size:11px;
+  font-weight:800;
+  border-radius:5px;
+  background:var(--navy);
+  color:#fff;
+  letter-spacing:0.06em;
 }
+.tag.B2B{background:#17498F;color:#fff;}
+.tag.B2C{background:#2E8B57;color:#fff;}
+.tag.D2C{background:#C47F0A;color:#fff;}
+.tag.STORE{background:#5A5A5A;color:#fff;}
 /* 채널별 5월 실적 비중 배지 (라벨 우측) */
 .kpi-share{
   margin-left:auto;
@@ -644,7 +649,7 @@ tr.total-row td.col-ch{padding-left:16px;}
 
 /* 채널 점 컬러 (시각 구분용 - 보조컬러 사용) */
 .ch-dot.B2B{background:var(--navy);}
-.ch-dot.B2C{background:var(--navy-soft);}
+.ch-dot.B2C{background:#2E8B57;}
 .ch-dot.D2C{background:#D9A441;}
 .ch-dot.STORE{background:var(--gray);}
 
@@ -837,6 +842,220 @@ table.detail-tbl .col-ach{min-width:160px;}
 }
 .ym-badge:hover{background:#0F3771;}
 
+/* ===== Calendar Icon Button ===== */
+.cal-icon-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:28px;
+  height:28px;
+  border:1.5px solid var(--line);
+  border-radius:7px;
+  background:var(--white);
+  cursor:pointer;
+  color:var(--navy);
+  transition:all .15s;
+  flex-shrink:0;
+  padding:0;
+}
+.cal-icon-btn:hover{background:var(--navy);color:#fff;border-color:var(--navy);}
+
+/* ===== Calendar Popup ===== */
+.cal-popup-overlay{
+  position:fixed;
+  inset:0;
+  z-index:9990;
+  background:transparent;
+}
+.cal-popup{
+  position:fixed;
+  z-index:9999;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:12px;
+  box-shadow:0 8px 32px rgba(23,73,143,.18), 0 2px 8px rgba(0,0,0,.08);
+  padding:0;
+  width:224px;
+  overflow:hidden;
+  animation:calFadeIn .15s ease;
+}
+@keyframes calFadeIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+
+/* 헤더 */
+.cal-header{
+  background:var(--navy);
+  color:#fff;
+  padding:9px 10px 8px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:6px;
+}
+.cal-header-left{flex:1;min-width:0;}
+.cal-header-title{
+  font-size:12px;
+  font-weight:800;
+  color:#fff;
+  letter-spacing:-0.01em;
+  white-space:nowrap;
+}
+.cal-header-sub{
+  font-size:9px;
+  color:rgba(255,247,232,.65);
+  margin-top:1px;
+  font-weight:500;
+  white-space:nowrap;
+}
+.cal-nav-btns{display:flex;gap:3px;flex-shrink:0;}
+.cal-nav-btn{
+  width:20px;height:20px;
+  border:1px solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.10);
+  border-radius:4px;
+  color:#fff;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .12s;
+  padding:0;
+}
+.cal-nav-btn:hover{background:rgba(255,255,255,.25);}
+
+/* 범위 선택 표시 바 */
+.cal-range-bar{
+  background:#F4F7FB;
+  border-bottom:1px solid var(--line);
+  padding:5px 10px;
+  display:flex;
+  align-items:center;
+  gap:4px;
+  font-size:10px;
+  font-weight:600;
+  color:var(--gray);
+  min-height:26px;
+}
+.cal-range-bar .range-val{color:var(--navy);font-weight:700;}
+.cal-range-bar .range-arrow{color:var(--gray);font-size:9px;}
+
+/* 본문 */
+.cal-body{padding:6px 8px 8px;}
+.cal-weekdays{
+  display:grid;
+  grid-template-columns:repeat(7,28px);
+  justify-content:center;
+  text-align:center;
+  margin-bottom:2px;
+}
+.cal-weekday{
+  font-size:9px;
+  font-weight:700;
+  color:var(--gray);
+  padding:2px 0;
+  text-align:center;
+}
+.cal-weekday.sun{color:#E05A2B;}
+.cal-weekday.sat{color:var(--navy-soft);}
+
+/* 날짜 그리드 — 항상 6행 고정 (행 수 달라도 동일 크기) */
+.cal-grid{
+  display:grid;
+  grid-template-columns:repeat(7,28px);
+  grid-template-rows:repeat(6,26px);
+  justify-content:center;
+  gap:0;
+}
+.cal-day{
+  width:28px;
+  height:26px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:4px;
+  font-size:10.5px;
+  font-weight:600;
+  color:var(--text);
+  cursor:pointer;
+  transition:background .1s, color .1s;
+  position:relative;
+  user-select:none;
+  box-sizing:border-box;
+}
+.cal-day:hover:not(.empty){background:var(--navy-light);color:var(--navy);}
+.cal-day.empty{cursor:default;pointer-events:none;}
+.cal-day.today{border:1.5px solid var(--navy);color:var(--navy);font-weight:800;}
+/* 범위 시작/끝 */
+.cal-day.range-start,.cal-day.range-end{
+  background:var(--navy);
+  color:#fff !important;
+  font-weight:800;
+  z-index:1;
+}
+.cal-day.range-start{ border-radius:4px; }
+.cal-day.range-end  { border-radius:4px; }
+.cal-day.range-start.range-end{ border-radius:4px; }
+/* 범위 사이 */
+.cal-day.in-range{
+  background:var(--navy-light);
+  color:var(--navy);
+  border-radius:0;
+  margin:0;
+}
+/* 데이터 점 */
+.cal-day.has-data::after{
+  content:'';
+  position:absolute;
+  bottom:2px;left:50%;transform:translateX(-50%);
+  width:3px;height:3px;
+  border-radius:50%;
+  background:var(--pos);
+}
+.cal-day.range-start.has-data::after,
+.cal-day.range-end.has-data::after{background:#FFE27A;}
+.cal-day.in-range.has-data::after{background:var(--navy-soft);}
+.cal-day.sun-col{color:#E05A2B;}
+.cal-day.sat-col{color:var(--navy-soft);}
+
+/* 푸터 */
+.cal-footer{
+  padding:6px 10px 8px;
+  border-top:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:5px;
+}
+.cal-apply-btn{
+  background:var(--navy);
+  color:#fff;
+  border:none;
+  border-radius:5px;
+  padding:4px 11px;
+  font-size:10px;
+  font-weight:700;
+  font-family:inherit;
+  cursor:pointer;
+  transition:background .15s;
+}
+.cal-apply-btn:hover{background:#0F3771;}
+.cal-reset-btn{
+  background:transparent;
+  color:var(--gray);
+  border:1px solid var(--line);
+  border-radius:5px;
+  padding:4px 9px;
+  font-size:10px;
+  font-weight:700;
+  font-family:inherit;
+  cursor:pointer;
+  transition:all .15s;
+}
+.cal-reset-btn:hover{border-color:var(--navy);color:var(--navy);}
+.cal-footer-hint{
+  font-size:9.5px;
+  color:var(--gray);
+  flex:1;
+  text-align:left;
+}
+
 /* ===== Weekly Summary Cards (new simple style) ===== */
 .wk-summary-grid{
   display:grid;
@@ -966,6 +1185,11 @@ table.detail-tbl .col-ach{min-width:160px;}
             <option value="7">7월</option><option value="8">8월</option><option value="9">9월</option>
             <option value="10">10월</option><option value="11">11월</option><option value="12">12월</option>
           </select>
+          <button class="cal-icon-btn" id="calIconBtn" title="캘린더에서 날짜 선택" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="3" ry="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </button>
         </div>
         <button class="ym-badge" id="ymBadgeBtn">2026.05.20 기준</button>
       </div>
@@ -1060,7 +1284,7 @@ table.detail-tbl .col-ach{min-width:160px;}
       </div>
 
       <div class="kpi">
-        <div class="label"><span class="tag">B2B</span> 5월 실적<span class="kpi-share" id="kB2BShare">-</span></div>
+        <div class="label"><span class="tag B2B">B2B</span> 5월 실적<span class="kpi-share" id="kB2BShare">-</span></div>
         <div class="value"><span id="kB2BAct">-</span><span class="unit">만원</span></div>
         <div class="sub">목표 <span id="kB2BTgt">-</span>만원</div>
         <div class="progress"><div id="kB2BBar" style="width:0%"></div></div>
@@ -1071,7 +1295,7 @@ table.detail-tbl .col-ach{min-width:160px;}
       </div>
 
       <div class="kpi">
-        <div class="label"><span class="tag">B2C</span> 5월 실적<span class="kpi-share" id="kB2CShare">-</span></div>
+        <div class="label"><span class="tag B2C">B2C</span> 5월 실적<span class="kpi-share" id="kB2CShare">-</span></div>
         <div class="value"><span id="kB2CAct">-</span><span class="unit">만원</span></div>
         <div class="sub">목표 <span id="kB2CTgt">-</span>만원</div>
         <div class="progress"><div id="kB2CBar" style="width:0%"></div></div>
@@ -1082,7 +1306,7 @@ table.detail-tbl .col-ach{min-width:160px;}
       </div>
 
       <div class="kpi">
-        <div class="label"><span class="tag">D2C</span> 5월 실적<span class="kpi-share" id="kD2CShare">-</span></div>
+        <div class="label"><span class="tag D2C">D2C</span> 5월 실적<span class="kpi-share" id="kD2CShare">-</span></div>
         <div class="value"><span id="kD2CAct">-</span><span class="unit">만원</span></div>
         <div class="sub">목표 <span id="kD2CTgt">-</span>만원</div>
         <div class="progress"><div id="kD2CBar" style="width:0%"></div></div>
@@ -1093,7 +1317,7 @@ table.detail-tbl .col-ach{min-width:160px;}
       </div>
 
       <div class="kpi">
-        <div class="label"><span class="tag">STORE</span> 5월 실적<span class="kpi-share" id="kSTOREShare">-</span></div>
+        <div class="label"><span class="tag STORE">STORE</span> 5월 실적<span class="kpi-share" id="kSTOREShare">-</span></div>
         <div class="value"><span id="kSTOREAct">-</span><span class="unit">만원</span></div>
         <div class="sub">목표 <span id="kSTORETgt">-</span>만원</div>
         <div class="progress"><div id="kSTOREBar" style="width:0%"></div></div>
@@ -1815,7 +2039,7 @@ function renderWeeklyChart(){
 
   const channelColors = {
     B2B:   '#17498F',
-    B2C:   '#3A6AAE',
+    B2C:   '#2E8B57',
     D2C:   '#D9A441',
     STORE: '#9E9E9E'
   };
@@ -2045,7 +2269,14 @@ function renderDailyChart(){
   // 선택된 연/월에 맞는 데이터만 필터링
   const selYr  = parseInt(document.getElementById('selectYear').value)  || 2026;
   const selMon = parseInt(document.getElementById('selectMonth').value) || 5;
+
+  // 캘린더 범위 필터 적용
+  const rs = calDateRange.start, re = calDateRange.end;
   const filtered = data.daily.filter(d => {
+    if(rs && re){
+      const [a,b] = rs<=re?[rs,re]:[re,rs];
+      return d.date >= a && d.date <= b;
+    }
     const [dy, dm] = d.date.split('-').map(Number);
     return dy === selYr && dm === selMon;
   });
@@ -2057,7 +2288,7 @@ function renderDailyChart(){
 
   const channelColors = {
     B2B:   '#17498F',
-    B2C:   '#3A6AAE',
+    B2C:   '#2E8B57',
     D2C:   '#D9A441',
     STORE: '#9E9E9E'
   };
@@ -2067,20 +2298,40 @@ function renderDailyChart(){
 
   let datasets;
   if(currentSeries==='all'){
-    datasets = CHANNELS.map(ch=>({
+    // 전체 탭: 전체 합계 막대 + 채널별 꺾은선
+    const totalData = filtered.map(d => toMil((d.B2B||0)+(d.B2C||0)+(d.D2C||0)+(d.STORE||0)));
+    const totalBarDataset = {
+      type: 'bar',
+      label: '전체',
+      data: totalData,
+      backgroundColor: 'rgba(23,73,143,0.13)',
+      borderColor: 'rgba(23,73,143,0.3)',
+      borderWidth: 1,
+      borderRadius: 3,
+      barPercentage: 0.85,
+      categoryPercentage: 0.9,
+      yAxisID: 'y',
+      order: 10,
+      pointStyle: 'rect'
+    };
+    const lineDatasets = CHANNELS.map(ch=>({
+      type: 'line',
       label: ch,
       data: filtered.map(d=>toMil(d[ch])),
       borderColor: channelColors[ch],
       backgroundColor: channelColors[ch],
       borderWidth: 2,
       fill: false,
-      tension: 0,                  // 직선
+      tension: 0,
       pointRadius: 2.5,
       pointHoverRadius: 5,
       pointBackgroundColor: channelColors[ch],
       pointBorderWidth: 0,
-      spanGaps: false              // null 구간은 끊어서 표시
+      spanGaps: false,
+      yAxisID: 'y',
+      order: 1
     }));
+    datasets = [totalBarDataset, ...lineDatasets];
   } else {
     datasets = [{
       label: currentSeries,
@@ -2098,10 +2349,23 @@ function renderDailyChart(){
     }];
   }
 
+  // 일자별 차트 헤더 desc 업데이트
+  const descEl = document.querySelector('#dailyChart')?.closest('.card')?.querySelector('.desc');
+  if(descEl){
+    const rs2 = calDateRange.start, re2 = calDateRange.end;
+    if(rs2){
+      const [a,b] = rs2<=(re2||rs2)?[rs2,(re2||rs2)]:[(re2||rs2),rs2];
+      const fmt2 = s => { const [,m,d]=s.split('-'); return `${parseInt(m)}/${parseInt(d)}`; };
+      descEl.textContent = a===b ? `${fmt2(a)} 하루 데이터` : `${fmt2(a)} ~ ${fmt2(b)} 기간 데이터`;
+    } else {
+      descEl.textContent = '전체 및 채널별 일자별 매출 변화';
+    }
+  }
+
   if(dailyChart) dailyChart.destroy();
 
   dailyChart = new Chart(ctx, {
-    type: 'line',
+    type: currentSeries==='all' ? 'bar' : 'line',
     data: { labels, datasets },
     options: {
       responsive: true,
@@ -2113,7 +2377,10 @@ function renderDailyChart(){
           display: currentSeries==='all',
           position: 'top',
           align: 'end',
-          labels: { font:{family:'Pretendard',size:11,weight:'600'}, color:'#1F2937', padding:14, boxWidth:10, boxHeight:10, usePointStyle:true, pointStyle:'rect' }
+          labels: {
+            font:{family:'Pretendard',size:11,weight:'600'}, color:'#1F2937', padding:14, boxWidth:10, boxHeight:10, usePointStyle:true, pointStyle:'rect',
+            filter: item => item.text !== '전체'
+          }
         },
         tooltip: {
           backgroundColor:'#17498F', titleColor:'#FFF7E8', bodyColor:'#fff',
@@ -2122,7 +2389,10 @@ function renderDailyChart(){
           padding:12, cornerRadius:6, boxPadding:6,
           filter: (item) => item.parsed.y != null,
           callbacks:{
-            label: c => `${c.dataset.label}  ${c.parsed.y != null ? c.parsed.y.toLocaleString()+'만원' : '-'}`
+            label: c => {
+              if(c.dataset.label === '전체') return null;
+              return `${c.dataset.label}  ${c.parsed.y != null ? c.parsed.y.toLocaleString()+'만원' : '-'}`;
+            }
           }
         }
       },
@@ -2382,6 +2652,240 @@ function renderRowHTML(opts){
   `;
 }
 
+
+// =========================================================
+//  캘린더 팝업 — 시작일~종료일 범위 선택
+// =========================================================
+// 현재 선택된 날짜 범위 (전역 — dailyChart 필터링에 사용)
+let calDateRange = { start: null, end: null }; // "YYYY-MM-DD" 또는 null
+
+(function(){
+  let calPopupEl   = null;
+  let calOverlayEl = null;
+  let calViewYear  = 2026;
+  let calViewMonth = 5;
+
+  // 클릭 단계: null → start 선택 → end 선택(→ 다시 start로 초기화)
+  let pickStage = 'start'; // 'start' | 'end'
+
+  const MONTH_KO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+
+  function fmtDate(str){ // "YYYY-MM-DD" → "M/D"
+    if(!str) return '';
+    const [,m,d] = str.split('-');
+    return `${parseInt(m)}/${parseInt(d)}`;
+  }
+  function dateStr(y,m,d){
+    return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  }
+  function getDailyDateSet(){
+    const s = new Set();
+    (data.daily||[]).forEach(r => s.add(r.date));
+    return s;
+  }
+
+  /* 그리드 HTML 빌드 */
+  function buildGrid(year, month, rangeStart, rangeEnd, dateSet){
+    const firstDay    = new Date(year, month-1, 1).getDay();
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const today       = new Date();
+    const todayStr    = dateStr(today.getFullYear(), today.getMonth()+1, today.getDate());
+
+    let html = '';
+    // 앞 빈칸
+    for(let i=0; i<firstDay; i++) html += `<div class="cal-day empty"></div>`;
+
+    for(let d=1; d<=daysInMonth; d++){
+      const ds  = dateStr(year, month, d);
+      const col = (firstDay + d - 1) % 7;
+      let cls   = 'cal-day';
+      if(col===0) cls += ' sun-col';
+      if(col===6) cls += ' sat-col';
+      if(ds===todayStr) cls += ' today';
+      if(dateSet.has(ds)) cls += ' has-data';
+
+      // 범위 하이라이트
+      if(rangeStart && rangeEnd){
+        const [rs, re] = rangeStart<=rangeEnd ? [rangeStart,rangeEnd]:[rangeEnd,rangeStart];
+        if(ds===rs && ds===re) cls += ' range-start range-end';
+        else if(ds===rs)       cls += ' range-start';
+        else if(ds===re)       cls += ' range-end';
+        else if(ds>rs && ds<re) cls += ' in-range';
+      } else if(rangeStart && ds===rangeStart){
+        cls += ' range-start range-end';
+      }
+
+      html += `<div class="${cls}" data-ds="${ds}">${d}</div>`;
+    }
+
+    // 항상 42칸(6행×7열) 고정 — 뒤 빈칸 채우기
+    const filled = firstDay + daysInMonth;
+    const total  = 42; // 6행 고정
+    for(let i=filled; i<total; i++) html += `<div class="cal-day empty"></div>`;
+
+    return html;
+  }
+
+  /* 범위 바 텍스트 */
+  function rangeBarHTML(rs, re){
+    if(!rs && !re) return '<span style="color:var(--gray);">시작일을 선택하세요</span>';
+    if(rs && !re)  return `시작: <span class="range-val">${fmtDate(rs)}</span> &nbsp;<span class="range-arrow">→</span>&nbsp; 종료일 선택`;
+    const [a,b] = rs<=re?[rs,re]:[re,rs];
+    return `<span class="range-val">${fmtDate(a)}</span>&nbsp;<span class="range-arrow">~</span>&nbsp;<span class="range-val">${fmtDate(b)}</span>`;
+  }
+
+  /* 전체 캘린더 재렌더 */
+  function renderCal(){
+    if(!calPopupEl) return;
+    const dateSet = getDailyDateSet();
+    const rs = calDateRange.start, re = calDateRange.end;
+
+    calPopupEl.querySelector('.cal-header-title').textContent =
+      `${calViewYear}년 ${MONTH_KO[calViewMonth-1]}`;
+    calPopupEl.querySelector('.cal-range-bar').innerHTML = rangeBarHTML(rs, re);
+    calPopupEl.querySelector('.cal-grid').innerHTML =
+      buildGrid(calViewYear, calViewMonth, rs, re, dateSet);
+
+    // 적용 버튼 활성화 여부
+    const applyBtn = calPopupEl.querySelector('#calApplyBtn');
+    applyBtn.disabled = !rs;
+    applyBtn.style.opacity = rs ? '1' : '0.4';
+
+    // 날짜 클릭 이벤트
+    calPopupEl.querySelectorAll('.cal-day[data-ds]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const ds = el.dataset.ds;
+        if(pickStage==='start'){
+          calDateRange = { start: ds, end: null };
+          pickStage = 'end';
+        } else {
+          // end 선택 — 순서 정렬
+          if(ds < calDateRange.start){
+            calDateRange = { start: ds, end: calDateRange.start };
+          } else {
+            calDateRange.end = ds;
+          }
+          pickStage = 'start'; // 다음 클릭은 새 범위 시작
+        }
+        renderCal();
+      });
+    });
+  }
+
+  /* 팝업 열기 */
+  function openCalendar(){
+    const yr  = parseInt(document.getElementById('selectYear').value)  || 2026;
+    const mon = parseInt(document.getElementById('selectMonth').value) || 5;
+    calViewYear  = yr;
+    calViewMonth = mon;
+    pickStage = 'start';
+    // 기존 범위 유지 (재열기 시 이어서 볼 수 있게)
+
+    // 오버레이
+    calOverlayEl = document.createElement('div');
+    calOverlayEl.className = 'cal-popup-overlay';
+    calOverlayEl.addEventListener('click', closeCalendar);
+    document.body.appendChild(calOverlayEl);
+
+    // 팝업
+    calPopupEl = document.createElement('div');
+    calPopupEl.className = 'cal-popup';
+    calPopupEl.innerHTML = `
+      <div class="cal-header">
+        <div class="cal-header-left">
+          <div class="cal-header-title"></div>
+          <div class="cal-header-sub">● 데이터 있는 날짜</div>
+        </div>
+        <div class="cal-nav-btns">
+          <button class="cal-nav-btn" id="calPrevBtn" type="button">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button class="cal-nav-btn" id="calNextBtn" type="button">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="cal-range-bar"></div>
+      <div class="cal-body">
+        <div class="cal-weekdays">
+          <div class="cal-weekday sun">일</div>
+          <div class="cal-weekday">월</div><div class="cal-weekday">화</div>
+          <div class="cal-weekday">수</div><div class="cal-weekday">목</div>
+          <div class="cal-weekday">금</div>
+          <div class="cal-weekday sat">토</div>
+        </div>
+        <div class="cal-grid"></div>
+      </div>
+      <div class="cal-footer">
+        <span class="cal-footer-hint">1번→시작 2번→종료</span>
+        <button class="cal-reset-btn" id="calResetBtn" type="button">초기화</button>
+        <button class="cal-apply-btn" id="calApplyBtn" type="button" disabled style="opacity:.4">적용</button>
+      </div>
+    `;
+
+    // 위치
+    const btn  = document.getElementById('calIconBtn');
+    const rect = btn.getBoundingClientRect();
+    calPopupEl.style.top   = (rect.bottom + 6 + window.scrollY) + 'px';
+    calPopupEl.style.right = (window.innerWidth - rect.right) + 'px';
+    document.body.appendChild(calPopupEl);
+    renderCal();
+
+    // 이전/다음 월
+    calPopupEl.querySelector('#calPrevBtn').addEventListener('click', e=>{
+      e.stopPropagation();
+      calViewMonth--;
+      if(calViewMonth<1){ calViewMonth=12; calViewYear--; }
+      renderCal();
+    });
+    calPopupEl.querySelector('#calNextBtn').addEventListener('click', e=>{
+      e.stopPropagation();
+      calViewMonth++;
+      if(calViewMonth>12){ calViewMonth=1; calViewYear++; }
+      renderCal();
+    });
+
+    // 초기화
+    calPopupEl.querySelector('#calResetBtn').addEventListener('click', e=>{
+      e.stopPropagation();
+      calDateRange = { start: null, end: null };
+      pickStage = 'start';
+      renderCal();
+      // 차트도 전체로 복원
+      renderDailyChart();
+    });
+
+    // 적용
+    calPopupEl.querySelector('#calApplyBtn').addEventListener('click', e=>{
+      e.stopPropagation();
+      if(!calDateRange.start){ closeCalendar(); return; }
+      // 종료일 미선택이면 시작일 하루만
+      if(!calDateRange.end) calDateRange.end = calDateRange.start;
+      // 연/월은 시작일 기준으로 드롭다운 업데이트
+      const [sy, sm] = calDateRange.start.split('-').map(Number);
+      document.getElementById('selectYear').value  = sy;
+      document.getElementById('selectMonth').value = sm;
+      renderDailyChart(); // 범위 필터 적용
+      closeCalendar();
+    });
+
+    calPopupEl.addEventListener('click', e=> e.stopPropagation());
+  }
+
+  function closeCalendar(){
+    calPopupEl  && (calPopupEl.remove(),    calPopupEl=null);
+    calOverlayEl&& (calOverlayEl.remove(),  calOverlayEl=null);
+  }
+
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const btn = document.getElementById('calIconBtn');
+    if(btn) btn.addEventListener('click', e=>{
+      e.stopPropagation();
+      if(calPopupEl){ closeCalendar(); return; }
+      openCalendar();
+    });
+  });
+})();
 
 // 같은 chart-controls 컨테이너 내의 칩만 active 토글
 document.querySelectorAll('.chip').forEach(btn=>{
