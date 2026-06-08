@@ -1,6 +1,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -1279,7 +1280,7 @@ table.detail-tbl .col-ach{min-width:160px;}
           <span class="ym-label">MONTH</span>
           <select id="selectMonth" class="ym-select">
             <option value="1">1월</option><option value="2">2월</option><option value="3">3월</option>
-            <option value="4">4월</option><option value="5" selected>5월</option><option value="6">6월</option>
+            <option value="4">4월</option><option value="5">5월</option><option value="6">6월</option>
             <option value="7">7월</option><option value="8">8월</option><option value="9">9월</option>
             <option value="10">10월</option><option value="11">11월</option><option value="12">12월</option>
           </select>
@@ -1315,10 +1316,10 @@ table.detail-tbl .col-ach{min-width:160px;}
     <!-- 통합 요약 카드 -->
     <div class="kpi" style="background:var(--navy);border-color:var(--navy);border-radius:14px;padding:24px 28px;margin-bottom:14px;color:#fff;">
       <div style="display:grid;grid-template-columns:1fr 1px 1fr;gap:0;align-items:stretch;">
-        <!-- 왼쪽: 1~5월 누적 진도율 -->
+        <!-- 왼쪽: 1~N월 누적 진도율 -->
         <div style="padding-right:28px;">
           <div class="label" style="color:rgba(255,247,232,.75);font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;">
-            📅 1~5월 누적 진도율 <span style="font-size:10px;opacity:.7;font-weight:500;">(1~5월 실적 ÷ 1~5월 목표)</span>
+            📅 <span id="sumYtdTitle">1~?월 누적 진도율</span> <span id="sumYtdFormula" style="font-size:10px;opacity:.7;font-weight:500;">(1~?월 실적 ÷ 1~?월 목표)</span>
           </div>
           <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;">
             <div>
@@ -1327,7 +1328,7 @@ table.detail-tbl .col-ach{min-width:160px;}
             </div>
             <div style="font-size:20px;color:rgba(255,247,232,.4);">÷</div>
             <div>
-              <div style="font-size:11px;color:rgba(255,247,232,.6);margin-bottom:3px;">1~5월 목표</div>
+              <div style="font-size:11px;color:rgba(255,247,232,.6);margin-bottom:3px;"><span id="sumYtdTgtLabel">1~?월 목표</span></div>
               <div style="font-size:22px;font-weight:700;color:rgba(255,247,232,.85);letter-spacing:-0.01em;line-height:1;"><span id="kSumYtdTgt">-</span><span style="font-size:13px;font-weight:600;color:rgba(255,247,232,.5);margin-left:3px;">만원</span></div>
             </div>
             <div style="margin-left:auto;text-align:right;">
@@ -1344,7 +1345,7 @@ table.detail-tbl .col-ach{min-width:160px;}
         <!-- 오른쪽: 연간 진도율 -->
         <div style="padding-left:28px;">
           <div class="label" style="color:rgba(255,247,232,.75);font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;">
-            📆 연간 진도율 <span style="font-size:10px;opacity:.7;font-weight:500;">(1~5월 실적 ÷ 연간 전체 목표)</span>
+            📆 연간 진도율 <span id="annualFormula" style="font-size:10px;opacity:.7;font-weight:500;">(1~?월 실적 ÷ 연간 전체 목표)</span>
           </div>
           <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;">
             <div>
@@ -1371,9 +1372,9 @@ table.detail-tbl .col-ach{min-width:160px;}
     <!-- 5월 당월 + 채널별 -->
     <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr);">
       <div class="kpi featured-cream">
-        <div class="label">5월 전체 실적</div>
+        <div class="label" id="kMonthLabel">?월 전체 실적</div>
         <div class="value"><span id="kMonthAct">-</span><span class="unit">만원</span></div>
-        <div class="sub">5월 목표 <span id="kMonthTgt">-</span>만원</div>
+        <div class="sub"><span id="kMonthTgtLabel">?월 목표</span> <span id="kMonthTgt">-</span>만원</div>
         <div class="progress"><div id="kMonthBar" style="width:0%"></div></div>
         <div class="sub" style="margin-top:8px;">
           <span>달성율</span>
@@ -1382,7 +1383,7 @@ table.detail-tbl .col-ach{min-width:160px;}
       </div>
 
       <div class="kpi">
-        <div class="label"><span class="tag B2B">B2B</span> 5월 실적<span class="kpi-share" id="kB2BShare">-</span></div>
+        <div class="label"><span class="tag B2B">B2B</span> <span class="mon-label">?월</span> 실적<span class="kpi-share" id="kB2BShare">-</span></div>
         <div class="value"><span id="kB2BAct">-</span><span class="unit">만원</span></div>
         <div class="sub">목표 <span id="kB2BTgt">-</span>만원</div>
         <div class="progress"><div id="kB2BBar" style="width:0%"></div></div>
@@ -1393,7 +1394,7 @@ table.detail-tbl .col-ach{min-width:160px;}
       </div>
 
       <div class="kpi">
-        <div class="label"><span class="tag B2C">B2C</span> 5월 실적<span class="kpi-share" id="kB2CShare">-</span></div>
+        <div class="label"><span class="tag B2C">B2C</span> <span class="mon-label">?월</span> 실적<span class="kpi-share" id="kB2CShare">-</span></div>
         <div class="value"><span id="kB2CAct">-</span><span class="unit">만원</span></div>
         <div class="sub">목표 <span id="kB2CTgt">-</span>만원</div>
         <div class="progress"><div id="kB2CBar" style="width:0%"></div></div>
@@ -1404,7 +1405,7 @@ table.detail-tbl .col-ach{min-width:160px;}
       </div>
 
       <div class="kpi">
-        <div class="label"><span class="tag D2C">D2C</span> 5월 실적<span class="kpi-share" id="kD2CShare">-</span></div>
+        <div class="label"><span class="tag D2C">D2C</span> <span class="mon-label">?월</span> 실적<span class="kpi-share" id="kD2CShare">-</span></div>
         <div class="value"><span id="kD2CAct">-</span><span class="unit">만원</span></div>
         <div class="sub">목표 <span id="kD2CTgt">-</span>만원</div>
         <div class="progress"><div id="kD2CBar" style="width:0%"></div></div>
@@ -1415,7 +1416,7 @@ table.detail-tbl .col-ach{min-width:160px;}
       </div>
 
       <div class="kpi">
-        <div class="label"><span class="tag STORE">STORE</span> 5월 실적<span class="kpi-share" id="kSTOREShare">-</span></div>
+        <div class="label"><span class="tag STORE">STORE</span> <span class="mon-label">?월</span> 실적<span class="kpi-share" id="kSTOREShare">-</span></div>
         <div class="value"><span id="kSTOREAct">-</span><span class="unit">만원</span></div>
         <div class="sub">목표 <span id="kSTORETgt">-</span>만원</div>
         <div class="progress"><div id="kSTOREBar" style="width:0%"></div></div>
@@ -1853,6 +1854,17 @@ function renderOverview(){
   const rs = calDateRange.start, re = calDateRange.end;
   const hasRange = !!(rs);
 
+  // 선택 월에 맞춰 동적 텍스트 업데이트
+  const mon = m + 1;
+  setText('sumYtdTitle', `1~${mon}월 누적 진도율`);
+  setText('sumYtdFormula', `(1~${mon}월 실적 ÷ 1~${mon}월 목표)`);
+  setText('sumYtdTgtLabel', `1~${mon}월 목표`);
+  setText('annualFormula', `(1~${mon}월 실적 ÷ 연간 전체 목표)`);
+  setText('kMonthLabel', `${mon}월 전체 실적`);
+  setText('kMonthTgtLabel', `${mon}월 목표`);
+  // 채널별 "?월 실적" 라벨 업데이트
+  document.querySelectorAll('.mon-label').forEach(el => { el.textContent = `${mon}월`; });
+
   // 기간 라벨
   if(hasRange){
     const [a,b] = rs<=(re||rs)?[rs,(re||rs)]:[(re||rs),rs];
@@ -1896,15 +1908,11 @@ function renderOverview(){
       const share = totalAct>0 ? (a2/totalAct*100) : 0;
       setText(`k${ch}Share`, totalAct>0 ? `${share.toFixed(1)}%` : '—');
 
-      // KPI 라벨도 "기간 실적"으로 업데이트
+      // KPI 라벨도 "기간 실적"으로 업데이트 (mon-label span만 교체)
       const lbl = document.querySelector(`#k${ch}Act`)?.closest('.kpi')?.querySelector('.label');
       if(lbl){
-        const tag=lbl.querySelector('.tag');
-        lbl.innerHTML='';
-        if(tag) lbl.appendChild(tag);
-        lbl.appendChild(document.createTextNode(' 기간 실적'));
-        const shareEl=document.getElementById(`k${ch}Share`);
-        if(shareEl) lbl.appendChild(shareEl);
+        const monLbl = lbl.querySelector('.mon-label');
+        if(monLbl) monLbl.textContent = '기간';
       }
 
       monthSums.act += a2;
@@ -1922,14 +1930,11 @@ function renderOverview(){
 
   } else {
     // 기본 월별 데이터
-    // KPI 라벨 원복
+    // KPI 라벨 원복 - mon-label span만 업데이트 (innerHTML 재작성 불필요, 이미 renderOverview 상단에서 처리됨)
+    // Share span이 없어진 경우를 대비해 재생성
     CHANNELS.forEach(ch=>{
       const lbl = document.querySelector(`#k${ch}Act`)?.closest('.kpi')?.querySelector('.label');
-      if(lbl){
-        const tag=lbl.querySelector('.tag');
-        lbl.innerHTML='';
-        if(tag) lbl.appendChild(tag.cloneNode(true));
-        lbl.appendChild(document.createTextNode(` ${(m+1)}월 실적`));
+      if(lbl && !lbl.querySelector(`#k${ch}Share`)){
         const shareSpan=document.createElement('span');
         shareSpan.className='kpi-share'; shareSpan.id=`k${ch}Share`;
         lbl.appendChild(shareSpan);
@@ -3362,6 +3367,24 @@ function renderAll(){
 (async function init(){
   initFirebase();
   await loadDataFromFirebase();   // 서버 데이터가 있으면 data를 덮어씀
+
+  // 마지막으로 업데이트된 데이터의 연/월을 자동 감지하여 selectYear, selectMonth 설정
+  if(data.daily && data.daily.length > 0){
+    // 일자별 데이터에서 가장 마지막 날짜 추출
+    const lastDate = data.daily[data.daily.length - 1].date;
+    const [lastYr, lastMon] = lastDate.split('-').map(Number);
+    const yearSel = document.getElementById('selectYear');
+    const monSel  = document.getElementById('selectMonth');
+    // 연도 옵션에 없으면 추가
+    if(![...yearSel.options].some(o=>parseInt(o.value)===lastYr)){
+      const opt = document.createElement('option');
+      opt.value = lastYr; opt.textContent = lastYr;
+      yearSel.appendChild(opt);
+    }
+    yearSel.value = lastYr;
+    monSel.value  = lastMon;
+  }
+
   applyYearMonth();               // 불러온 데이터의 마지막 일자 기준으로 날짜 라벨 갱신
   bindWkNavBtns();
 })();
