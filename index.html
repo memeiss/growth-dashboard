@@ -1880,7 +1880,7 @@ function renderOverview(){
     let dayStr='';
     if(dailyForMon.length>0){
       const dd=parseInt(dailyForMon[dailyForMon.length-1].date.split('-')[2]);
-      dayStr=` ${dd}일`;
+      dayStr=` ${String(dd).padStart(2,'0')}일`;
     }
     setText('currentMonthLabel',`${yr}년 ${monthName}${dayStr} 기준`);
   }
@@ -3334,19 +3334,28 @@ function applyYearMonth(){
   const mon = parseInt(document.getElementById('selectMonth').value);
   data.currentMonthIndex = mon - 1;
   currentWkIdx = -1; // 월 바뀌면 해당 월 마지막 주로 리셋
-  // 마지막 일자 데이터 기준으로 배지 날짜 산출
+
+  // 선택 월의 데이터 중 마지막 일자 산출 (실제 데이터 기준)
   const dailyForMon = data.daily.filter(d => {
     const [dy, dm] = d.date.split('-').map(Number);
     return dy === yr && dm === mon;
   });
-  let lastDay = '';
+
+  let lastDayNum = 0;
   if(dailyForMon.length > 0){
     const last = dailyForMon[dailyForMon.length - 1].date;
-    const [,, dd] = last.split('-');
-    lastDay = `.${parseInt(dd)}`;
+    lastDayNum = parseInt(last.split('-')[2]);
   }
-  document.getElementById('ymBadgeBtn').textContent = `${yr}.${String(mon).padStart(2,'0')}${lastDay} 기준`;
-  setText('lastUpdated', `${yr}년 ${mon}월${lastDay ? ' '+parseInt(lastDay.slice(1))+'일' : ''} 기준`);
+
+  // 파란 배지: 데이터 기준 일자, 0패딩 적용 (예: 2026.06.04 기준)
+  const monPad = String(mon).padStart(2, '0');
+  const dayPad = lastDayNum > 0 ? '.' + String(lastDayNum).padStart(2, '0') : '';
+  document.getElementById('ymBadgeBtn').textContent = `${yr}.${monPad}${dayPad} 기준`;
+
+  // 헤더 우측 텍스트: 데이터 기준 일자 (예: 2026년 6월 4일 기준)
+  const dayStr = lastDayNum > 0 ? ` ${lastDayNum}일` : '';
+  setText('lastUpdated', `${yr}년 ${mon}월${dayStr} 기준`);
+
   renderAll();
 }
 
