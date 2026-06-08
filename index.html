@@ -1875,7 +1875,9 @@ function renderOverview(){
     const monthName = (m+1)+'월';
     const m0 = m+1;
     const dailyForMon = data.daily.filter(d=>{
-      const [dy,dm]=d.date.split('-').map(Number); return dy===yr&&dm===m0;
+      const [dy,dm]=d.date.split('-').map(Number);
+      if(dy!==yr||dm!==m0) return false;
+      return (d.B2B||0)+(d.B2C||0)+(d.D2C||0)+(d.STORE||0)>0;
     });
     let dayStr='';
     if(dailyForMon.length>0){
@@ -3335,10 +3337,12 @@ function applyYearMonth(){
   data.currentMonthIndex = mon - 1;
   currentWkIdx = -1; // 월 바뀌면 해당 월 마지막 주로 리셋
 
-  // 선택 월의 데이터 중 마지막 일자 산출 (실제 데이터 기준)
+  // 선택 월의 데이터 중 마지막 일자 산출 (실제 데이터 기준 - 모든 채널이 0인 날짜 제외)
   const dailyForMon = data.daily.filter(d => {
     const [dy, dm] = d.date.split('-').map(Number);
-    return dy === yr && dm === mon;
+    if(dy !== yr || dm !== mon) return false;
+    // 하나라도 매출이 있는 날짜만 포함
+    return (d.B2B||0) + (d.B2C||0) + (d.D2C||0) + (d.STORE||0) > 0;
   });
 
   let lastDayNum = 0;
@@ -3379,8 +3383,13 @@ function renderAll(){
 
   // 마지막으로 업데이트된 데이터의 연/월을 자동 감지하여 selectYear, selectMonth 설정
   if(data.daily && data.daily.length > 0){
-    // 일자별 데이터에서 가장 마지막 날짜 추출
-    const lastDate = data.daily[data.daily.length - 1].date;
+    // 일자별 데이터에서 실제 매출이 있는 가장 마지막 날짜 추출 (전 채널 합계 0 제외)
+    const validDays = data.daily.filter(d =>
+      (d.B2B||0)+(d.B2C||0)+(d.D2C||0)+(d.STORE||0) > 0
+    );
+    const lastDate = validDays.length > 0
+      ? validDays[validDays.length - 1].date
+      : data.daily[data.daily.length - 1].date;
     const [lastYr, lastMon] = lastDate.split('-').map(Number);
     const yearSel = document.getElementById('selectYear');
     const monSel  = document.getElementById('selectMonth');
