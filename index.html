@@ -830,7 +830,7 @@ table.detail-tbl .col-ach{min-width:160px;}
 }
 
 /* =========================================================
- *  전사 이슈 캘린더 (월간 타임라인)
+ *  전사 이슈 캘린더 (월간 달력 그리드)
  * ========================================================= */
 .cal-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
 .cal-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 15px;border-radius:8px;font-weight:700;font-size:12.5px;cursor:pointer;border:none;font-family:inherit;transition:all .15s ease;}
@@ -838,108 +838,89 @@ table.detail-tbl .col-ach{min-width:160px;}
 .cal-btn.primary:hover{background:#0F3771;transform:translateY(-1px);box-shadow:0 4px 12px rgba(23,73,143,.22);}
 .cal-btn.ghost{background:var(--white);color:var(--navy);border:1.5px solid var(--line);}
 .cal-btn.ghost:hover{border-color:var(--navy-soft);background:var(--navy-light);}
-/* ===== 전사 이슈 캘린더 아코디언 ===== */
-.cal-section-header{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  cursor:pointer;
-  user-select:none;
-  padding-bottom:14px;
-  margin-bottom:0;
-}
-.cal-section-header .bar{
-  width:4px;height:18px;background:var(--navy);border-radius:2px;flex-shrink:0;
-}
-.cal-section-header:hover h2{opacity:.8;}
-.cal-section-header .meta{margin-left:auto;font-size:12px;color:var(--gray);}
-.cal-body-wrap{
-  overflow:hidden;
-  transition:max-height .32s ease, opacity .25s ease;
-  max-height:0;
-  opacity:0;
-}
-.cal-body-wrap.open{
-  max-height:2000px;
-  opacity:1;
-}
+.cal-legend{display:flex;align-items:center;gap:13px;margin-left:auto;font-size:11.5px;color:var(--gray);flex-wrap:wrap;}
 .cal-legend .lg{display:inline-flex;align-items:center;gap:5px;}
 .cal-legend .dot{width:11px;height:11px;border-radius:3px;display:inline-block;}
 .cal-sync{font-size:11px;color:var(--gray);white-space:nowrap;}
 
 .cal-card{padding:0;overflow:hidden;}
-.cal-scroll{overflow-x:auto;overflow-y:hidden;background:var(--white);}
-.ical-grid{--day-w:38px;--label-w:156px;position:relative;width:max-content;font-size:12px;display:block;min-width:100%;}
 
-/* 행/헤더가 스크롤 컨테이너 전체를 채우도록 */
-.cal-row-stretch{width:100% !important;min-width:var(--cal-grid-min, 0);}
-.cal-days{display:flex;}
-.cal-dh-filler{background:var(--white);}
-.cal-row-filler{flex:1;min-width:0;background:var(--white);}
-.cal-lanes{position:relative;flex-shrink:0;}  /* lanes는 고정 width, flex-shrink 없음 */
+/* ── 달력 그리드 (absolute-bar 방식) ────────────────────── */
+.gcal-wrap{width:100%;}
+.gcal-dow-row{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:2px solid var(--navy);}
+.gcal-dow-cell{padding:8px 0;text-align:center;font-size:11px;font-weight:800;letter-spacing:0.06em;color:var(--navy);background:var(--navy-light);}
+.gcal-dow-cell.off{color:var(--neg);background:#FCF1F1;}
+.gcal-weeks{display:flex;flex-direction:column;}
 
-/* 헤더 (일자) */
-.cal-head{display:flex;position:sticky;top:0;z-index:6;}
-.cal-head .corner{width:var(--label-w);min-width:var(--label-w);flex-shrink:0;position:sticky;left:0;z-index:7;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;letter-spacing:.04em;border-right:1px solid var(--navy);}
-.cal-days{display:flex;flex-shrink:0;}
-.cal-dh{width:var(--day-w);min-width:var(--day-w);text-align:center;border-right:1px solid #F1F1EC;border-bottom:1.5px solid var(--line);padding:5px 0 4px;background:var(--white);}
-.cal-dh .dn{font-size:12.5px;font-weight:800;color:var(--text);line-height:1.1;}
-.cal-dh .dw{font-size:9.5px;font-weight:600;color:var(--gray);margin-top:1px;}
-.cal-dh.off{background:#FCF1F1;}
-.cal-dh.off .dn,.cal-dh.off .dw{color:var(--neg);}
-.cal-dh.today{background:var(--cream);}
-.cal-dh.today .dn{color:var(--navy);}
-.cal-dh.today::after{content:'';display:block;height:3px;background:var(--navy);margin:3px 6px -4px;border-radius:2px;}
+/* 주차 행 — relative 컨테이너 */
+.gcal-week{position:relative;border-bottom:1px solid var(--line);}
+.gcal-week:last-child{border-bottom:none;}
 
-/* 본문 (구분 행) */
-.cal-row{display:flex;border-bottom:1px solid var(--line);min-height:42px;}
-.cal-row:last-child{border-bottom:none;}
-.cal-rl{width:var(--label-w);min-width:var(--label-w);flex-shrink:0;position:sticky;left:0;z-index:5;background:var(--white);border-right:1px solid var(--line);display:flex;align-items:center;gap:7px;padding:9px 11px;}
-.cal-row.fixed-cat .cal-rl{background:var(--cream);}
-.cal-rl .cdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
-.cal-rl .cname{font-size:12.5px;font-weight:700;color:var(--text);line-height:1.25;word-break:keep-all;}
-.cal-row.fixed-cat .cal-rl .cname{color:var(--navy);font-weight:800;}
-.cal-rl .cadd{margin-left:auto;color:var(--navy-soft);cursor:pointer;font-size:15px;border:none;background:none;padding:1px 5px;border-radius:5px;line-height:1;flex-shrink:0;font-weight:800;}
-.cal-rl .cadd:hover{background:var(--navy-light);}
-.cal-rl .cdel{color:var(--gray);cursor:pointer;font-size:13px;border:none;background:none;padding:2px 4px;border-radius:5px;line-height:1;flex-shrink:0;opacity:0;}
-.cal-rl:hover .cdel{opacity:1;}
-.cal-rl .cdel:hover{color:var(--neg);background:#FBE9E8;}
-
-.cal-lanes{position:relative;flex-shrink:0;}
-.cal-colgrid{position:absolute;inset:0;display:flex;pointer-events:none;}
-.cal-colgrid .c{width:var(--day-w);min-width:var(--day-w);border-right:1px solid #F4F4EF;}
-.cal-colgrid .c.off{background:#FCF6F6;}
-.cal-lanebox{position:relative;padding:6px 0;}
-
-/* 이벤트 바 커스텀 툴팁 */
-.evt-tooltip{
-  position:fixed;
-  z-index:9999;
-  background:rgba(23,30,50,.93);
-  color:#fff;
-  font-family:'Pretendard Variable','Pretendard',-apple-system,sans-serif;
-  font-size:12px;
-  line-height:1.55;
-  padding:9px 13px;
-  border-radius:8px;
-  box-shadow:0 6px 20px rgba(0,0,0,.28);
-  pointer-events:none;
-  max-width:320px;
-  white-space:pre-wrap;
-  word-break:keep-all;
-  display:none;
+/* 날짜 숫자 행 */
+.gcal-day-headers{display:grid;grid-template-columns:repeat(7,1fr);}
+.gcal-day-hd{
+  min-height:26px;border-right:1px solid var(--line);
+  padding:6px 8px 3px;background:var(--white);
+  cursor:pointer;position:relative;
 }
-.evt-tooltip .tt-title{font-weight:800;font-size:13px;margin-bottom:3px;color:#FFF7E8;}
-.evt-tooltip .tt-date{font-size:11px;color:rgba(255,247,232,.65);margin-bottom:4px;}
-.evt-tooltip .tt-memo{font-size:11.5px;color:rgba(255,255,255,.85);margin-top:4px;border-top:1px solid rgba(255,255,255,.15);padding-top:5px;}border-radius:5px;display:flex;align-items:center;padding:0 8px;font-size:11px;font-weight:600;color:#fff;cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;box-shadow:0 1px 2px rgba(0,0,0,.13);border-left:3px solid rgba(0,0,0,.22);transition:filter .12s ease, transform .12s ease;}
-.evt:hover{filter:brightness(1.07);transform:translateY(-1px);z-index:4;box-shadow:0 4px 10px rgba(0,0,0,.22);}
-.evt .star{margin-right:4px;font-size:9px;letter-spacing:-1px;opacity:.95;flex-shrink:0;}
-.evt .etxt{overflow:hidden;text-overflow:ellipsis;}
-.evt.imp-high{background:#D9534F;}
-.evt.imp-mid{background:#C47F0A;}
-.evt.imp-low{background:#3A6AAE;}
-.cal-empty-lane{height:34px;}
-.cal-hint{font-size:11.5px;color:var(--gray);padding:10px 14px 2px;}
+.gcal-day-hd:last-child{border-right:none;}
+.gcal-day-hd.empty{background:#FAFAF7;cursor:default;}
+.gcal-day-hd.off{background:#FCF6F6;}
+.gcal-day-hd.today{background:var(--cream);}
+.gcal-day-hd:hover:not(.empty){filter:brightness(.97);}
+.gday-num{font-size:13px;font-weight:800;color:var(--text);line-height:1;display:flex;align-items:center;gap:4px;}
+.gcal-day-hd.off .gday-num{color:var(--neg);}
+.gcal-day-hd.empty .gday-num{color:#ccc;}
+.gcal-day-hd.today .gday-num{color:var(--navy);}
+.gcal-day-hd.today .gday-num::after{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--navy);margin-left:4px;vertical-align:middle;}
+.gday-hol{font-size:9.5px;font-weight:600;color:var(--neg);margin-left:2px;line-height:1.2;}
+
+/* 이벤트 바 레이어 — 주차 행 내부에 absolute 배치 */
+.gcal-evt-layer{
+  position:relative;
+  /* 날짜 칸 경계용 배경 grid */
+}
+.gcal-evt-cols{display:grid;grid-template-columns:repeat(7,1fr);}
+.gcal-evt-col{border-right:1px solid var(--line);background:var(--white);}
+.gcal-evt-col:last-child{border-right:none;}
+.gcal-evt-col.off{background:#FCF6F6;}
+.gcal-evt-col.today-col{background:var(--cream);}
+
+/* 바 컨테이너 (절대위치, 클릭 통과) */
+.gcal-bars-wrap{position:absolute;top:0;left:0;right:0;pointer-events:none;}
+
+/* 개별 이벤트 바 */
+.gcal-bar{
+  position:absolute;
+  height:22px;
+  display:flex;align-items:center;
+  padding:0 7px;
+  font-size:11px;font-weight:600;color:#1F2937;
+  cursor:pointer;pointer-events:all;
+  overflow:hidden;white-space:nowrap;
+  border-radius:4px;
+  border-left:3px solid rgba(0,0,0,.13);
+  box-sizing:border-box;
+  transition:filter .12s,box-shadow .12s;
+}
+.gcal-bar:hover{filter:brightness(.91);box-shadow:0 2px 8px rgba(0,0,0,.18);}
+.gcal-bar .etxt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
+.gcal-bar.cont-l{border-left:none;border-top-left-radius:0;border-bottom-left-radius:0;padding-left:5px;}
+.gcal-bar.cont-r{border-top-right-radius:0;border-bottom-right-radius:0;}
+.gcal-bar.ec-0{background:rgba(189,215,245,0.45);border-left-color:rgba(122,180,232,0.6);}
+.gcal-bar.ec-1{background:rgba(183,228,199,0.45);border-left-color:rgba(116,198,157,0.6);}
+.gcal-bar.ec-2{background:rgba(253,220,181,0.45);border-left-color:rgba(244,162,97,0.6);}
+.gcal-bar.ec-3{background:rgba(216,197,240,0.45);border-left-color:rgba(177,151,212,0.6);}
+.gcal-bar.ec-4{background:rgba(255,189,189,0.45);border-left-color:rgba(242,139,139,0.6);}
+.gcal-bar.ec-5{background:rgba(181,232,232,0.45);border-left-color:rgba(110,198,198,0.6);}
+.gcal-bar.ec-6{background:rgba(255,229,160,0.45);border-left-color:rgba(244,200,66,0.6);}
+.gcal-bar.ec-7{background:rgba(247,197,223,0.45);border-left-color:rgba(232,138,180,0.6);}
+.gcal-bar.ec-8{background:rgba(201,232,180,0.45);border-left-color:rgba(141,200,106,0.6);}
+.gcal-bar.ec-9{background:rgba(245,197,163,0.45);border-left-color:rgba(232,144,96,0.6);}
+
+
+
+.cal-hint{font-size:11.5px;color:var(--gray);padding:10px 14px 12px;border-top:1px solid var(--line);}
 
 /* 모달 */
 .cal-modal-ov{position:fixed;inset:0;background:rgba(18,28,48,.46);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px;}
@@ -954,11 +935,11 @@ table.detail-tbl .col-ach{min-width:160px;}
 .cal-field textarea{resize:vertical;min-height:56px;line-height:1.5;}
 .cal-2col{display:flex;gap:10px;}
 .cal-2col .cal-field{flex:1;}
-.imp-pick{display:flex;gap:8px;}
-.imp-opt{flex:1;text-align:center;padding:9px 0;border-radius:8px;border:1.5px solid var(--line);font-size:12px;font-weight:800;cursor:pointer;color:var(--gray);background:#fff;transition:all .12s;user-select:none;}
-.imp-opt[data-imp=high].sel{background:#FBE9E8;border-color:#D9534F;color:#D9534F;}
-.imp-opt[data-imp=mid].sel{background:#FBF1DF;border-color:#C47F0A;color:#C47F0A;}
-.imp-opt[data-imp=low].sel{background:var(--navy-light);border-color:#3A6AAE;color:#3A6AAE;}
+/* 이벤트 컬러 피커 */
+.evt-color-pick{display:flex;gap:8px;flex-wrap:wrap;}
+.evt-color-opt{width:30px;height:30px;border-radius:7px;cursor:pointer;border:2.5px solid transparent;transition:transform .1s,border-color .1s;flex-shrink:0;}
+.evt-color-opt:hover{transform:scale(1.12);}
+.evt-color-opt.sel{border-color:#1F2937;box-shadow:0 0 0 2px #fff inset;}
 .cal-modal-actions{display:flex;gap:9px;margin-top:18px;align-items:center;}
 .cal-modal-actions .sp{flex:1;}
 .m-btn{padding:10px 17px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;border:none;font-family:inherit;transition:all .12s;}
@@ -1450,42 +1431,35 @@ table.detail-tbl .col-ach{min-width:160px;}
     </div>
   </header>
 
-  <!-- ===== 전사 이슈 캘린더 (월간 타임라인) ===== -->
+  <!-- ===== 전사 이슈 캘린더 (월간 달력) ===== -->
   <section class="section" id="calSection">
-    <div class="cal-section-header" id="calAccordionHeader">
+    <div class="section-title" style="cursor:pointer;user-select:none;" id="calToggleHeader">
       <div class="bar"></div>
-      <h2 style="font-size:18px;font-weight:700;color:var(--navy);letter-spacing:-0.01em;">전사 이슈 캘린더</h2>
-      <svg id="calAccordionArrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="var(--gray)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate(-90deg);transition:transform .25s ease;flex-shrink:0;"><polyline points="2,4 7,10 12,4"/></svg>
-      <div class="meta" id="calMonthLabel" style="font-size:12px;color:var(--gray);margin-left:auto;">2026년 6월</div>
+      <h2>전사 이슈 캘린더</h2>
+      <div class="meta" id="calMonthLabel">2026년 6월</div>
+      <button id="calToggleBtn" type="button" style="margin-left:10px;display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:6px;border:1.5px solid var(--line);background:var(--white);color:var(--navy);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;">
+        <span id="calToggleIcon">펼치기</span>
+        <svg id="calToggleArrow" width="12" height="12" viewBox="0 0 12 12" fill="none" style="transition:transform .25s;transform:rotate(0deg);">
+          <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
     </div>
 
-    <div class="cal-body-wrap" id="calBodyWrap">
+    <div id="calCollapsible" style="display:none;overflow:hidden;">
       <div class="cal-toolbar">
         <button class="cal-btn primary" id="calAddEvtBtn">＋ 이벤트 추가</button>
         <button class="cal-btn ghost" id="calAddCatBtn">＋ 구분(채널) 추가</button>
         <div class="cal-legend">
           <span class="cal-sync" id="calSyncStatus">● 연결 확인 중…</span>
-          <span class="lg"><span class="dot" style="background:#D9534F"></span>중요(높음)</span>
-          <span class="lg"><span class="dot" style="background:#C47F0A"></span>보통</span>
-          <span class="lg"><span class="dot" style="background:#3A6AAE"></span>참고(낮음)</span>
         </div>
       </div>
 
       <div class="card cal-card">
-        <div class="cal-scroll" id="calScroll">
-          <div class="ical-grid" id="calGrid"><!-- JS 렌더 --></div>
-        </div>
-        <div class="cal-hint">막대를 클릭하면 수정·삭제할 수 있습니다 · 구분 라벨의 ＋로 해당 채널에 바로 이벤트를 추가할 수 있습니다.</div>
+        <div id="calGrid"><!-- JS 렌더 --></div>
+        <div class="cal-hint">날짜를 클릭하면 이벤트를 추가할 수 있습니다 · 이벤트를 클릭하면 수정·삭제할 수 있습니다.</div>
       </div>
     </div>
   </section>
-
-  <!-- 이벤트 커스텀 툴팁 -->
-  <div class="evt-tooltip" id="evtTooltip">
-    <div class="tt-title" id="evtTtTitle"></div>
-    <div class="tt-date" id="evtTtDate"></div>
-    <div class="tt-memo" id="evtTtMemo" style="display:none"></div>
-  </div>
 
   <!-- 이벤트 추가/수정 모달 -->
   <div class="cal-modal-ov" id="evtModalOv">
@@ -1511,12 +1485,8 @@ table.detail-tbl .col-ach{min-width:160px;}
         </div>
       </div>
       <div class="cal-field">
-        <label>중요도</label>
-        <div class="imp-pick" id="evtImpPick">
-          <div class="imp-opt" data-imp="high">높음</div>
-          <div class="imp-opt sel" data-imp="mid">보통</div>
-          <div class="imp-opt" data-imp="low">낮음</div>
-        </div>
+        <label>컬러</label>
+        <div class="evt-color-pick" id="evtColorPick"></div>
       </div>
       <div class="cal-field">
         <label>메모 (선택)</label>
@@ -3635,7 +3605,8 @@ const CAL_DEFAULT_CATEGORIES = [
   { id:'cat_ssg',    name:'신세계',    color:'#7E57C2' },
   { id:'cat_kurly',  name:'B2C 컬리',  color:'#C47F0A' }
 ];
-const CAL_COLORS = ['#17498F','#2E8B57','#C47F0A','#7E57C2','#D9534F','#3A6AAE','#5A5A5A','#1C8C8C','#B5651D','#C2185B'];
+const CAL_COLORS = ['#BDD7F5','#B7E4C7','#FDDCB5','#D8C5F0','#FFBDBD','#B5E8E8','#FFE5A0','#F7C5DF','#C9E8B4','#F5C5A3'];
+const CAL_COLOR_COUNT = 10;
 
 function calClone(o){ return JSON.parse(JSON.stringify(o)); }
 function calUid(){ return 'e'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
@@ -3677,121 +3648,211 @@ function calSelYM(){
   return { y, m };
 }
 
-/* ----- 렌더 ----- */
+/* ----- 렌더 (월간 달력 그리드) ----- */
 function renderCalendar(){
   const grid = document.getElementById('calGrid');
   if(!grid) return;
   const { y, m } = calSelYM();
   const daysInMonth = new Date(y, m, 0).getDate();
-  const today = new Date();
+  const firstDow    = new Date(y, m-1, 1).getDay(); // 0=일
+  const today       = new Date();
   const isThisMonth = (today.getFullYear()===y && (today.getMonth()+1)===m);
-  const todayD = today.getDate();
+  const todayD      = today.getDate();
 
   const lbl = document.getElementById('calMonthLabel');
   if(lbl) lbl.textContent = `${y}년 ${m}월`;
 
-  // --- 헤더 (일자/요일) ---
-  const gridW = `calc(var(--label-w) + ${daysInMonth} * var(--day-w))`;
-  let head = `<div class="cal-head cal-row-stretch" data-gridw="${gridW}"><div class="corner">구분</div><div class="cal-days">`;
-  for(let d=1; d<=daysInMonth; d++){
-    const dow = new Date(y, m-1, d).getDay();
-    const off = calIsOff(y,m,d);
-    const hol = calHolidayName(y,m,d);
-    const cls = 'cal-dh' + (off?' off':'') + (isThisMonth&&d===todayD?' today':'');
-    const tip = hol ? ` title="${calEsc(hol)}"` : '';
-    head += `<div class="${cls}"${tip}><div class="dn">${d}</div><div class="dw">${CAL_DOW[dow]}</div></div>`;
-  }
-  // 빈 칸 채우기: 날짜 열 뒤에 남은 공간을 흰 배경으로 채움
-  head += `<div class="cal-dh-filler" style="flex:1;min-width:0;border-bottom:1.5px solid var(--line);"></div>`;
-  head += '</div></div>';
-
-  // --- 본문 (구분 행) ---
-  let body = '';
+  // ── 1. 이벤트 수집 ──────────────────────────────────────
+  const evItems = [];
   calData.categories.forEach(cat=>{
-    // 이 구분의 이벤트 중 이번 달과 겹치는 것 추출 + 월 범위로 클립
-    const items = [];
     calData.events.forEach(ev=>{
       if(ev.catId !== cat.id) return;
       const s = ev.start, e = ev.end || ev.start;
       if(!s) return;
       const [sy,sm,sd] = s.split('-').map(Number);
-      const [ey,em,ed] = (e).split('-').map(Number);
-      const sNum = sy*10000+sm*100+sd, eNum = ey*10000+em*100+ed;
-      const mStart = y*10000+m*100+1, mEnd = y*10000+m*100+daysInMonth;
-      if(eNum < mStart || sNum > mEnd) return;   // 이번 달과 무관
-      const startDay = (sNum < mStart) ? 1 : sd;
-      const endDay   = (eNum > mEnd)   ? daysInMonth : ed;
-      const contL = sNum < mStart, contR = eNum > mEnd;
-      items.push({ ev, startDay, endDay, contL, contR });
+      const [ey,em,ed] = e.split('-').map(Number);
+      const sNum  = sy*10000+sm*100+sd, eNum = ey*10000+em*100+ed;
+      const mStart= y*10000+m*100+1,   mEnd  = y*10000+m*100+daysInMonth;
+      if(eNum<mStart || sNum>mEnd) return;
+      evItems.push({
+        ev, cat,
+        startDay: sNum<mStart ? 1 : sd,
+        endDay  : eNum>mEnd   ? daysInMonth : ed,
+        contL   : sNum<mStart,
+        contR   : eNum>mEnd
+      });
     });
-    // 레인 배치 (겹치면 다른 레인)
-    items.sort((a,b)=> a.startDay-b.startDay || a.endDay-b.endDay);
-    const laneEnds = [];
-    items.forEach(it=>{
-      let lane = 0;
-      while(lane<laneEnds.length && laneEnds[lane] >= it.startDay) lane++;
-      it.lane = lane;
-      laneEnds[lane] = it.endDay;
-    });
-    const laneCount = Math.max(1, laneEnds.length);
-    const laneboxH = 12 + laneCount*26;
+  });
+  // 긴 이벤트 먼저 → 슬롯 안정 배정
+  evItems.sort((a,b)=> a.startDay-b.startDay || (b.endDay-b.startDay)-(a.endDay-a.startDay));
 
-    // 막대 HTML
-    let bars = '';
-    items.forEach(it=>{
-      const span = it.endDay - it.startDay + 1;
-      const ev = it.ev;
-      const imp = ev.importance || 'mid';
-      const star = imp==='high' ? '<span class="star">★</span>' : '';
-      const radL = it.contL ? '0' : '5px';
-      const radR = it.contR ? '0' : '5px';
-      const ttl = `${ev.title||'(제목 없음)'}  ·  ${ev.start}${ev.end&&ev.end!==ev.start?' ~ '+ev.end:''}${ev.memo?'\n'+ev.memo:''}`;
-      bars += `<div class="evt imp-${imp}" data-eid="${ev.id}" title="${calEsc(ttl)}"`
-            + ` style="left:calc(${it.startDay-1} * var(--day-w) + 2px);`
-            + `width:calc(${span} * var(--day-w) - 4px);top:${6 + it.lane*26}px;`
-            + `border-top-left-radius:${radL};border-bottom-left-radius:${radL};`
-            + `border-top-right-radius:${radR};border-bottom-right-radius:${radR};">`
-            + `${star}<span class="etxt">${calEsc(ev.title||'(제목 없음)')}</span></div>`;
-    });
+  const totalCells = Math.ceil((firstDow+daysInMonth)/7)*7;
+  const weekCount  = totalCells/7;
 
-    // 일자 배경 그리드 (주말/공휴일 음영)
-    let colgrid = '';
-    for(let d=1; d<=daysInMonth; d++){
-      colgrid += `<div class="c${calIsOff(y,m,d)?' off':''}"></div>`;
+  // ── 2. 주차별 슬롯 배정 ─────────────────────────────────
+  // slotGrid[wk][slot][col] = evId  (col=0..6)
+  // evSlot[evId][wk] = slotIdx
+  const occupied = {}; // key `wk_slot_col` = true
+  const evSlot   = {};
+  evItems.forEach(it=>{
+    const eid = it.ev.id;
+    evSlot[eid] = {};
+    for(let wk=0;wk<weekCount;wk++){
+      const wkColStart = wk*7;            // 절대 셀 인덱스 시작
+      const wkDayFirst = wkColStart - firstDow + 1; // 이 주 일요일의 날짜
+      const wkDayLast  = wkDayFirst + 6;
+      const segS = Math.max(it.startDay, wkDayFirst);
+      const segE = Math.min(it.endDay,   wkDayLast);
+      if(segS>segE) continue;
+      // 이 주에서 점유하는 col 목록
+      const cols=[];
+      for(let d=segS;d<=segE;d++) cols.push(d-wkDayFirst); // 0..6
+      // 빈 슬롯 찾기
+      let slot=0;
+      outer: while(slot<20){
+        for(const col of cols){ if(occupied[`${wk}_${slot}_${col}`]){ slot++; continue outer; } }
+        break;
+      }
+      for(const col of cols) occupied[`${wk}_${slot}_${col}`]=true;
+      evSlot[eid][wk]=slot;
     }
-
-    const fixedCls = cat.fixed ? ' fixed-cat' : '';
-    const delBtn = cat.fixed ? '' : `<button class="cdel" data-delcat="${cat.id}" title="구분 삭제">✕</button>`;
-    body += `<div class="cal-row${fixedCls} cal-row-stretch" data-gridw="${gridW}">`
-          + `<div class="cal-rl">`
-          + `<span class="cname">${calEsc(cat.name)}</span>`
-          + `<button class="cadd" data-addcat="${cat.id}" title="이 구분에 이벤트 추가">＋</button>`
-          + delBtn
-          + `</div>`
-          + `<div class="cal-lanes" style="width:calc(${daysInMonth} * var(--day-w))"><div class="cal-colgrid">${colgrid}</div>`
-          + `<div class="cal-lanebox" style="height:${laneboxH}px">${bars}</div></div>`
-          + `<div class="cal-row-filler"></div>`
-          + `</div>`;
   });
 
-  grid.innerHTML = head + body;
-  // ical-grid에 최소 너비 변수 설정 (행들이 이 이상 넓어지면 filler로 채움)
-  grid.style.setProperty('--cal-grid-min', gridW);
+  // ── 3. 주차별 최대 슬롯 계산 (레이어 높이) ───────────────
+  const wkMaxSlot = new Array(weekCount).fill(-1);
+  evItems.forEach(it=>{
+    const eid=it.ev.id;
+    for(let wk=0;wk<weekCount;wk++){
+      const s=evSlot[eid]?.[wk];
+      if(s!==undefined) wkMaxSlot[wk]=Math.max(wkMaxSlot[wk],s);
+    }
+  });
+
+  // ── 4. (더보기 없음 — 모든 이벤트 표시)
+  const MAX_SLOTS=999;
+
+  // ── 5. HTML 생성 ─────────────────────────────────────────
+  const DOWLBLS=['일','월','화','수','목','금','토'];
+  let html=`<div class="gcal-wrap"><div class="gcal-dow-row">`;
+  DOWLBLS.forEach((l,i)=>{ html+=`<div class="gcal-dow-cell${i===0||i===6?' off':''}">${l}</div>`; });
+  html+=`</div><div class="gcal-weeks">`;
+
+  const BAR_H=22, BAR_GAP=3, BAR_TOP_OFFSET=2; // px
+
+  for(let wk=0;wk<weekCount;wk++){
+    const wkDayFirst=wk*7-firstDow+1;
+    const wkDayLast=wkDayFirst+6;
+    const maxSlot=wkMaxSlot[wk];
+    const visSlots=maxSlot+1;
+    // 이벤트 레이어 높이 = visSlots rows + padding
+    const layerH = visSlots>0 ? BAR_TOP_OFFSET + visSlots*(BAR_H+BAR_GAP) + 4 : 6;
+
+    // ─ 날짜 숫자 행 ─
+    html+=`<div class="gcal-week" data-wk="${wk}">`;
+    html+=`<div class="gcal-day-headers">`;
+    for(let col=0;col<7;col++){
+      const d=wkDayFirst+col;
+      const valid=(d>=1&&d<=daysInMonth);
+      if(!valid){ html+=`<div class="gcal-day-hd empty"></div>`; continue; }
+      const off=calIsOff(y,m,d);
+      const hol=calHolidayName(y,m,d);
+      const isToday=isThisMonth&&d===todayD;
+      let cls='gcal-day-hd';
+      if(off) cls+=' off';
+      if(isToday) cls+=' today';
+      const dateStr=calDateStr(y,m,d);
+      html+=`<div class="${cls}" data-date="${dateStr}">`
+           +`<div class="gday-num">${d}${hol?`<span class="gday-hol">${calEsc(hol)}</span>`:''}</div>`
+           +`</div>`;
+    }
+    html+=`</div>`; // gcal-day-headers
+
+    // ─ 이벤트 바 레이어 ─
+    html+=`<div class="gcal-evt-layer" style="height:${layerH}px">`;
+
+    // 배경 칸 (경계선 + 색상)
+    html+=`<div class="gcal-evt-cols" style="height:${layerH}px;position:absolute;top:0;left:0;right:0;">`;
+    for(let col=0;col<7;col++){
+      const d=wkDayFirst+col;
+      const valid=(d>=1&&d<=daysInMonth);
+      let ccls='gcal-evt-col';
+      if(!valid) ccls+=' empty';
+      else if(isThisMonth&&d===todayD) ccls+=' today-col';
+      else if(valid&&calIsOff(y,m,d)) ccls+=' off';
+      html+=`<div class="${ccls}" style="height:${layerH}px"></div>`;
+    }
+    html+=`</div>`;
+
+    // 이벤트 바 (absolute)
+    html+=`<div class="gcal-bars-wrap" style="height:${layerH}px">`;
+    evItems.forEach(it=>{
+      const eid=it.ev.id;
+      const slot=evSlot[eid]?.[wk];
+      if(slot===undefined||slot>=MAX_SLOTS) return;
+      const segS=Math.max(it.startDay,wkDayFirst);
+      const segE=Math.min(it.endDay,wkDayLast);
+      const colS=segS-wkDayFirst; // 0..6
+      const colE=segE-wkDayFirst; // 0..6
+      const spanCols=colE-colS+1;
+      // percent 기반 left/width
+      const leftPct=(colS/7*100).toFixed(4);
+      const widthPct=(spanCols/7*100).toFixed(4);
+      const topPx=BAR_TOP_OFFSET+slot*(BAR_H+BAR_GAP);
+      const isWkStart=(it.startDay<=wkDayFirst); // 이전 주에서 이어짐
+      const isWkEnd=(it.endDay>=wkDayLast+1);    // 다음 주로 이어짐 (실제로는 다음 주 일요일 이후)
+      const contL=isWkStart;
+      const contR=it.endDay>wkDayLast;
+      const isStart=(it.startDay===segS);
+      const cidx=(typeof it.ev.colorIdx==='number')?it.ev.colorIdx%CAL_COLOR_COUNT:0;
+      let barCls=`gcal-bar ec-${cidx}`;
+      if(contL) barCls+=' cont-l';
+      if(contR) barCls+=' cont-r';
+      const showText=isStart||isWkStart;
+      const ttl=`[${it.cat.name}] ${it.ev.title||'(제목 없음)'}  ·  ${it.ev.start}${it.ev.end&&it.ev.end!==it.ev.start?' ~ '+it.ev.end:''}${it.ev.memo?'\n'+it.ev.memo:''}`;
+      // 좌우 gap (바 사이 간격)
+      const GAP_PX=2;
+      html+=`<div class="${barCls}" data-eid="${eid}"`
+           +` title="${calEsc(ttl)}"`
+           +` style="left:calc(${leftPct}% + ${contL?0:GAP_PX}px);`
+           +`width:calc(${widthPct}% - ${(contL?0:GAP_PX)+(contR?0:GAP_PX)}px);`
+           +`top:${topPx}px;">`
+           +`<span class="etxt">${showText?calEsc(it.ev.title||'(제목 없음)'):'&nbsp;'}</span>`
+           +`</div>`;
+    });
+    html+=`</div>`; // gcal-bars-wrap
+    html+=`</div>`; // gcal-evt-layer
+
+
+
+    html+=`</div>`; // gcal-week
+  }
+  html+=`</div></div>`;
+  grid.innerHTML=html;
+
+
 }
 
 /* ----- 이벤트 모달 ----- */
 let calEditingId = null;
-let calSelImp = 'mid';
+let calSelColorIdx = 0;
 
 function calFillCatSelect(presetId){
   const sel = document.getElementById('evtCat');
   sel.innerHTML = calData.categories.map(c=>`<option value="${c.id}">${calEsc(c.name)}</option>`).join('');
   if(presetId) sel.value = presetId;
 }
-function calSetImp(imp){
-  calSelImp = imp;
-  document.querySelectorAll('#evtImpPick .imp-opt').forEach(el=>{
-    el.classList.toggle('sel', el.dataset.imp===imp);
+function calBuildEvtColorPicker(selIdx){
+  const wrap = document.getElementById('evtColorPick');
+  if(!wrap) return;
+  wrap.innerHTML = CAL_COLORS.map((c,i)=>
+    `<span class="evt-color-opt${i===selIdx?' sel':''}" data-cidx="${i}" style="background:${c}" title="컬러 ${i+1}"></span>`
+  ).join('');
+  calSelColorIdx = selIdx;
+}
+function calSetColor(idx){
+  calSelColorIdx = idx;
+  document.querySelectorAll('#evtColorPick .evt-color-opt').forEach(el=>{
+    el.classList.toggle('sel', parseInt(el.dataset.cidx)===idx);
   });
 }
 function calDefaultDate(){
@@ -3813,18 +3874,18 @@ function openEvtModal(opts){
     document.getElementById('evtStart').value = ev.start || '';
     document.getElementById('evtEnd').value   = ev.end || ev.start || '';
     document.getElementById('evtMemo').value  = ev.memo || '';
-    calSetImp(ev.importance || 'mid');
+    calBuildEvtColorPicker(typeof ev.colorIdx==='number' ? ev.colorIdx : 0);
     document.getElementById('evtDelBtn').style.display = '';
   }else{
     calEditingId = null;
     document.getElementById('evtModalTitle').textContent = '이벤트 추가';
     calFillCatSelect(opts.catId || (calData.categories[0] && calData.categories[0].id));
     document.getElementById('evtTitle').value = '';
-    const dd = calDefaultDate();
+    const dd = opts.date || calDefaultDate();
     document.getElementById('evtStart').value = dd;
     document.getElementById('evtEnd').value   = dd;
     document.getElementById('evtMemo').value  = '';
-    calSetImp('mid');
+    calBuildEvtColorPicker(0);
     document.getElementById('evtDelBtn').style.display = 'none';
   }
   ov.classList.add('show');
@@ -3841,13 +3902,13 @@ async function saveEvtFromModal(){
   if(!title){ alert('제목을 입력해 주세요.'); return; }
   if(!start){ alert('시작일을 선택해 주세요.'); return; }
   if(!end) end = start;
-  if(end < start){ const t=start; start=end; end=t; }   // 순서 보정
+  if(end < start){ const t=start; start=end; end=t; }
 
   if(calEditingId){
     const ev = calData.events.find(e=>e.id===calEditingId);
-    if(ev){ Object.assign(ev, { catId, title, start, end, memo, importance: calSelImp }); }
+    if(ev){ Object.assign(ev, { catId, title, start, end, memo, colorIdx: calSelColorIdx }); }
   }else{
-    calData.events.push({ id: calUid(), catId, title, start, end, memo, importance: calSelImp });
+    calData.events.push({ id: calUid(), catId, title, start, end, memo, colorIdx: calSelColorIdx });
   }
   closeEvtModal();
   renderCalendar();
@@ -3974,72 +4035,49 @@ function subscribeCalendar(){
 
 /* ----- 이벤트 바인딩 ----- */
 function calBindUI(){
-  // 아코디언 접기/펼치기
-  const calHeader = document.getElementById('calAccordionHeader');
-  const calBodyWrap = document.getElementById('calBodyWrap');
-  const calArrow = document.getElementById('calAccordionArrow');
-  let calOpen = false;
-  function setCalOpen(open){
-    calOpen = open;
-    calBodyWrap.classList.toggle('open', open);
-    if(calArrow) calArrow.style.transform = open ? 'rotate(0deg)' : 'rotate(-90deg)';
-  }
-  setCalOpen(false); // 기본값: 접힌 상태
-  calHeader.addEventListener('click', ()=>setCalOpen(!calOpen));
+  document.getElementById('calAddEvtBtn').addEventListener('click', ()=>openEvtModal({}));
   document.getElementById('calAddCatBtn').addEventListener('click', openCatModal);
 
-  // 커스텀 툴팁
-  const ttEl   = document.getElementById('evtTooltip');
-  const ttTitle= document.getElementById('evtTtTitle');
-  const ttDate = document.getElementById('evtTtDate');
-  const ttMemo = document.getElementById('evtTtMemo');
-  function showTooltip(e, evObj){
-    ttTitle.textContent = evObj.title || '(제목 없음)';
-    const dateStr = evObj.end && evObj.end !== evObj.start
-      ? `${evObj.start} ~ ${evObj.end}` : evObj.start;
-    ttDate.textContent = dateStr || '';
-    if(evObj.memo){ ttMemo.textContent = evObj.memo; ttMemo.style.display=''; }
-    else { ttMemo.style.display='none'; }
-    ttEl.style.display = 'block';
-    moveTooltip(e);
-  }
-  function moveTooltip(e){
-    const x = e.clientX + 14, y = e.clientY + 14;
-    const tw = ttEl.offsetWidth || 200, th = ttEl.offsetHeight || 60;
-    ttEl.style.left = (x + tw > window.innerWidth ? e.clientX - tw - 8 : x) + 'px';
-    ttEl.style.top  = (y + th > window.innerHeight ? e.clientY - th - 8 : y) + 'px';
-  }
-  function hideTooltip(){ ttEl.style.display='none'; }
-
-  document.getElementById('calGrid').addEventListener('mouseover', (e)=>{
-    const bar = e.target.closest('.evt');
-    if(!bar) return;
-    const eid = bar.dataset.eid;
-    const ev = calData.events.find(ev=>ev.id===eid);
-    if(ev) showTooltip(e, ev);
-  });
-  document.getElementById('calGrid').addEventListener('mousemove', (e)=>{
-    if(ttEl.style.display==='block') moveTooltip(e);
-  });
-  document.getElementById('calGrid').addEventListener('mouseout', (e)=>{
-    if(e.target.closest('.evt')) hideTooltip();
-  });
+  // 달력 그리드 클릭 위임
   document.getElementById('calGrid').addEventListener('click', (e)=>{
-    const bar = e.target.closest('.evt');
+    // 이벤트 바 클릭
+    const bar = e.target.closest('.gcal-bar');
     if(bar){ openEvtModal({ eventId: bar.dataset.eid }); return; }
-    const add = e.target.closest('[data-addcat]');
-    if(add){ openEvtModal({ catId: add.dataset.addcat }); return; }
-    const del = e.target.closest('[data-delcat]');
-    if(del){ deleteCategory(del.dataset.delcat); return; }
+    // 날짜 숫자 칸 클릭 → 이벤트 추가
+    const dayHd = e.target.closest('.gcal-day-hd[data-date]');
+    if(dayHd){ openEvtModal({ date: dayHd.dataset.date }); return; }
   });
+
+  // 접기/펼치기 토글
+  const toggleHeader = document.getElementById('calToggleHeader');
+  const collapsible  = document.getElementById('calCollapsible');
+  const toggleBtn    = document.getElementById('calToggleBtn');
+  const toggleIcon   = document.getElementById('calToggleIcon');
+  const toggleArrow  = document.getElementById('calToggleArrow');
+  let calOpen = false;
+  function toggleCal(){
+    calOpen = !calOpen;
+    if(calOpen){
+      collapsible.style.display = '';
+      toggleIcon.textContent = '접기';
+      toggleArrow.style.transform = 'rotate(180deg)';
+    } else {
+      collapsible.style.display = 'none';
+      toggleIcon.textContent = '펼치기';
+      toggleArrow.style.transform = 'rotate(0deg)';
+    }
+  }
+  toggleBtn.addEventListener('click', (e)=>{ e.stopPropagation(); toggleCal(); });
+  toggleHeader.addEventListener('click', toggleCal);
 
   // 이벤트 모달
   document.getElementById('evtSaveBtn').addEventListener('click', saveEvtFromModal);
   document.getElementById('evtCancelBtn').addEventListener('click', closeEvtModal);
   document.getElementById('evtDelBtn').addEventListener('click', deleteCurrentEvt);
-  document.getElementById('evtImpPick').addEventListener('click', (e)=>{
-    const opt = e.target.closest('.imp-opt');
-    if(opt) calSetImp(opt.dataset.imp);
+  // 이벤트 컬러 피커
+  document.getElementById('evtColorPick').addEventListener('click', (e)=>{
+    const opt = e.target.closest('.evt-color-opt');
+    if(opt) calSetColor(parseInt(opt.dataset.cidx));
   });
   document.getElementById('evtModalOv').addEventListener('click', (e)=>{
     if(e.target.id==='evtModalOv') closeEvtModal();
