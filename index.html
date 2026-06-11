@@ -838,14 +838,45 @@ table.detail-tbl .col-ach{min-width:160px;}
 .cal-btn.primary:hover{background:#0F3771;transform:translateY(-1px);box-shadow:0 4px 12px rgba(23,73,143,.22);}
 .cal-btn.ghost{background:var(--white);color:var(--navy);border:1.5px solid var(--line);}
 .cal-btn.ghost:hover{border-color:var(--navy-soft);background:var(--navy-light);}
-.cal-legend{display:flex;align-items:center;gap:13px;margin-left:auto;font-size:11.5px;color:var(--gray);flex-wrap:wrap;}
+/* ===== 전사 이슈 캘린더 아코디언 ===== */
+.cal-section-header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  cursor:pointer;
+  user-select:none;
+  padding-bottom:14px;
+  margin-bottom:0;
+}
+.cal-section-header .bar{
+  width:4px;height:18px;background:var(--navy);border-radius:2px;flex-shrink:0;
+}
+.cal-section-header:hover h2{opacity:.8;}
+.cal-section-header .meta{margin-left:auto;font-size:12px;color:var(--gray);}
+.cal-body-wrap{
+  overflow:hidden;
+  transition:max-height .32s ease, opacity .25s ease;
+  max-height:0;
+  opacity:0;
+}
+.cal-body-wrap.open{
+  max-height:2000px;
+  opacity:1;
+}
 .cal-legend .lg{display:inline-flex;align-items:center;gap:5px;}
 .cal-legend .dot{width:11px;height:11px;border-radius:3px;display:inline-block;}
 .cal-sync{font-size:11px;color:var(--gray);white-space:nowrap;}
 
 .cal-card{padding:0;overflow:hidden;}
-.cal-scroll{overflow-x:auto;overflow-y:hidden;}
-.ical-grid{--day-w:38px;--label-w:156px;position:relative;width:max-content;font-size:12px;display:block;}
+.cal-scroll{overflow-x:auto;overflow-y:hidden;background:var(--white);}
+.ical-grid{--day-w:38px;--label-w:156px;position:relative;width:max-content;font-size:12px;display:block;min-width:100%;}
+
+/* 행/헤더가 스크롤 컨테이너 전체를 채우도록 */
+.cal-row-stretch{width:100% !important;min-width:var(--cal-grid-min, 0);}
+.cal-days{display:flex;}
+.cal-dh-filler{background:var(--white);}
+.cal-row-filler{flex:1;min-width:0;background:var(--white);}
+.cal-lanes{position:relative;flex-shrink:0;}  /* lanes는 고정 width, flex-shrink 없음 */
 
 /* 헤더 (일자) */
 .cal-head{display:flex;position:sticky;top:0;z-index:6;}
@@ -874,14 +905,33 @@ table.detail-tbl .col-ach{min-width:160px;}
 .cal-rl:hover .cdel{opacity:1;}
 .cal-rl .cdel:hover{color:var(--neg);background:#FBE9E8;}
 
-.cal-lanes{position:relative;flex:1;min-width:0;}
+.cal-lanes{position:relative;flex-shrink:0;}
 .cal-colgrid{position:absolute;inset:0;display:flex;pointer-events:none;}
 .cal-colgrid .c{width:var(--day-w);min-width:var(--day-w);border-right:1px solid #F4F4EF;}
 .cal-colgrid .c.off{background:#FCF6F6;}
 .cal-lanebox{position:relative;padding:6px 0;}
 
-/* 이벤트 막대 */
-.evt{position:absolute;height:22px;border-radius:5px;display:flex;align-items:center;padding:0 8px;font-size:11px;font-weight:600;color:#fff;cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;box-shadow:0 1px 2px rgba(0,0,0,.13);border-left:3px solid rgba(0,0,0,.22);transition:filter .12s ease, transform .12s ease;}
+/* 이벤트 바 커스텀 툴팁 */
+.evt-tooltip{
+  position:fixed;
+  z-index:9999;
+  background:rgba(23,30,50,.93);
+  color:#fff;
+  font-family:'Pretendard Variable','Pretendard',-apple-system,sans-serif;
+  font-size:12px;
+  line-height:1.55;
+  padding:9px 13px;
+  border-radius:8px;
+  box-shadow:0 6px 20px rgba(0,0,0,.28);
+  pointer-events:none;
+  max-width:320px;
+  white-space:pre-wrap;
+  word-break:keep-all;
+  display:none;
+}
+.evt-tooltip .tt-title{font-weight:800;font-size:13px;margin-bottom:3px;color:#FFF7E8;}
+.evt-tooltip .tt-date{font-size:11px;color:rgba(255,247,232,.65);margin-bottom:4px;}
+.evt-tooltip .tt-memo{font-size:11.5px;color:rgba(255,255,255,.85);margin-top:4px;border-top:1px solid rgba(255,255,255,.15);padding-top:5px;}border-radius:5px;display:flex;align-items:center;padding:0 8px;font-size:11px;font-weight:600;color:#fff;cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;box-shadow:0 1px 2px rgba(0,0,0,.13);border-left:3px solid rgba(0,0,0,.22);transition:filter .12s ease, transform .12s ease;}
 .evt:hover{filter:brightness(1.07);transform:translateY(-1px);z-index:4;box-shadow:0 4px 10px rgba(0,0,0,.22);}
 .evt .star{margin-right:4px;font-size:9px;letter-spacing:-1px;opacity:.95;flex-shrink:0;}
 .evt .etxt{overflow:hidden;text-overflow:ellipsis;}
@@ -1402,30 +1452,40 @@ table.detail-tbl .col-ach{min-width:160px;}
 
   <!-- ===== 전사 이슈 캘린더 (월간 타임라인) ===== -->
   <section class="section" id="calSection">
-    <div class="section-title">
+    <div class="cal-section-header" id="calAccordionHeader">
       <div class="bar"></div>
-      <h2>전사 이슈 캘린더</h2>
-      <div class="meta" id="calMonthLabel">2026년 6월</div>
+      <h2 style="font-size:18px;font-weight:700;color:var(--navy);letter-spacing:-0.01em;">전사 이슈 캘린더</h2>
+      <svg id="calAccordionArrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="var(--gray)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate(-90deg);transition:transform .25s ease;flex-shrink:0;"><polyline points="2,4 7,10 12,4"/></svg>
+      <div class="meta" id="calMonthLabel" style="font-size:12px;color:var(--gray);margin-left:auto;">2026년 6월</div>
     </div>
 
-    <div class="cal-toolbar">
-      <button class="cal-btn primary" id="calAddEvtBtn">＋ 이벤트 추가</button>
-      <button class="cal-btn ghost" id="calAddCatBtn">＋ 구분(채널) 추가</button>
-      <div class="cal-legend">
-        <span class="cal-sync" id="calSyncStatus">● 연결 확인 중…</span>
-        <span class="lg"><span class="dot" style="background:#D9534F"></span>중요(높음)</span>
-        <span class="lg"><span class="dot" style="background:#C47F0A"></span>보통</span>
-        <span class="lg"><span class="dot" style="background:#3A6AAE"></span>참고(낮음)</span>
+    <div class="cal-body-wrap" id="calBodyWrap">
+      <div class="cal-toolbar">
+        <button class="cal-btn primary" id="calAddEvtBtn">＋ 이벤트 추가</button>
+        <button class="cal-btn ghost" id="calAddCatBtn">＋ 구분(채널) 추가</button>
+        <div class="cal-legend">
+          <span class="cal-sync" id="calSyncStatus">● 연결 확인 중…</span>
+          <span class="lg"><span class="dot" style="background:#D9534F"></span>중요(높음)</span>
+          <span class="lg"><span class="dot" style="background:#C47F0A"></span>보통</span>
+          <span class="lg"><span class="dot" style="background:#3A6AAE"></span>참고(낮음)</span>
+        </div>
       </div>
-    </div>
 
-    <div class="card cal-card">
-      <div class="cal-scroll" id="calScroll">
-        <div class="ical-grid" id="calGrid"><!-- JS 렌더 --></div>
+      <div class="card cal-card">
+        <div class="cal-scroll" id="calScroll">
+          <div class="ical-grid" id="calGrid"><!-- JS 렌더 --></div>
+        </div>
+        <div class="cal-hint">막대를 클릭하면 수정·삭제할 수 있습니다 · 구분 라벨의 ＋로 해당 채널에 바로 이벤트를 추가할 수 있습니다.</div>
       </div>
-      <div class="cal-hint">막대를 클릭하면 수정·삭제할 수 있습니다 · 구분 라벨의 ＋로 해당 채널에 바로 이벤트를 추가할 수 있습니다.</div>
     </div>
   </section>
+
+  <!-- 이벤트 커스텀 툴팁 -->
+  <div class="evt-tooltip" id="evtTooltip">
+    <div class="tt-title" id="evtTtTitle"></div>
+    <div class="tt-date" id="evtTtDate"></div>
+    <div class="tt-memo" id="evtTtMemo" style="display:none"></div>
+  </div>
 
   <!-- 이벤트 추가/수정 모달 -->
   <div class="cal-modal-ov" id="evtModalOv">
@@ -3632,7 +3692,7 @@ function renderCalendar(){
 
   // --- 헤더 (일자/요일) ---
   const gridW = `calc(var(--label-w) + ${daysInMonth} * var(--day-w))`;
-  let head = `<div class="cal-head" style="width:${gridW}"><div class="corner">구분</div><div class="cal-days">`;
+  let head = `<div class="cal-head cal-row-stretch" data-gridw="${gridW}"><div class="corner">구분</div><div class="cal-days">`;
   for(let d=1; d<=daysInMonth; d++){
     const dow = new Date(y, m-1, d).getDay();
     const off = calIsOff(y,m,d);
@@ -3641,6 +3701,8 @@ function renderCalendar(){
     const tip = hol ? ` title="${calEsc(hol)}"` : '';
     head += `<div class="${cls}"${tip}><div class="dn">${d}</div><div class="dw">${CAL_DOW[dow]}</div></div>`;
   }
+  // 빈 칸 채우기: 날짜 열 뒤에 남은 공간을 흰 배경으로 채움
+  head += `<div class="cal-dh-filler" style="flex:1;min-width:0;border-bottom:1.5px solid var(--line);"></div>`;
   head += '</div></div>';
 
   // --- 본문 (구분 행) ---
@@ -3700,18 +3762,21 @@ function renderCalendar(){
 
     const fixedCls = cat.fixed ? ' fixed-cat' : '';
     const delBtn = cat.fixed ? '' : `<button class="cdel" data-delcat="${cat.id}" title="구분 삭제">✕</button>`;
-    body += `<div class="cal-row${fixedCls}" style="width:${gridW}">`
+    body += `<div class="cal-row${fixedCls} cal-row-stretch" data-gridw="${gridW}">`
           + `<div class="cal-rl">`
           + `<span class="cname">${calEsc(cat.name)}</span>`
           + `<button class="cadd" data-addcat="${cat.id}" title="이 구분에 이벤트 추가">＋</button>`
           + delBtn
           + `</div>`
-          + `<div class="cal-lanes"><div class="cal-colgrid">${colgrid}</div>`
+          + `<div class="cal-lanes" style="width:calc(${daysInMonth} * var(--day-w))"><div class="cal-colgrid">${colgrid}</div>`
           + `<div class="cal-lanebox" style="height:${laneboxH}px">${bars}</div></div>`
+          + `<div class="cal-row-filler"></div>`
           + `</div>`;
   });
 
   grid.innerHTML = head + body;
+  // ical-grid에 최소 너비 변수 설정 (행들이 이 이상 넓어지면 filler로 채움)
+  grid.style.setProperty('--cal-grid-min', gridW);
 }
 
 /* ----- 이벤트 모달 ----- */
@@ -3909,10 +3974,56 @@ function subscribeCalendar(){
 
 /* ----- 이벤트 바인딩 ----- */
 function calBindUI(){
-  document.getElementById('calAddEvtBtn').addEventListener('click', ()=>openEvtModal({}));
+  // 아코디언 접기/펼치기
+  const calHeader = document.getElementById('calAccordionHeader');
+  const calBodyWrap = document.getElementById('calBodyWrap');
+  const calArrow = document.getElementById('calAccordionArrow');
+  let calOpen = false;
+  function setCalOpen(open){
+    calOpen = open;
+    calBodyWrap.classList.toggle('open', open);
+    if(calArrow) calArrow.style.transform = open ? 'rotate(0deg)' : 'rotate(-90deg)';
+  }
+  setCalOpen(false); // 기본값: 접힌 상태
+  calHeader.addEventListener('click', ()=>setCalOpen(!calOpen));
   document.getElementById('calAddCatBtn').addEventListener('click', openCatModal);
 
-  // 그리드 클릭 위임 (막대 / 구분 추가·삭제)
+  // 커스텀 툴팁
+  const ttEl   = document.getElementById('evtTooltip');
+  const ttTitle= document.getElementById('evtTtTitle');
+  const ttDate = document.getElementById('evtTtDate');
+  const ttMemo = document.getElementById('evtTtMemo');
+  function showTooltip(e, evObj){
+    ttTitle.textContent = evObj.title || '(제목 없음)';
+    const dateStr = evObj.end && evObj.end !== evObj.start
+      ? `${evObj.start} ~ ${evObj.end}` : evObj.start;
+    ttDate.textContent = dateStr || '';
+    if(evObj.memo){ ttMemo.textContent = evObj.memo; ttMemo.style.display=''; }
+    else { ttMemo.style.display='none'; }
+    ttEl.style.display = 'block';
+    moveTooltip(e);
+  }
+  function moveTooltip(e){
+    const x = e.clientX + 14, y = e.clientY + 14;
+    const tw = ttEl.offsetWidth || 200, th = ttEl.offsetHeight || 60;
+    ttEl.style.left = (x + tw > window.innerWidth ? e.clientX - tw - 8 : x) + 'px';
+    ttEl.style.top  = (y + th > window.innerHeight ? e.clientY - th - 8 : y) + 'px';
+  }
+  function hideTooltip(){ ttEl.style.display='none'; }
+
+  document.getElementById('calGrid').addEventListener('mouseover', (e)=>{
+    const bar = e.target.closest('.evt');
+    if(!bar) return;
+    const eid = bar.dataset.eid;
+    const ev = calData.events.find(ev=>ev.id===eid);
+    if(ev) showTooltip(e, ev);
+  });
+  document.getElementById('calGrid').addEventListener('mousemove', (e)=>{
+    if(ttEl.style.display==='block') moveTooltip(e);
+  });
+  document.getElementById('calGrid').addEventListener('mouseout', (e)=>{
+    if(e.target.closest('.evt')) hideTooltip();
+  });
   document.getElementById('calGrid').addEventListener('click', (e)=>{
     const bar = e.target.closest('.evt');
     if(bar){ openEvtModal({ eventId: bar.dataset.eid }); return; }
