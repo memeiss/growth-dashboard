@@ -2,6 +2,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -827,6 +828,100 @@ table.detail-tbl .col-ach{min-width:160px;}
   background:var(--line);
   margin:0 2px;
 }
+
+/* =========================================================
+ *  전사 이슈 캘린더 (월간 타임라인)
+ * ========================================================= */
+.cal-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+.cal-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 15px;border-radius:8px;font-weight:700;font-size:12.5px;cursor:pointer;border:none;font-family:inherit;transition:all .15s ease;}
+.cal-btn.primary{background:var(--navy);color:#fff;}
+.cal-btn.primary:hover{background:#0F3771;transform:translateY(-1px);box-shadow:0 4px 12px rgba(23,73,143,.22);}
+.cal-btn.ghost{background:var(--white);color:var(--navy);border:1.5px solid var(--line);}
+.cal-btn.ghost:hover{border-color:var(--navy-soft);background:var(--navy-light);}
+.cal-legend{display:flex;align-items:center;gap:13px;margin-left:auto;font-size:11.5px;color:var(--gray);flex-wrap:wrap;}
+.cal-legend .lg{display:inline-flex;align-items:center;gap:5px;}
+.cal-legend .dot{width:11px;height:11px;border-radius:3px;display:inline-block;}
+.cal-sync{font-size:11px;color:var(--gray);white-space:nowrap;}
+
+.cal-card{padding:0;overflow:hidden;}
+.cal-scroll{overflow-x:auto;overflow-y:hidden;}
+.ical-grid{--day-w:38px;--label-w:156px;position:relative;width:max-content;font-size:12px;display:block;}
+
+/* 헤더 (일자) */
+.cal-head{display:flex;position:sticky;top:0;z-index:6;}
+.cal-head .corner{width:var(--label-w);min-width:var(--label-w);flex-shrink:0;position:sticky;left:0;z-index:7;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;letter-spacing:.04em;border-right:1px solid var(--navy);}
+.cal-days{display:flex;flex-shrink:0;}
+.cal-dh{width:var(--day-w);min-width:var(--day-w);text-align:center;border-right:1px solid #F1F1EC;border-bottom:1.5px solid var(--line);padding:5px 0 4px;background:var(--white);}
+.cal-dh .dn{font-size:12.5px;font-weight:800;color:var(--text);line-height:1.1;}
+.cal-dh .dw{font-size:9.5px;font-weight:600;color:var(--gray);margin-top:1px;}
+.cal-dh.off{background:#FCF1F1;}
+.cal-dh.off .dn,.cal-dh.off .dw{color:var(--neg);}
+.cal-dh.today{background:var(--cream);}
+.cal-dh.today .dn{color:var(--navy);}
+.cal-dh.today::after{content:'';display:block;height:3px;background:var(--navy);margin:3px 6px -4px;border-radius:2px;}
+
+/* 본문 (구분 행) */
+.cal-row{display:flex;border-bottom:1px solid var(--line);min-height:42px;}
+.cal-row:last-child{border-bottom:none;}
+.cal-rl{width:var(--label-w);min-width:var(--label-w);flex-shrink:0;position:sticky;left:0;z-index:5;background:var(--white);border-right:1px solid var(--line);display:flex;align-items:center;gap:7px;padding:9px 11px;}
+.cal-row.fixed-cat .cal-rl{background:var(--cream);}
+.cal-rl .cdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.cal-rl .cname{font-size:12.5px;font-weight:700;color:var(--text);line-height:1.25;word-break:keep-all;}
+.cal-row.fixed-cat .cal-rl .cname{color:var(--navy);font-weight:800;}
+.cal-rl .cadd{margin-left:auto;color:var(--navy-soft);cursor:pointer;font-size:15px;border:none;background:none;padding:1px 5px;border-radius:5px;line-height:1;flex-shrink:0;font-weight:800;}
+.cal-rl .cadd:hover{background:var(--navy-light);}
+.cal-rl .cdel{color:var(--gray);cursor:pointer;font-size:13px;border:none;background:none;padding:2px 4px;border-radius:5px;line-height:1;flex-shrink:0;opacity:0;}
+.cal-rl:hover .cdel{opacity:1;}
+.cal-rl .cdel:hover{color:var(--neg);background:#FBE9E8;}
+
+.cal-lanes{position:relative;flex:1;min-width:0;}
+.cal-colgrid{position:absolute;inset:0;display:flex;pointer-events:none;}
+.cal-colgrid .c{width:var(--day-w);min-width:var(--day-w);border-right:1px solid #F4F4EF;}
+.cal-colgrid .c.off{background:#FCF6F6;}
+.cal-lanebox{position:relative;padding:6px 0;}
+
+/* 이벤트 막대 */
+.evt{position:absolute;height:22px;border-radius:5px;display:flex;align-items:center;padding:0 8px;font-size:11px;font-weight:600;color:#fff;cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;box-shadow:0 1px 2px rgba(0,0,0,.13);border-left:3px solid rgba(0,0,0,.22);transition:filter .12s ease, transform .12s ease;}
+.evt:hover{filter:brightness(1.07);transform:translateY(-1px);z-index:4;box-shadow:0 4px 10px rgba(0,0,0,.22);}
+.evt .star{margin-right:4px;font-size:9px;letter-spacing:-1px;opacity:.95;flex-shrink:0;}
+.evt .etxt{overflow:hidden;text-overflow:ellipsis;}
+.evt.imp-high{background:#D9534F;}
+.evt.imp-mid{background:#C47F0A;}
+.evt.imp-low{background:#3A6AAE;}
+.cal-empty-lane{height:34px;}
+.cal-hint{font-size:11.5px;color:var(--gray);padding:10px 14px 2px;}
+
+/* 모달 */
+.cal-modal-ov{position:fixed;inset:0;background:rgba(18,28,48,.46);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px;}
+.cal-modal-ov.show{display:flex;}
+.cal-modal{background:#fff;border-radius:14px;width:100%;max-width:450px;padding:24px 24px 22px;box-shadow:0 24px 60px rgba(0,0,0,.28);max-height:92vh;overflow-y:auto;}
+.cal-modal h3{font-size:16px;font-weight:800;color:var(--navy);margin-bottom:4px;}
+.cal-modal .msub{font-size:11.5px;color:var(--gray);margin-bottom:16px;}
+.cal-field{margin-bottom:13px;}
+.cal-field > label{display:block;font-size:11.5px;font-weight:800;color:var(--gray);margin-bottom:5px;letter-spacing:.02em;}
+.cal-field input[type=text],.cal-field input[type=date],.cal-field select,.cal-field textarea{width:100%;font-family:inherit;font-size:13.5px;color:var(--text);border:1.5px solid var(--line);border-radius:8px;padding:9px 11px;outline:none;transition:border-color .15s;background:#fff;}
+.cal-field input:focus,.cal-field select:focus,.cal-field textarea:focus{border-color:var(--navy-soft);}
+.cal-field textarea{resize:vertical;min-height:56px;line-height:1.5;}
+.cal-2col{display:flex;gap:10px;}
+.cal-2col .cal-field{flex:1;}
+.imp-pick{display:flex;gap:8px;}
+.imp-opt{flex:1;text-align:center;padding:9px 0;border-radius:8px;border:1.5px solid var(--line);font-size:12px;font-weight:800;cursor:pointer;color:var(--gray);background:#fff;transition:all .12s;user-select:none;}
+.imp-opt[data-imp=high].sel{background:#FBE9E8;border-color:#D9534F;color:#D9534F;}
+.imp-opt[data-imp=mid].sel{background:#FBF1DF;border-color:#C47F0A;color:#C47F0A;}
+.imp-opt[data-imp=low].sel{background:var(--navy-light);border-color:#3A6AAE;color:#3A6AAE;}
+.cal-modal-actions{display:flex;gap:9px;margin-top:18px;align-items:center;}
+.cal-modal-actions .sp{flex:1;}
+.m-btn{padding:10px 17px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;border:none;font-family:inherit;transition:all .12s;}
+.m-btn.save{background:var(--navy);color:#fff;}
+.m-btn.save:hover{background:#0F3771;}
+.m-btn.cancel{background:#F0F0EC;color:var(--text);}
+.m-btn.cancel:hover{background:#E6E6E0;}
+.m-btn.del{background:#FBE9E8;color:var(--neg);}
+.m-btn.del:hover{background:#F6D7D5;}
+.color-pick{display:flex;gap:7px;flex-wrap:wrap;}
+.color-opt{width:26px;height:26px;border-radius:7px;cursor:pointer;border:2px solid transparent;transition:transform .1s;}
+.color-opt:hover{transform:scale(1.1);}
+.color-opt.sel{border-color:var(--text);box-shadow:0 0 0 2px #fff inset;}
 .ym-badge{
   background:var(--navy);
   color:#fff;
@@ -1304,6 +1399,98 @@ table.detail-tbl .col-ach{min-width:160px;}
       </label>
     </div>
   </header>
+
+  <!-- ===== 전사 이슈 캘린더 (월간 타임라인) ===== -->
+  <section class="section" id="calSection">
+    <div class="section-title">
+      <div class="bar"></div>
+      <h2>전사 이슈 캘린더</h2>
+      <div class="meta" id="calMonthLabel">2026년 6월</div>
+    </div>
+
+    <div class="cal-toolbar">
+      <button class="cal-btn primary" id="calAddEvtBtn">＋ 이벤트 추가</button>
+      <button class="cal-btn ghost" id="calAddCatBtn">＋ 구분(채널) 추가</button>
+      <div class="cal-legend">
+        <span class="cal-sync" id="calSyncStatus">● 연결 확인 중…</span>
+        <span class="lg"><span class="dot" style="background:#D9534F"></span>중요(높음)</span>
+        <span class="lg"><span class="dot" style="background:#C47F0A"></span>보통</span>
+        <span class="lg"><span class="dot" style="background:#3A6AAE"></span>참고(낮음)</span>
+      </div>
+    </div>
+
+    <div class="card cal-card">
+      <div class="cal-scroll" id="calScroll">
+        <div class="ical-grid" id="calGrid"><!-- JS 렌더 --></div>
+      </div>
+      <div class="cal-hint">막대를 클릭하면 수정·삭제할 수 있습니다 · 구분 라벨의 ＋로 해당 채널에 바로 이벤트를 추가할 수 있습니다.</div>
+    </div>
+  </section>
+
+  <!-- 이벤트 추가/수정 모달 -->
+  <div class="cal-modal-ov" id="evtModalOv">
+    <div class="cal-modal">
+      <h3 id="evtModalTitle">이벤트 추가</h3>
+      <div class="msub">해당 월에 진행되는 프로모션·행사·이슈를 기록합니다.</div>
+      <div class="cal-field">
+        <label>구분 (채널)</label>
+        <select id="evtCat"></select>
+      </div>
+      <div class="cal-field">
+        <label>제목 / 내용</label>
+        <input type="text" id="evtTitle" placeholder="예) SEOUL FOOD 2026, 홈쇼핑 구매 인증 이벤트" maxlength="80"/>
+      </div>
+      <div class="cal-2col">
+        <div class="cal-field">
+          <label>시작일</label>
+          <input type="date" id="evtStart"/>
+        </div>
+        <div class="cal-field">
+          <label>종료일</label>
+          <input type="date" id="evtEnd"/>
+        </div>
+      </div>
+      <div class="cal-field">
+        <label>중요도</label>
+        <div class="imp-pick" id="evtImpPick">
+          <div class="imp-opt" data-imp="high">높음</div>
+          <div class="imp-opt sel" data-imp="mid">보통</div>
+          <div class="imp-opt" data-imp="low">낮음</div>
+        </div>
+      </div>
+      <div class="cal-field">
+        <label>메모 (선택)</label>
+        <textarea id="evtMemo" placeholder="상세 내용, 담당, 링크 등"></textarea>
+      </div>
+      <div class="cal-modal-actions">
+        <button class="m-btn del" id="evtDelBtn" style="display:none;">삭제</button>
+        <span class="sp"></span>
+        <button class="m-btn cancel" id="evtCancelBtn">취소</button>
+        <button class="m-btn save" id="evtSaveBtn">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 구분(채널) 추가 모달 -->
+  <div class="cal-modal-ov" id="catModalOv">
+    <div class="cal-modal" style="max-width:400px;">
+      <h3>구분(채널) 추가</h3>
+      <div class="msub">예) B2C 올리브영, B2B 웰스토리, B2B 스타벅스 …</div>
+      <div class="cal-field">
+        <label>구분 이름</label>
+        <input type="text" id="catName" placeholder="예) B2C 올리브영" maxlength="30"/>
+      </div>
+      <div class="cal-field">
+        <label>표시 색상</label>
+        <div class="color-pick" id="catColorPick"></div>
+      </div>
+      <div class="cal-modal-actions">
+        <span class="sp"></span>
+        <button class="m-btn cancel" id="catCancelBtn">취소</button>
+        <button class="m-btn save" id="catSaveBtn">추가</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ===== 전체 매출 현황 ===== -->
   <section class="section">
@@ -3373,6 +3560,397 @@ function renderAll(){
   renderWeekly();
   renderDailyChart();
   renderChannelDetail();
+  renderCalendar();
+}
+
+/* =========================================================
+ *  전사 이슈 캘린더 (월간 타임라인)
+ * ========================================================= */
+const CAL_DOC_ID = 'growth_calendar';   // 매출 데이터와 분리된 별도 문서
+
+// 기본 구분(채널) — '전사 이슈'는 항상 첫 번째 & 고정
+const CAL_DEFAULT_CATEGORIES = [
+  { id:'cat_jeonsa', name:'전사 이슈', color:'#17498F', fixed:true },
+  { id:'cat_brand',  name:'브랜드몰',  color:'#2E8B57' },
+  { id:'cat_ssg',    name:'신세계',    color:'#7E57C2' },
+  { id:'cat_kurly',  name:'B2C 컬리',  color:'#C47F0A' }
+];
+const CAL_COLORS = ['#17498F','#2E8B57','#C47F0A','#7E57C2','#D9534F','#3A6AAE','#5A5A5A','#1C8C8C','#B5651D','#C2185B'];
+
+function calClone(o){ return JSON.parse(JSON.stringify(o)); }
+function calUid(){ return 'e'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function calPad2(n){ return String(n).padStart(2,'0'); }
+function calDateStr(y,m,d){ return y+'-'+calPad2(m)+'-'+calPad2(d); }
+function calEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// 캘린더 데이터 (Firebase 동기화)
+let calData = { categories: calClone(CAL_DEFAULT_CATEGORIES), events: [], customHolidays: {} };
+
+/* ----- 공휴일 ----- */
+const CAL_SOLAR_FIXED = {
+  '01-01':'신정','03-01':'삼일절','05-05':'어린이날','06-06':'현충일',
+  '08-15':'광복절','10-03':'개천절','10-09':'한글날','12-25':'성탄절'
+};
+// 음력/대체/임시 공휴일 (연도별 확정값 — 그 외 연도는 주말 + 양력 고정 공휴일 + 직접 지정으로 처리)
+const CAL_LUNAR_HOLIDAYS = {
+  2025:{ '01-28':'설날 연휴','01-29':'설날','01-30':'설날 연휴','03-03':'대체공휴일','05-06':'대체공휴일','06-03':'임시공휴일','10-05':'추석 연휴','10-06':'추석','10-07':'추석 연휴','10-08':'대체공휴일' },
+  2026:{ '02-16':'설날 연휴','02-17':'설날','02-18':'설날 연휴','03-02':'대체공휴일','05-24':'부처님오신날','05-25':'대체공휴일','06-03':'임시공휴일','08-17':'대체공휴일','09-24':'추석 연휴','09-25':'추석','09-26':'추석 연휴','10-05':'대체공휴일' }
+};
+function calHolidayName(y,m,d){
+  const mmdd = calPad2(m)+'-'+calPad2(d);
+  const full = calDateStr(y,m,d);
+  if(calData.customHolidays && calData.customHolidays[full]) return calData.customHolidays[full];
+  if(CAL_SOLAR_FIXED[mmdd]) return CAL_SOLAR_FIXED[mmdd];
+  if(CAL_LUNAR_HOLIDAYS[y] && CAL_LUNAR_HOLIDAYS[y][mmdd]) return CAL_LUNAR_HOLIDAYS[y][mmdd];
+  return null;
+}
+function calIsOff(y,m,d){
+  const dow = new Date(y, m-1, d).getDay();   // 0:일 6:토
+  return dow===0 || dow===6 || !!calHolidayName(y,m,d);
+}
+const CAL_DOW = ['일','월','화','수','목','금','토'];
+
+/* ----- 현재 선택 연/월 ----- */
+function calSelYM(){
+  const y = parseInt(document.getElementById('selectYear').value)  || 2026;
+  const m = parseInt(document.getElementById('selectMonth').value) || 6;
+  return { y, m };
+}
+
+/* ----- 렌더 ----- */
+function renderCalendar(){
+  const grid = document.getElementById('calGrid');
+  if(!grid) return;
+  const { y, m } = calSelYM();
+  const daysInMonth = new Date(y, m, 0).getDate();
+  const today = new Date();
+  const isThisMonth = (today.getFullYear()===y && (today.getMonth()+1)===m);
+  const todayD = today.getDate();
+
+  const lbl = document.getElementById('calMonthLabel');
+  if(lbl) lbl.textContent = `${y}년 ${m}월`;
+
+  // --- 헤더 (일자/요일) ---
+  const gridW = `calc(var(--label-w) + ${daysInMonth} * var(--day-w))`;
+  let head = `<div class="cal-head" style="width:${gridW}"><div class="corner">구분</div><div class="cal-days">`;
+  for(let d=1; d<=daysInMonth; d++){
+    const dow = new Date(y, m-1, d).getDay();
+    const off = calIsOff(y,m,d);
+    const hol = calHolidayName(y,m,d);
+    const cls = 'cal-dh' + (off?' off':'') + (isThisMonth&&d===todayD?' today':'');
+    const tip = hol ? ` title="${calEsc(hol)}"` : '';
+    head += `<div class="${cls}"${tip}><div class="dn">${d}</div><div class="dw">${CAL_DOW[dow]}</div></div>`;
+  }
+  head += '</div></div>';
+
+  // --- 본문 (구분 행) ---
+  let body = '';
+  calData.categories.forEach(cat=>{
+    // 이 구분의 이벤트 중 이번 달과 겹치는 것 추출 + 월 범위로 클립
+    const items = [];
+    calData.events.forEach(ev=>{
+      if(ev.catId !== cat.id) return;
+      const s = ev.start, e = ev.end || ev.start;
+      if(!s) return;
+      const [sy,sm,sd] = s.split('-').map(Number);
+      const [ey,em,ed] = (e).split('-').map(Number);
+      const sNum = sy*10000+sm*100+sd, eNum = ey*10000+em*100+ed;
+      const mStart = y*10000+m*100+1, mEnd = y*10000+m*100+daysInMonth;
+      if(eNum < mStart || sNum > mEnd) return;   // 이번 달과 무관
+      const startDay = (sNum < mStart) ? 1 : sd;
+      const endDay   = (eNum > mEnd)   ? daysInMonth : ed;
+      const contL = sNum < mStart, contR = eNum > mEnd;
+      items.push({ ev, startDay, endDay, contL, contR });
+    });
+    // 레인 배치 (겹치면 다른 레인)
+    items.sort((a,b)=> a.startDay-b.startDay || a.endDay-b.endDay);
+    const laneEnds = [];
+    items.forEach(it=>{
+      let lane = 0;
+      while(lane<laneEnds.length && laneEnds[lane] >= it.startDay) lane++;
+      it.lane = lane;
+      laneEnds[lane] = it.endDay;
+    });
+    const laneCount = Math.max(1, laneEnds.length);
+    const laneboxH = 12 + laneCount*26;
+
+    // 막대 HTML
+    let bars = '';
+    items.forEach(it=>{
+      const span = it.endDay - it.startDay + 1;
+      const ev = it.ev;
+      const imp = ev.importance || 'mid';
+      const star = imp==='high' ? '<span class="star">★</span>' : '';
+      const radL = it.contL ? '0' : '5px';
+      const radR = it.contR ? '0' : '5px';
+      const ttl = `${ev.title||'(제목 없음)'}  ·  ${ev.start}${ev.end&&ev.end!==ev.start?' ~ '+ev.end:''}${ev.memo?'\n'+ev.memo:''}`;
+      bars += `<div class="evt imp-${imp}" data-eid="${ev.id}" title="${calEsc(ttl)}"`
+            + ` style="left:calc(${it.startDay-1} * var(--day-w) + 2px);`
+            + `width:calc(${span} * var(--day-w) - 4px);top:${6 + it.lane*26}px;`
+            + `border-top-left-radius:${radL};border-bottom-left-radius:${radL};`
+            + `border-top-right-radius:${radR};border-bottom-right-radius:${radR};">`
+            + `${star}<span class="etxt">${calEsc(ev.title||'(제목 없음)')}</span></div>`;
+    });
+
+    // 일자 배경 그리드 (주말/공휴일 음영)
+    let colgrid = '';
+    for(let d=1; d<=daysInMonth; d++){
+      colgrid += `<div class="c${calIsOff(y,m,d)?' off':''}"></div>`;
+    }
+
+    const fixedCls = cat.fixed ? ' fixed-cat' : '';
+    const delBtn = cat.fixed ? '' : `<button class="cdel" data-delcat="${cat.id}" title="구분 삭제">✕</button>`;
+    body += `<div class="cal-row${fixedCls}" style="width:${gridW}">`
+          + `<div class="cal-rl">`
+          + `<span class="cname">${calEsc(cat.name)}</span>`
+          + `<button class="cadd" data-addcat="${cat.id}" title="이 구분에 이벤트 추가">＋</button>`
+          + delBtn
+          + `</div>`
+          + `<div class="cal-lanes"><div class="cal-colgrid">${colgrid}</div>`
+          + `<div class="cal-lanebox" style="height:${laneboxH}px">${bars}</div></div>`
+          + `</div>`;
+  });
+
+  grid.innerHTML = head + body;
+}
+
+/* ----- 이벤트 모달 ----- */
+let calEditingId = null;
+let calSelImp = 'mid';
+
+function calFillCatSelect(presetId){
+  const sel = document.getElementById('evtCat');
+  sel.innerHTML = calData.categories.map(c=>`<option value="${c.id}">${calEsc(c.name)}</option>`).join('');
+  if(presetId) sel.value = presetId;
+}
+function calSetImp(imp){
+  calSelImp = imp;
+  document.querySelectorAll('#evtImpPick .imp-opt').forEach(el=>{
+    el.classList.toggle('sel', el.dataset.imp===imp);
+  });
+}
+function calDefaultDate(){
+  const { y, m } = calSelYM();
+  const t = new Date();
+  if(t.getFullYear()===y && (t.getMonth()+1)===m) return calDateStr(y,m,t.getDate());
+  return calDateStr(y,m,1);
+}
+function openEvtModal(opts){
+  opts = opts || {};
+  const ov = document.getElementById('evtModalOv');
+  if(opts.eventId){
+    const ev = calData.events.find(e=>e.id===opts.eventId);
+    if(!ev) return;
+    calEditingId = ev.id;
+    document.getElementById('evtModalTitle').textContent = '이벤트 수정';
+    calFillCatSelect(ev.catId);
+    document.getElementById('evtTitle').value = ev.title || '';
+    document.getElementById('evtStart').value = ev.start || '';
+    document.getElementById('evtEnd').value   = ev.end || ev.start || '';
+    document.getElementById('evtMemo').value  = ev.memo || '';
+    calSetImp(ev.importance || 'mid');
+    document.getElementById('evtDelBtn').style.display = '';
+  }else{
+    calEditingId = null;
+    document.getElementById('evtModalTitle').textContent = '이벤트 추가';
+    calFillCatSelect(opts.catId || (calData.categories[0] && calData.categories[0].id));
+    document.getElementById('evtTitle').value = '';
+    const dd = calDefaultDate();
+    document.getElementById('evtStart').value = dd;
+    document.getElementById('evtEnd').value   = dd;
+    document.getElementById('evtMemo').value  = '';
+    calSetImp('mid');
+    document.getElementById('evtDelBtn').style.display = 'none';
+  }
+  ov.classList.add('show');
+  setTimeout(()=>document.getElementById('evtTitle').focus(), 50);
+}
+function closeEvtModal(){ document.getElementById('evtModalOv').classList.remove('show'); }
+
+async function saveEvtFromModal(){
+  const catId = document.getElementById('evtCat').value;
+  const title = document.getElementById('evtTitle').value.trim();
+  let start = document.getElementById('evtStart').value;
+  let end   = document.getElementById('evtEnd').value;
+  const memo = document.getElementById('evtMemo').value.trim();
+  if(!title){ alert('제목을 입력해 주세요.'); return; }
+  if(!start){ alert('시작일을 선택해 주세요.'); return; }
+  if(!end) end = start;
+  if(end < start){ const t=start; start=end; end=t; }   // 순서 보정
+
+  if(calEditingId){
+    const ev = calData.events.find(e=>e.id===calEditingId);
+    if(ev){ Object.assign(ev, { catId, title, start, end, memo, importance: calSelImp }); }
+  }else{
+    calData.events.push({ id: calUid(), catId, title, start, end, memo, importance: calSelImp });
+  }
+  closeEvtModal();
+  renderCalendar();
+  await saveCalendarToFirebase();
+}
+async function deleteCurrentEvt(){
+  if(!calEditingId) return;
+  if(!confirm('이 이벤트를 삭제할까요?')) return;
+  calData.events = calData.events.filter(e=>e.id!==calEditingId);
+  closeEvtModal();
+  renderCalendar();
+  await saveCalendarToFirebase();
+}
+
+/* ----- 구분(채널) 모달 ----- */
+let calSelCatColor = CAL_COLORS[0];
+function calBuildColorPicker(){
+  const wrap = document.getElementById('catColorPick');
+  wrap.innerHTML = CAL_COLORS.map((c,i)=>
+    `<span class="color-opt${i===0?' sel':''}" data-color="${c}" style="background:${c}"></span>`
+  ).join('');
+  calSelCatColor = CAL_COLORS[0];
+}
+function openCatModal(){
+  document.getElementById('catName').value = '';
+  calBuildColorPicker();
+  document.getElementById('catModalOv').classList.add('show');
+  setTimeout(()=>document.getElementById('catName').focus(), 50);
+}
+function closeCatModal(){ document.getElementById('catModalOv').classList.remove('show'); }
+async function saveCatFromModal(){
+  const name = document.getElementById('catName').value.trim();
+  if(!name){ alert('구분 이름을 입력해 주세요.'); return; }
+  calData.categories.push({ id:'cat_'+calUid(), name, color: calSelCatColor });
+  closeCatModal();
+  renderCalendar();
+  await saveCalendarToFirebase();
+}
+async function deleteCategory(catId){
+  const cat = calData.categories.find(c=>c.id===catId);
+  if(!cat || cat.fixed) return;
+  const cnt = calData.events.filter(e=>e.catId===catId).length;
+  const msg = cnt>0
+    ? `'${cat.name}' 구분과 이 구분의 이벤트 ${cnt}건을 모두 삭제할까요?`
+    : `'${cat.name}' 구분을 삭제할까요?`;
+  if(!confirm(msg)) return;
+  calData.categories = calData.categories.filter(c=>c.id!==catId);
+  calData.events     = calData.events.filter(e=>e.catId!==catId);
+  renderCalendar();
+  await saveCalendarToFirebase();
+}
+
+/* ----- Firebase (별도 문서) ----- */
+function setCalSync(text, kind){
+  const el = document.getElementById('calSyncStatus');
+  if(!el) return;
+  el.textContent = '● ' + text;
+  el.className = 'cal-sync' + (kind ? ' '+kind : '');
+  el.style.color = kind==='ok' ? 'var(--pos)' : kind==='err' ? 'var(--neg)' : kind==='busy' ? 'var(--navy)' : 'var(--gray)';
+}
+function calMergeDefaults(){
+  // 저장된 데이터에 기본 구조가 없을 때 보정
+  if(!calData.categories || !calData.categories.length){
+    calData.categories = calClone(CAL_DEFAULT_CATEGORIES);
+  }else if(!calData.categories.some(c=>c.fixed)){
+    // 고정 '전사 이슈'가 없으면 맨 앞에 추가
+    calData.categories.unshift({ id:'cat_jeonsa', name:'전사 이슈', color:'#17498F', fixed:true });
+  }
+  if(!Array.isArray(calData.events)) calData.events = [];
+  if(!calData.customHolidays || typeof calData.customHolidays!=='object') calData.customHolidays = {};
+}
+async function loadCalendarFromFirebase(){
+  if(!firebaseReady){ setCalSync('로컬 모드', 'err'); return false; }
+  setCalSync('불러오는 중…', 'busy');
+  try{
+    const snap = await db.collection(FS_COLLECTION).doc(CAL_DOC_ID).get();
+    if(snap.exists && snap.data() && snap.data().payload){
+      calData = JSON.parse(snap.data().payload);
+      calMergeDefaults();
+      setCalSync('동기화 완료', 'ok');
+    }else{
+      calMergeDefaults();
+      setCalSync('저장된 일정 없음', 'busy');
+    }
+    return true;
+  }catch(err){
+    console.error('[Calendar] 불러오기 오류:', err);
+    setCalSync('불러오기 실패', 'err');
+    return false;
+  }
+}
+async function saveCalendarToFirebase(){
+  if(!firebaseReady){ setCalSync('로컬 모드 (저장 안 됨)', 'err'); return false; }
+  setCalSync('저장 중…', 'busy');
+  try{
+    await db.collection(FS_COLLECTION).doc(CAL_DOC_ID).set({
+      payload: JSON.stringify(calData),
+      updatedAt: Date.now()
+    });
+    setCalSync('서버 저장 완료', 'ok');
+    return true;
+  }catch(err){
+    console.error('[Calendar] 저장 오류:', err);
+    setCalSync('저장 실패', 'err');
+    alert('캘린더 저장 중 오류가 발생했습니다.\n\n'+err.message);
+    return false;
+  }
+}
+// 실시간 동기화 (다른 사용자의 변경 반영)
+function subscribeCalendar(){
+  if(!firebaseReady) return;
+  try{
+    db.collection(FS_COLLECTION).doc(CAL_DOC_ID).onSnapshot(snap=>{
+      if(snap.exists && snap.data() && snap.data().payload){
+        try{
+          calData = JSON.parse(snap.data().payload);
+          calMergeDefaults();
+          renderCalendar();
+        }catch(e){ /* ignore parse error */ }
+      }
+    }, err=>{ console.warn('[Calendar] onSnapshot 오류:', err); });
+  }catch(e){ /* ignore */ }
+}
+
+/* ----- 이벤트 바인딩 ----- */
+function calBindUI(){
+  document.getElementById('calAddEvtBtn').addEventListener('click', ()=>openEvtModal({}));
+  document.getElementById('calAddCatBtn').addEventListener('click', openCatModal);
+
+  // 그리드 클릭 위임 (막대 / 구분 추가·삭제)
+  document.getElementById('calGrid').addEventListener('click', (e)=>{
+    const bar = e.target.closest('.evt');
+    if(bar){ openEvtModal({ eventId: bar.dataset.eid }); return; }
+    const add = e.target.closest('[data-addcat]');
+    if(add){ openEvtModal({ catId: add.dataset.addcat }); return; }
+    const del = e.target.closest('[data-delcat]');
+    if(del){ deleteCategory(del.dataset.delcat); return; }
+  });
+
+  // 이벤트 모달
+  document.getElementById('evtSaveBtn').addEventListener('click', saveEvtFromModal);
+  document.getElementById('evtCancelBtn').addEventListener('click', closeEvtModal);
+  document.getElementById('evtDelBtn').addEventListener('click', deleteCurrentEvt);
+  document.getElementById('evtImpPick').addEventListener('click', (e)=>{
+    const opt = e.target.closest('.imp-opt');
+    if(opt) calSetImp(opt.dataset.imp);
+  });
+  document.getElementById('evtModalOv').addEventListener('click', (e)=>{
+    if(e.target.id==='evtModalOv') closeEvtModal();
+  });
+
+  // 구분 모달
+  document.getElementById('catSaveBtn').addEventListener('click', saveCatFromModal);
+  document.getElementById('catCancelBtn').addEventListener('click', closeCatModal);
+  document.getElementById('catColorPick').addEventListener('click', (e)=>{
+    const opt = e.target.closest('.color-opt');
+    if(!opt) return;
+    calSelCatColor = opt.dataset.color;
+    document.querySelectorAll('#catColorPick .color-opt').forEach(el=>el.classList.toggle('sel', el===opt));
+  });
+  document.getElementById('catModalOv').addEventListener('click', (e)=>{
+    if(e.target.id==='catModalOv') closeCatModal();
+  });
+
+  // ESC로 닫기
+  document.addEventListener('keydown', (e)=>{
+    if(e.key==='Escape'){ closeEvtModal(); closeCatModal(); }
+  });
 }
 
 // ---------- 초기 구동 -------------------------------------
@@ -3405,6 +3983,12 @@ function renderAll(){
 
   applyYearMonth();               // 불러온 데이터의 마지막 일자 기준으로 날짜 라벨 갱신
   bindWkNavBtns();
+
+  // ----- 전사 이슈 캘린더 초기화 -----
+  calBindUI();
+  await loadCalendarFromFirebase();   // 저장된 일정 불러오기
+  renderCalendar();                   // 현재 선택 연/월 기준 렌더
+  subscribeCalendar();                // 실시간 동기화 구독
 })();
 </script>
 
