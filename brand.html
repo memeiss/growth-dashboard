@@ -222,16 +222,18 @@ html,body{
 .cust-card.c-navy .cust-desc{color:rgba(255,247,232,.6);}
 
 /* ARPU↔ARPPU 격차 시각화 */
-.gap-card{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:24px 26px;}
-.gap-track-wrap{position:relative;margin:46px 8px 30px;}
+.gap-card{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:24px 30px 26px;}
+.gap-track-wrap{position:relative;margin:88px 42px 66px;}
 .gap-track{position:relative;height:6px;border-radius:6px;background:repeating-linear-gradient(90deg,var(--cream-d) 0 7px,transparent 7px 14px);}
 .gap-track .seg{position:absolute;top:0;height:6px;border-radius:6px;background:var(--navy-light);}
 .gap-dot{position:absolute;top:50%;width:15px;height:15px;border-radius:50%;transform:translate(-50%,-50%);border:3px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.18);}
 .gap-dot.arpu{background:var(--gray);}
 .gap-dot.arppu{background:var(--navy);}
-.gap-pt-lbl{position:absolute;transform:translateX(-50%);text-align:center;white-space:nowrap;}
+.gap-pt-lbl{position:absolute;white-space:nowrap;}
+.gap-pt-lbl.lft{left:0;text-align:left;}
+.gap-pt-lbl.rgt{right:0;text-align:right;}
 .gap-pt-lbl .t{font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.04em;}
-.gap-pt-lbl .v{font-size:15px;font-weight:800;color:var(--navy);}
+.gap-pt-lbl .v{font-size:16px;font-weight:800;color:var(--navy);margin-top:3px;}
 .gap-badge{position:absolute;top:-40px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;font-size:12px;font-weight:800;padding:5px 13px;border-radius:20px;white-space:nowrap;box-shadow:0 3px 10px rgba(23,73,143,.25);}
 .gap-note{margin-top:18px;background:var(--cream);border:1px solid var(--cream-d);border-radius:10px;padding:13px 16px;font-size:12.5px;line-height:1.7;color:var(--text);}
 .gap-note b{color:var(--navy);font-weight:800;}
@@ -506,15 +508,10 @@ html,body{
 
     <div class="card">
       <div class="card-header">
-        <div><h3>일자별 매출 추이</h3><div class="desc" id="dailyDesc" style="margin-top:4px;">일자별 실적 · 유입(신규/재방문) · 전환율 추이</div></div>
-        <div class="chart-controls">
-          <button class="chip active" data-dmetric="sales">실적</button>
-          <button class="chip" data-dmetric="visitors">유입</button>
-          <button class="chip" data-dmetric="cvr">전환율</button>
-        </div>
+        <div><h3>일자별 매출 추이</h3><div class="desc" id="dailyDesc" style="margin-top:4px;">일자별 매출(막대) · 유입(신규·재방문) · 전환율을 한눈에</div></div>
       </div>
-      <div class="chart-wrap"><canvas id="dailyChart"></canvas></div>
-      <div class="chart-note" id="dailyNote">※ [실적] 일자별 매출(만원) · [유입] 신규/재방문 방문자(명, 누적막대) · [전환율] 방문 대비 구매 전환(%)</div>
+      <div class="chart-wrap" style="height:360px;"><canvas id="dailyChart"></canvas></div>
+      <div class="chart-note" id="dailyNote">※ 막대 = 일자별 매출(만원) · 선 = 신규방문·재방문(명) · 전환율(%) · 단위가 달라 좌/우 축으로 구분 표시</div>
     </div>
   </section>
 
@@ -530,15 +527,10 @@ html,body{
 
     <div class="card">
       <div class="card-header">
-        <div><h3>주차별 매출 추이</h3><div class="desc" style="margin-top:4px;">주차별 실적 · 유입 · 전환율 추이</div></div>
-        <div class="chart-controls">
-          <button class="chip active" data-wmetric="sales">실적</button>
-          <button class="chip" data-wmetric="visitors">유입</button>
-          <button class="chip" data-wmetric="cvr">전환율</button>
-        </div>
+        <div><h3>주차별 매출 추이</h3><div class="desc" style="margin-top:4px;">최근 주차별 매출과 전주 대비 증감율</div></div>
       </div>
-      <div class="chart-wrap" style="height:320px;"><canvas id="weeklyChart"></canvas></div>
-      <div class="chart-note">※ [실적] 주차별 매출(만원) · [유입] 주차별 방문자(명) · [전환율] 주차별 구매 전환(%)</div>
+      <div class="chart-wrap" style="height:360px;"><canvas id="weeklyChart"></canvas></div>
+      <div class="chart-note">※ 막대 = 주차별 매출(만원) · 막대 위 = 매출 합계와 전주 대비 증감율(▲ 증가 / ▼ 감소)</div>
     </div>
   </section>
 
@@ -582,11 +574,11 @@ html,body{
       <div style="font-size:12px;color:var(--gray);margin-top:4px;">두 점 사이 거리가 ‘전환 격차(Gap)’의 크기를 나타냅니다 — 줄어들수록 구매 전환율이 개선된 것</div>
       <div class="gap-track-wrap">
         <div class="gap-track"><div class="seg" id="gapSeg"></div></div>
-        <div class="gap-badge" id="gapBadge" style="left:50%;">Gap -</div>
-        <div class="gap-dot arpu" id="gapDotArpu" style="left:4%;"></div>
-        <div class="gap-dot arppu" id="gapDotArppu" style="left:96%;"></div>
-        <div class="gap-pt-lbl" id="gapLblArpu" style="left:4%;top:22px;"><div class="t">ARPU</div><div class="v" id="gapArpuVal">-</div></div>
-        <div class="gap-pt-lbl" id="gapLblArppu" style="left:96%;top:-46px;"><div class="t">ARPPU</div><div class="v" id="gapArppuVal">-</div></div>
+        <div class="gap-badge" id="gapBadge" style="left:50%;top:-56px;">Gap -</div>
+        <div class="gap-dot arpu" id="gapDotArpu" style="left:10%;"></div>
+        <div class="gap-dot arppu" id="gapDotArppu" style="left:90%;"></div>
+        <div class="gap-pt-lbl lft" id="gapLblArpu" style="top:28px;"><div class="t">ARPU · 전체 방문자</div><div class="v" id="gapArpuVal">-</div></div>
+        <div class="gap-pt-lbl rgt" id="gapLblArppu" style="top:-56px;"><div class="t">ARPPU · 구매자</div><div class="v" id="gapArppuVal">-</div></div>
       </div>
       <div class="gap-note" id="gapNote"></div>
     </div>
@@ -698,12 +690,11 @@ const initialData = {
   ],
   // 주차별 (매출=만원, 유입=명, cvr=%)
   weekly: [
-    {wk:'WK15', period:'04.06-04.12', sales:3920, visitors:62400, cvr:1.5},
-    {wk:'WK16', period:'04.13-04.19', sales:4180, visitors:65800, cvr:1.6},
-    {wk:'WK17', period:'04.20-04.26', sales:3760, visitors:60200, cvr:1.5},
-    {wk:'WK18', period:'04.27-05.03', sales:4210, visitors:67100, cvr:1.6},
-    {wk:'WK19', period:'05.04-05.10', sales:5980, visitors:81200, cvr:1.8},
-    {wk:'WK20', period:'05.11-05.17', sales:5395, visitors:78400, cvr:1.7}
+    {wk:'WK18', period:'04.27-05.03', sales:10245, visitors:158400, cvr:1.5},
+    {wk:'WK19', period:'05.04-05.10', sales:15215, visitors:212800, cvr:1.7},
+    {wk:'WK20', period:'05.11-05.17', sales:18907, visitors:241500, cvr:1.8},
+    {wk:'WK21', period:'05.18-05.24', sales:17791, visitors:229600, cvr:1.7},
+    {wk:'WK22', period:'05.25-05.31', sales:15752, visitors:208300, cvr:1.6}
   ],
   // 상품(카테고리) 테이블
   products: JSON.parse(JSON.stringify(PROD_INIT)),
@@ -878,64 +869,133 @@ function renderOverview(){
 }
 
 /* ---------- 3. 일자별 매출 추이 차트 ---------- */
-let dailyChart=null, dailyMetric='sales';
+let dailyChart=null;
 function renderDailyChart(){
   const ctx=document.getElementById('dailyChart'); if(!ctx) return;
   const {y,m}=selYM();
   const arr=dailyForMonth();
   setText('dailyMonthLabel', `${y}년 ${m}월`);
   const labels=arr.map(d=>{ const [,mo,da]=d.date.split('-'); return `${parseInt(mo)}/${parseInt(da)}`; });
+  const NAVY='#17498F', GOLD='#C9A95E', GRAY='#9E9E9E';
 
-  let datasets, scales, plugins=[], chartType='bar';
-  const NAVY='#17498F', NAVY_PALE='#A9C0DE', GRAY='#9E9E9E';
+  const salesArr=arr.map(d=>d.sales);
+  const newArr  =arr.map(d=>d.newV);
+  const reArr   =arr.map(d=>d.reV);
+  const cvrArr  =arr.map(d=>d.cvr);
 
-  if(dailyMetric==='sales'){
-    datasets=[{type:'bar',label:'매출(만원)',data:arr.map(d=>d.sales),backgroundColor:'rgba(23,73,143,0.85)',borderRadius:4,barPercentage:0.7,categoryPercentage:0.8}];
-    scales={ x:dxAxis(), y:dyAxis('만') };
-    plugins=[barLabelPlugin(v=>man(v),NAVY)];
-  } else if(dailyMetric==='visitors'){
-    datasets=[
-      {type:'bar',label:'신규 방문',data:arr.map(d=>d.newV),backgroundColor:NAVY,stack:'v',barPercentage:0.7,categoryPercentage:0.8,borderRadius:{topLeft:0,topRight:0}},
-      {type:'bar',label:'재방문',data:arr.map(d=>d.reV),backgroundColor:NAVY_PALE,stack:'v',barPercentage:0.7,categoryPercentage:0.8,borderRadius:4}
-    ];
-    scales={ x:dxAxis(), y:dyAxis('명') };
-    plugins=[stackTotalPlugin()];
-  } else { // cvr
-    chartType='line';
-    datasets=[{type:'line',label:'전환율(%)',data:arr.map(d=>d.cvr),borderColor:NAVY,backgroundColor:NAVY,borderWidth:2.4,tension:.25,pointRadius:4,pointHoverRadius:6,pointBackgroundColor:NAVY,fill:false}];
-    scales={ x:dxAxis(), y:{beginAtZero:true,ticks:{font:{family:'Pretendard',size:11},color:GRAY,callback:v=>v.toFixed(1)+'%'},grid:{color:'#F0F0EC'},border:{display:false}} };
-    plugins=[pointLabelPlugin(v=>v.toFixed(1)+'%',NAVY)];
-  }
+  const datasets=[
+    {type:'bar', label:'매출(만원)', data:salesArr, yAxisID:'y',
+     backgroundColor:'rgba(23,73,143,0.16)', hoverBackgroundColor:'rgba(23,73,143,0.30)',
+     borderColor:'rgba(23,73,143,0.30)', borderWidth:1, borderRadius:3,
+     barPercentage:0.78, categoryPercentage:0.86, order:3},
+    {type:'line', label:'신규방문(명)', data:newArr, yAxisID:'y1',
+     borderColor:NAVY, backgroundColor:NAVY, borderWidth:2.2, tension:.3,
+     pointRadius:2.4, pointHoverRadius:5, pointBackgroundColor:NAVY, fill:false, order:1},
+    {type:'line', label:'재방문(명)', data:reArr, yAxisID:'y1',
+     borderColor:GOLD, backgroundColor:GOLD, borderWidth:2.2, tension:.3,
+     pointRadius:2.4, pointHoverRadius:5, pointBackgroundColor:GOLD, fill:false, order:1},
+    {type:'line', label:'전환율(%)', data:cvrArr, yAxisID:'y2',
+     borderColor:GRAY, backgroundColor:GRAY, borderWidth:1.8, borderDash:[5,4], tension:.3,
+     pointRadius:2, pointHoverRadius:4, pointBackgroundColor:GRAY, fill:false, order:2}
+  ];
+
+  const scales={
+    x:{ticks:{font:{family:'Pretendard',size:10},color:GRAY,autoSkip:false,maxRotation:0,minRotation:0},grid:{display:false},border:{color:'#EAEAE4'}},
+    y:{position:'left',beginAtZero:true,title:{display:true,text:'매출(만원)',font:{family:'Pretendard',size:10,weight:'700'},color:NAVY},
+       ticks:{font:{family:'Pretendard',size:10},color:GRAY,callback:v=>Math.round(v).toLocaleString()},grid:{color:'#F0F0EC'},border:{display:false}},
+    y1:{position:'right',beginAtZero:true,title:{display:true,text:'방문자(명)',font:{family:'Pretendard',size:10,weight:'700'},color:GRAY},
+        ticks:{font:{family:'Pretendard',size:10},color:GRAY,callback:v=>Math.round(v).toLocaleString()},grid:{display:false},border:{display:false}},
+    y2:{position:'right',beginAtZero:true,suggestedMax:(Math.max(...cvrArr,1)*2.2),display:false,grid:{display:false}}
+  };
+
+  const plugins=[ barTopLabelPlugin(0,'y', v=>man(v), NAVY) ];
 
   if(dailyChart) dailyChart.destroy();
-  dailyChart=new Chart(ctx,{type:chartType,data:{labels,datasets},options:baseChartOpts(scales,dailyMetric!=='sales'),plugins});
+  dailyChart=new Chart(ctx,{type:'bar',data:{labels,datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      layout:{padding:{top:26}},
+      plugins:{
+        legend:{display:true,position:'top',align:'end',labels:{font:{family:'Pretendard',size:11,weight:'600'},color:'#2A2F38',padding:13,boxWidth:11,boxHeight:11,usePointStyle:true,pointStyle:'rectRounded'}},
+        tooltip:{backgroundColor:'#17498F',titleColor:'#FFF7E8',bodyColor:'#fff',titleFont:{family:'Pretendard',weight:'700',size:12},bodyFont:{family:'Pretendard',size:12},padding:12,cornerRadius:6,boxPadding:6,
+          callbacks:{label:c=>{const l=c.dataset.label; const v=c.parsed.y; if(l.includes('전환율')) return ` ${l}  ${v.toFixed(1)}%`; if(l.includes('매출')) return ` ${l}  ${Math.round(v).toLocaleString()}만원`; return ` ${l}  ${Math.round(v).toLocaleString()}명`;}}}
+      },
+      scales
+    },
+    plugins});
 }
 
 /* ---------- 4. 주차별 매출 추이 차트 ---------- */
-let weeklyChart=null, weeklyMetric='sales';
+let weeklyChart=null;
 function renderWeeklyChart(){
   const ctx=document.getElementById('weeklyChart'); if(!ctx) return;
   const arr=data.weekly.slice(-7);
-  const labels=arr.map(w=>w.wk);
-  let datasets,scales,plugins=[],chartType='bar';
-  const NAVY='#17498F', NAVY_PALE='#A9C0DE', GRAY='#9E9E9E';
+  // x축: WK + 기간 (2줄)
+  const labels=arr.map(w=> w.period ? [w.wk, '('+w.period+')'] : [w.wk]);
+  const sales=arr.map(w=>w.sales);
+  const NAVY='#17498F', GOLD='#C9A95E', GRAY='#9E9E9E';
 
-  if(weeklyMetric==='sales'){
-    datasets=[{type:'bar',label:'매출(만원)',data:arr.map(w=>w.sales),backgroundColor:'rgba(23,73,143,0.85)',borderRadius:5,barPercentage:0.55,categoryPercentage:0.7}];
-    scales={x:wxAxis(),y:dyAxis('만')};
-    plugins=[barLabelPlugin(v=>man(v),NAVY)];
-  } else if(weeklyMetric==='visitors'){
-    datasets=[{type:'bar',label:'유입(명)',data:arr.map(w=>w.visitors),backgroundColor:NAVY_PALE,borderColor:NAVY,borderWidth:1,borderRadius:5,barPercentage:0.55,categoryPercentage:0.7}];
-    scales={x:wxAxis(),y:dyAxis('명')};
-    plugins=[barLabelPlugin(v=>man(v),NAVY)];
-  } else {
-    chartType='line';
-    datasets=[{type:'line',label:'전환율(%)',data:arr.map(w=>w.cvr),borderColor:NAVY,backgroundColor:NAVY,borderWidth:2.4,tension:.25,pointRadius:5,pointHoverRadius:7,pointBackgroundColor:NAVY,fill:false}];
-    scales={x:wxAxis(),y:{beginAtZero:true,ticks:{font:{family:'Pretendard',size:11},color:GRAY,callback:v=>v.toFixed(1)+'%'},grid:{color:'#F0F0EC'},border:{display:false}}};
-    plugins=[pointLabelPlugin(v=>v.toFixed(1)+'%',NAVY)];
-  }
+  // 전주 대비 증감율
+  const delta=sales.map((v,i)=> i===0 ? null : (arr[i-1].sales>0 ? (v-arr[i-1].sales)/arr[i-1].sales*100 : null));
+
+  const datasets=[
+    {type:'bar', label:'매출(만원)', data:sales,
+     backgroundColor:'rgba(23,73,143,0.88)', hoverBackgroundColor:NAVY,
+     borderRadius:5, barPercentage:0.56, categoryPercentage:0.72, order:2},
+    {type:'line', label:'추이', data:sales,
+     borderColor:GOLD, backgroundColor:GOLD, borderWidth:2, tension:.25,
+     pointRadius:3.5, pointHoverRadius:5.5, pointBackgroundColor:'#fff', pointBorderColor:GOLD, pointBorderWidth:2,
+     fill:false, order:1}
+  ];
+
+  const scales={
+    x:{ticks:{font:{family:'Pretendard',size:11,weight:'600'},color:'#2A2F38',autoSkip:false,padding:6},grid:{display:false},border:{color:'#EAEAE4'}},
+    y:{beginAtZero:true,ticks:{font:{family:'Pretendard',size:11},color:GRAY,callback:v=>Math.round(v).toLocaleString()+'만'},grid:{color:'#F0F0EC'},border:{display:false}}
+  };
+
+  const labelPlugin={
+    id:'wkLbl',
+    afterDatasetsDraw(chart){
+      const c=chart.ctx; const meta=chart.getDatasetMeta(0);
+      sales.forEach((v,i)=>{
+        const bar=meta.data[i]; if(!bar) return;
+        const x=bar.x, yTop=bar.y;
+        c.save(); c.textAlign='center';
+        // 증감율 (위쪽)
+        if(delta[i]!=null){
+          const up=delta[i]>=0;
+          c.font='bold 11px Pretendard, sans-serif';
+          c.fillStyle= up ? NAVY : GRAY;
+          c.textBaseline='bottom';
+          c.fillText((up?'▲ ':'▼ ')+Math.abs(delta[i]).toFixed(1)+'%', x, yTop-20);
+        }
+        // 매출 합계 (아래쪽, 증감율 밑)
+        c.font='bold 12px Pretendard, sans-serif';
+        c.fillStyle=NAVY; c.textBaseline='bottom';
+        c.fillText(man(v), x, yTop-5);
+        c.restore();
+      });
+    }
+  };
+
   if(weeklyChart) weeklyChart.destroy();
-  weeklyChart=new Chart(ctx,{type:chartType,data:{labels,datasets},options:baseChartOpts(scales,weeklyMetric==='visitors'),plugins});
+  weeklyChart=new Chart(ctx,{type:'bar',data:{labels,datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      layout:{padding:{top:38}},
+      plugins:{
+        legend:{display:false},
+        tooltip:{backgroundColor:'#17498F',titleColor:'#FFF7E8',bodyColor:'#fff',titleFont:{family:'Pretendard',weight:'700',size:12},bodyFont:{family:'Pretendard',size:12},padding:12,cornerRadius:6,
+          filter:item=>item.datasetIndex===0,
+          callbacks:{
+            title:items=>{ const w=arr[items[0].dataIndex]; return w.wk+(w.period?' ('+w.period+')':''); },
+            label:c=>` 매출  ${Math.round(c.parsed.y).toLocaleString()}만원`,
+            afterLabel:c=>{ const d=delta[c.dataIndex]; return d==null?'':` 전주 대비  ${d>=0?'+':''}${d.toFixed(1)}%`; }
+          }}
+      },
+      scales
+    },
+    plugins:[labelPlugin]});
 }
 
 /* ----- 차트 공통 옵션/축/플러그인 ----- */
@@ -955,6 +1015,18 @@ function baseChartOpts(scales,showLegend){
     },
     scales
   };
+}
+function barTopLabelPlugin(dsIndex,yAxisID,fmt,color){
+  return {id:'barTop'+dsIndex,afterDatasetsDraw(chart){
+    const meta=chart.getDatasetMeta(dsIndex); if(!meta) return;
+    const c=chart.ctx;
+    chart.data.datasets[dsIndex].data.forEach((v,i)=>{
+      if(v==null||v===0) return; const bar=meta.data[i]; if(!bar) return;
+      c.save(); c.font='bold 9.5px Pretendard, sans-serif'; c.fillStyle=color;
+      c.textAlign='center'; c.textBaseline='bottom';
+      c.fillText(fmt(v), bar.x, bar.y-4); c.restore();
+    });
+  }};
 }
 function barLabelPlugin(fmt,color){
   return {id:'barLbl',afterDraw(chart){const c=chart.ctx;const meta=chart.getDatasetMeta(0);chart.data.datasets[0].data.forEach((v,i)=>{if(v==null||v===0)return;const bar=meta.data[i];if(!bar)return;c.save();c.font='bold 9.5px Pretendard, sans-serif';c.fillStyle=color;c.textAlign='center';c.textBaseline='bottom';c.fillText(fmt(v),bar.x,bar.y-4);c.restore();});}};
@@ -1082,7 +1154,7 @@ function renderCustomer(){
   setText('gapArppuVal', won(arppu)+'원');
   setText('gapBadge', 'Gap '+gap.toFixed(1)+'배');
   const seg=document.getElementById('gapSeg');
-  if(seg){ seg.style.left='4%'; seg.style.width='92%'; }
+  if(seg){ seg.style.left='10%'; seg.style.width='80%'; }
   // 노트
   const note=document.getElementById('gapNote');
   if(note){
@@ -1099,24 +1171,49 @@ function renderArpuChart(){
   const arpuArr=arr.map(d=>{ const vis=(d.newV||0)+(d.reV||0); return vis>0 ? Math.round(d.sales*1e4/vis) : null; });
   const arppuArr=arr.map(d=>{ const vis=(d.newV||0)+(d.reV||0); const buy=Math.round(vis*(d.cvr||0)/100); return buy>0 ? Math.round(d.sales*1e4/buy) : null; });
   const NAVY='#17498F', GRAY='#9E9E9E';
+  const manfmt=v=> v==null ? '' : (v/10000).toFixed(1)+'만';
+  const maxArpu=Math.max(...arpuArr.filter(v=>v!=null),1);
+
+  // ARPPU 값 라벨 (점 위에 만원 단위 숫자 표시 — 직관적으로)
+  const valueLabelPlugin={
+    id:'arpuValLbl',
+    afterDatasetsDraw(chart){
+      const c=chart.ctx;
+      const meta=chart.getDatasetMeta(0); if(!meta||meta.hidden) return;
+      chart.data.datasets[0].data.forEach((v,i)=>{
+        if(v==null) return; const p=meta.data[i]; if(!p) return;
+        const txt=manfmt(v);
+        c.save(); c.font='bold 10.5px Pretendard, sans-serif';
+        c.textAlign='center'; c.textBaseline='bottom';
+        // 흰색 외곽선으로 가독성 확보
+        c.lineWidth=3; c.strokeStyle='rgba(255,255,255,0.9)'; c.strokeText(txt, p.x, p.y-9);
+        c.fillStyle=NAVY; c.fillText(txt, p.x, p.y-9);
+        c.restore();
+      });
+    }
+  };
+
   if(arpuChart) arpuChart.destroy();
   arpuChart=new Chart(ctx,{
     type:'line',
     data:{labels,datasets:[
-      {label:'ARPPU (구매자)',data:arppuArr,borderColor:NAVY,backgroundColor:'rgba(23,73,143,0.10)',borderWidth:2.4,tension:.3,pointRadius:2.5,pointHoverRadius:5,pointBackgroundColor:NAVY,fill:true,spanGaps:true},
-      {label:'ARPU (전체 방문자)',data:arpuArr,borderColor:GRAY,backgroundColor:GRAY,borderWidth:2,borderDash:[5,4],tension:.3,pointRadius:2,pointHoverRadius:4,pointBackgroundColor:GRAY,fill:false,spanGaps:true}
+      {label:'ARPPU (구매자)',data:arppuArr,yAxisID:'y',borderColor:NAVY,backgroundColor:'rgba(23,73,143,0.08)',borderWidth:2.6,tension:.1,pointRadius:3.2,pointHoverRadius:6,pointBackgroundColor:'#fff',pointBorderColor:NAVY,pointBorderWidth:2,fill:true,spanGaps:true},
+      {label:'ARPU (전체 방문자)',data:arpuArr,yAxisID:'y1',borderColor:GRAY,backgroundColor:GRAY,borderWidth:2,borderDash:[5,4],tension:.1,pointRadius:2.4,pointHoverRadius:5,pointBackgroundColor:'#fff',pointBorderColor:GRAY,pointBorderWidth:2,fill:false,spanGaps:true}
     ]},
     options:{
       responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      layout:{padding:{top:28,bottom:6}},
       plugins:{
         legend:{display:true,position:'top',align:'start',labels:{font:{family:'Pretendard',size:11,weight:'600'},color:'#2A2F38',padding:14,boxWidth:10,boxHeight:10,usePointStyle:true,pointStyle:'rect'}},
         tooltip:{backgroundColor:'#17498F',titleColor:'#FFF7E8',bodyColor:'#fff',titleFont:{family:'Pretendard',weight:'700',size:12},bodyFont:{family:'Pretendard',size:12},padding:12,cornerRadius:6,callbacks:{label:c=>`${c.dataset.label}  ${c.parsed.y!=null?c.parsed.y.toLocaleString()+'원':'-'}`}}
       },
       scales:{
         x:{ticks:{font:{family:'Pretendard',size:10},color:'#9E9E9E',maxRotation:0},grid:{display:false},border:{color:'#EAEAE4'}},
-        y:{beginAtZero:true,ticks:{font:{family:'Pretendard',size:11},color:'#9E9E9E',callback:v=>(v/1000).toFixed(0)+'K'},grid:{color:'#F0F0EC'},border:{display:false}}
+        y:{position:'left',beginAtZero:false,title:{display:true,text:'ARPPU (만원)',font:{family:'Pretendard',size:10,weight:'700'},color:NAVY},ticks:{font:{family:'Pretendard',size:11},color:'#9E9E9E',callback:v=>(v/10000).toFixed(0)+'만'},grid:{color:'#F0F0EC'},border:{display:false}},
+        y1:{position:'right',beginAtZero:true,suggestedMax:maxArpu*3,title:{display:true,text:'ARPU (만원)',font:{family:'Pretendard',size:10,weight:'700'},color:GRAY},ticks:{font:{family:'Pretendard',size:11},color:'#9E9E9E',callback:v=>(v/10000).toFixed(1)+'만'},grid:{display:false},border:{display:false}}
       }
-    }
+    },
+    plugins:[valueLabelPlugin]
   });
 }
 
@@ -1381,16 +1478,6 @@ async function saveMemos(){
   try{ await db.collection(FS_COLLECTION).doc(MEMO_DOC_ID).set({payload:JSON.stringify(memoData),updatedAt:Date.now()}); }
   catch(err){ console.warn('[Memo] save',err); }
 }
-
-/* ---------- 차트 칩 토글 ---------- */
-document.querySelectorAll('[data-dmetric]').forEach(btn=>btn.addEventListener('click',()=>{
-  document.querySelectorAll('[data-dmetric]').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active'); dailyMetric=btn.dataset.dmetric; renderDailyChart();
-}));
-document.querySelectorAll('[data-wmetric]').forEach(btn=>btn.addEventListener('click',()=>{
-  document.querySelectorAll('[data-wmetric]').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active'); weeklyMetric=btn.dataset.wmetric; renderWeeklyChart();
-}));
 
 /* ---------- 연/월 셀렉터 ---------- */
 document.getElementById('ymBadgeBtn').addEventListener('click', applyYearMonth);
