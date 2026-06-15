@@ -201,6 +201,16 @@ html,body{
 .ch-neg{background:var(--surface2);color:var(--gray);}
 .ch-zer{background:var(--surface2);color:var(--gray);}
 .prod-table tfoot td{background:var(--cream);font-weight:800;color:var(--navy);border-top:2px solid var(--cream-d);border-bottom:none;}
+/* 카테고리·상품명(식단) 2개 열 좌측 고정 */
+.prod-table th.stick,.prod-table td.stick{position:sticky;z-index:3;}
+.prod-table th.c1,.prod-table td.c1{left:0;width:100px;min-width:100px;}
+.prod-table th.c2,.prod-table td.c2{left:100px;min-width:184px;border-right:2px solid var(--line-2);}
+.prod-table thead th.stick{z-index:6;}
+.prod-table tbody td.stick{background:var(--white);}
+.prod-table tbody tr:hover td.stick{background:var(--surface2);}
+.prod-table tr.row-cat td.stick{background:var(--navy-light);}
+.prod-table thead th.stick{background:var(--surface2);}
+.prod-table tfoot td.stick{background:var(--cream);}
 
 /* ===== 핵심 고객 지표 ===== */
 .cust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
@@ -511,7 +521,7 @@ html,body{
         <div><h3>일자별 매출 추이</h3><div class="desc" id="dailyDesc" style="margin-top:4px;">일자별 매출(막대) · 유입(신규·재방문) · 전환율을 한눈에</div></div>
       </div>
       <div class="chart-wrap" style="height:360px;"><canvas id="dailyChart"></canvas></div>
-      <div class="chart-note" id="dailyNote">※ 막대 = 일자별 매출(만원) · 선 = 신규방문·재방문(명) · 전환율(%) · 단위가 달라 좌/우 축으로 구분 표시</div>
+      <div class="chart-note" id="dailyNote">※ 하단 막대 = 일자별 매출(만원, 막대 안 숫자) · 상단 선 = 신규방문·재방문(명)·전환율(%) · 단위가 달라 좌/우 축으로 구분</div>
     </div>
   </section>
 
@@ -600,7 +610,7 @@ html,body{
 
 </div>
 <script>
-/* ======================= brand_part1.js ======================= */
+/* brand_part1.js */
 /* =========================================================
  *  브랜드몰 대시보드 - JavaScript
  * ========================================================= */
@@ -794,7 +804,7 @@ function selYM(){
 }
 
 
-/* ======================= brand_part2.js ======================= */
+/* brand_part2.js */
 /* =========================================================
  *  렌더 함수
  * ========================================================= */
@@ -870,6 +880,37 @@ function renderOverview(){
 
 /* ---------- 3. 일자별 매출 추이 차트 ---------- */
 let dailyChart=null;
+function dailyValueLabels(sales,newA,reA,cvrA){
+  return {
+    id:'dailyVals',
+    afterDatasetsDraw(chart){
+      const c=chart.ctx;
+      // 매출: 막대 안쪽(상단)에 표시
+      const bm=chart.getDatasetMeta(0);
+      sales.forEach((v,i)=>{ if(v==null) return; const bar=bm.data[i]; if(!bar) return;
+        c.save(); c.font='bold 10px Pretendard, sans-serif'; c.fillStyle='#17498F';
+        c.textAlign='center'; c.textBaseline='top';
+        c.fillText(Math.round(v).toLocaleString(), bar.x, bar.y+6); c.restore();
+      });
+      // 신규방문·재방문·전환율: 꺾은선 포인트 위쪽에 표시
+      const lines=[
+        {di:1,color:'#17498F',data:newA,fmt:v=>Math.round(v).toLocaleString()},
+        {di:2,color:'#A07D1E',data:reA, fmt:v=>Math.round(v).toLocaleString()},
+        {di:3,color:'#6B7280',data:cvrA,fmt:v=>v.toFixed(1)+'%'}
+      ];
+      lines.forEach(L=>{
+        const meta=chart.getDatasetMeta(L.di); if(!meta||meta.hidden) return;
+        L.data.forEach((v,i)=>{ if(v==null) return; const p=meta.data[i]; if(!p) return;
+          const txt=L.fmt(v);
+          c.save(); c.font='bold 9px Pretendard, sans-serif';
+          c.textAlign='center'; c.textBaseline='bottom';
+          c.lineWidth=2.6; c.strokeStyle='rgba(255,255,255,0.92)'; c.strokeText(txt,p.x,p.y-7);
+          c.fillStyle=L.color; c.fillText(txt,p.x,p.y-7); c.restore();
+        });
+      });
+    }
+  };
+}
 function renderDailyChart(){
   const ctx=document.getElementById('dailyChart'); if(!ctx) return;
   const {y,m}=selYM();
@@ -899,16 +940,29 @@ function renderDailyChart(){
      pointRadius:2, pointHoverRadius:4, pointBackgroundColor:GRAY, fill:false, order:2}
   ];
 
+  // 막대(매출)는 하단, 꺾은선(유입·전환율)은 상단에 분리 배치 → 실적 라벨이 선에 가려지지 않도록
+  const salesMax=Math.max(...salesArr,1);
+  const vMin=Math.min(...newArr,...reArr), vMax=Math.max(...newArr,...reArr);
+  const cMin=Math.min(...cvrArr), cMax=Math.max(...cvrArr);
+  // 매출 막대: 하단 약 0~42% 영역
+  const yLeftMax=salesMax*2.4;
+  // 방문자 선: 상단 [0.50, 0.86] 영역에 위치하도록 축 범위 역산
+  const vSpan=Math.max(vMax-vMin,1), vAxisSpan=vSpan/0.36;
+  const vAxisMin=vMin-0.50*vAxisSpan, vAxisMax=vAxisMin+vAxisSpan;
+  // 전환율 선: 상단 [0.54, 0.80] 영역
+  const cSpan=Math.max(cMax-cMin,0.1), cAxisSpan=cSpan/0.26;
+  const cAxisMin=cMin-0.54*cAxisSpan, cAxisMax=cAxisMin+cAxisSpan;
+
   const scales={
     x:{ticks:{font:{family:'Pretendard',size:10},color:GRAY,autoSkip:false,maxRotation:0,minRotation:0},grid:{display:false},border:{color:'#EAEAE4'}},
-    y:{position:'left',beginAtZero:true,title:{display:true,text:'매출(만원)',font:{family:'Pretendard',size:10,weight:'700'},color:NAVY},
-       ticks:{font:{family:'Pretendard',size:10},color:GRAY,callback:v=>Math.round(v).toLocaleString()},grid:{color:'#F0F0EC'},border:{display:false}},
-    y1:{position:'right',beginAtZero:true,title:{display:true,text:'방문자(명)',font:{family:'Pretendard',size:10,weight:'700'},color:GRAY},
-        ticks:{font:{family:'Pretendard',size:10},color:GRAY,callback:v=>Math.round(v).toLocaleString()},grid:{display:false},border:{display:false}},
-    y2:{position:'right',beginAtZero:true,suggestedMax:(Math.max(...cvrArr,1)*2.2),display:false,grid:{display:false}}
+    y:{position:'left',min:0,max:yLeftMax,title:{display:true,text:'매출(만원)',font:{family:'Pretendard',size:10,weight:'700'},color:NAVY},
+       ticks:{font:{family:'Pretendard',size:10},color:GRAY,callback:v=> v>salesMax*1.12 ? '' : Math.round(v).toLocaleString()},grid:{color:'#F0F0EC'},border:{display:false}},
+    y1:{position:'right',min:vAxisMin,max:vAxisMax,title:{display:true,text:'방문자(명)',font:{family:'Pretendard',size:10,weight:'700'},color:GRAY},
+        ticks:{font:{family:'Pretendard',size:10},color:GRAY,callback:v=> v<0 ? '' : Math.round(v).toLocaleString()},grid:{display:false},border:{display:false}},
+    y2:{position:'right',min:cAxisMin,max:cAxisMax,display:false,grid:{display:false}}
   };
 
-  const plugins=[ barTopLabelPlugin(0,'y', v=>man(v), NAVY) ];
+  const plugins=[ dailyValueLabels(salesArr,newArr,reArr,cvrArr) ];
 
   if(dailyChart) dailyChart.destroy();
   dailyChart=new Chart(ctx,{type:'bar',data:{labels,datasets},
@@ -965,7 +1019,7 @@ function renderWeeklyChart(){
         if(delta[i]!=null){
           const up=delta[i]>=0;
           c.font='bold 11px Pretendard, sans-serif';
-          c.fillStyle= up ? NAVY : GRAY;
+          c.fillStyle= up ? '#1E9E57' : '#D64242';
           c.textBaseline='bottom';
           c.fillText((up?'▲ ':'▼ ')+Math.abs(delta[i]).toFixed(1)+'%', x, yTop-20);
         }
@@ -1052,7 +1106,7 @@ function renderProductTable(){
   const foot=document.getElementById('prodFoot');
 
   // 헤더
-  let h1=`<tr><th rowspan="2" style="text-align:left;">카테고리</th><th rowspan="2" style="text-align:left;min-width:180px;">상품명 (식단)</th>`;
+  let h1=`<tr><th rowspan="2" class="stick c1" style="text-align:left;">카테고리</th><th rowspan="2" class="stick c2" style="text-align:left;">상품명 (식단)</th>`;
   for(let i=0;i<NM;i++){ h1+=`<th colspan="4" class="${i<NM-1?'msep':''}">${i+1}월</th>`; }
   h1+=`<th rowspan="2" style="min-width:62px;">합계<br>매출(만)</th><th rowspan="2">합계<br>조회</th><th rowspan="2" style="min-width:110px;">합계 CVR</th><th rowspan="2">카테고리<br>대비</th></tr>`;
   let h2='<tr>';
@@ -1076,9 +1130,9 @@ function renderProductTable(){
   const MAX_CVR=0.17;
 
   data.products.forEach(p=>{
-    if(p.cat!==lastCat){ html+=`<tr class="row-cat"><td colspan="${2+NM*4+4}">${p.cat}</td></tr>`; lastCat=p.cat; }
+    if(p.cat!==lastCat){ html+=`<tr class="row-cat"><td colspan="${2+NM*4+4}" class="stick c1">${p.cat}</td></tr>`; lastCat=p.cat; }
     let tView=0,tBuy=0,tSales=0;
-    let cells=`<td><span class="cat-tag ${CAT_CLS[p.cat]||'cat-other'}">${p.cat}</span></td><td class="name-cell">${p.name}</td>`;
+    let cells=`<td class="stick c1"><span class="cat-tag ${CAT_CLS[p.cat]||'cat-other'}">${p.cat}</span></td><td class="name-cell stick c2">${p.name}</td>`;
     for(let i=0;i<NM;i++){
       const mm=p.m[i]||[0,0,0,0];
       const [v,b,c,s]=mm;
@@ -1102,7 +1156,7 @@ function renderProductTable(){
 
   // 합계 행
   const fCvr=foots.view>0?foots.buy/foots.view:0;
-  let ft=`<tr><td colspan="2" style="text-align:left;">전체 합계</td>`;
+  let ft=`<tr><td colspan="2" class="stick c1" style="text-align:left;border-right:2px solid var(--cream-d);">전체 합계</td>`;
   for(let i=0;i<NM;i++){
     let mv=0,mb=0,ms=0;
     data.products.forEach(p=>{ const mm=p.m[i]||[0,0,0,0]; mv+=mm[0]||0; mb+=mm[1]||0; ms+=mm[3]||0; });
@@ -1172,23 +1226,25 @@ function renderArpuChart(){
   const arppuArr=arr.map(d=>{ const vis=(d.newV||0)+(d.reV||0); const buy=Math.round(vis*(d.cvr||0)/100); return buy>0 ? Math.round(d.sales*1e4/buy) : null; });
   const NAVY='#17498F', GRAY='#9E9E9E';
   const manfmt=v=> v==null ? '' : (v/10000).toFixed(1)+'만';
+  const wonfmt=v=> v==null ? '' : Math.round(v).toLocaleString();
   const maxArpu=Math.max(...arpuArr.filter(v=>v!=null),1);
 
-  // ARPPU 값 라벨 (점 위에 만원 단위 숫자 표시 — 직관적으로)
+  // ARPPU·ARPU 값 라벨 (각 점 위쪽에 표시 — 직관적으로)
   const valueLabelPlugin={
     id:'arpuValLbl',
     afterDatasetsDraw(chart){
       const c=chart.ctx;
-      const meta=chart.getDatasetMeta(0); if(!meta||meta.hidden) return;
-      chart.data.datasets[0].data.forEach((v,i)=>{
-        if(v==null) return; const p=meta.data[i]; if(!p) return;
-        const txt=manfmt(v);
-        c.save(); c.font='bold 10.5px Pretendard, sans-serif';
-        c.textAlign='center'; c.textBaseline='bottom';
-        // 흰색 외곽선으로 가독성 확보
-        c.lineWidth=3; c.strokeStyle='rgba(255,255,255,0.9)'; c.strokeText(txt, p.x, p.y-9);
-        c.fillStyle=NAVY; c.fillText(txt, p.x, p.y-9);
-        c.restore();
+      [{di:0,color:NAVY,fmt:manfmt},{di:1,color:'#6B7280',fmt:wonfmt}].forEach(cfg=>{
+        const meta=chart.getDatasetMeta(cfg.di); if(!meta||meta.hidden) return;
+        chart.data.datasets[cfg.di].data.forEach((v,i)=>{
+          if(v==null) return; const p=meta.data[i]; if(!p) return;
+          const txt=cfg.fmt(v);
+          c.save(); c.font='bold 9.5px Pretendard, sans-serif';
+          c.textAlign='center'; c.textBaseline='bottom';
+          c.lineWidth=3; c.strokeStyle='rgba(255,255,255,0.92)'; c.strokeText(txt, p.x, p.y-9);
+          c.fillStyle=cfg.color; c.fillText(txt, p.x, p.y-9);
+          c.restore();
+        });
       });
     }
   };
@@ -1210,7 +1266,7 @@ function renderArpuChart(){
       scales:{
         x:{ticks:{font:{family:'Pretendard',size:10},color:'#9E9E9E',maxRotation:0},grid:{display:false},border:{color:'#EAEAE4'}},
         y:{position:'left',beginAtZero:false,title:{display:true,text:'ARPPU (만원)',font:{family:'Pretendard',size:10,weight:'700'},color:NAVY},ticks:{font:{family:'Pretendard',size:11},color:'#9E9E9E',callback:v=>(v/10000).toFixed(0)+'만'},grid:{color:'#F0F0EC'},border:{display:false}},
-        y1:{position:'right',beginAtZero:true,suggestedMax:maxArpu*3,title:{display:true,text:'ARPU (만원)',font:{family:'Pretendard',size:10,weight:'700'},color:GRAY},ticks:{font:{family:'Pretendard',size:11},color:'#9E9E9E',callback:v=>(v/10000).toFixed(1)+'만'},grid:{display:false},border:{display:false}}
+        y1:{position:'right',beginAtZero:true,suggestedMax:maxArpu*3,title:{display:true,text:'ARPU (원)',font:{family:'Pretendard',size:10,weight:'700'},color:GRAY},ticks:{font:{family:'Pretendard',size:11},color:'#9E9E9E',callback:v=>Math.round(v).toLocaleString()},grid:{display:false},border:{display:false}}
       }
     },
     plugins:[valueLabelPlugin]
@@ -1235,7 +1291,7 @@ function applyYearMonth(){
 }
 
 
-/* ======================= brand_part3.js ======================= */
+/* brand_part3.js */
 /* =========================================================
  *  엑셀 업로드 / 양식 다운로드
  * ========================================================= */
@@ -1485,7 +1541,7 @@ document.getElementById('selectYear').addEventListener('change', applyYearMonth)
 document.getElementById('selectMonth').addEventListener('change', applyYearMonth);
 
 
-/* ======================= brand_part4.js ======================= */
+/* brand_part4.js */
 /* =========================================================
  *  브랜드몰 프로모션 캘린더 (월간 타임라인)
  * ========================================================= */
@@ -1997,7 +2053,7 @@ function calBindUI(){
 }
 
 
-/* ======================= brand_init.js ======================= */
+/* brand_init.js */
 
 /* =========================================================
  *  초기 구동
