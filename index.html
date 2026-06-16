@@ -3,6 +3,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -4140,6 +4141,68 @@ function calBindUI(){
   subscribeCalendar();                // 실시간 동기화 구독
 })();
 </script>
+
+
+<!-- ===== Floating Nav Banner (매출 상세 보고 바로가기) ===== -->
+<style>
+  .floating-nav{
+    position:fixed; top:50%; right:0; transform:translateY(-50%);
+    z-index:9999; display:flex; flex-direction:column; gap:12px;
+    pointer-events:none;
+  }
+  .floating-nav .fnav-btn{ pointer-events:auto; }
+  .fnav-btn{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:6px; width:72px; padding:16px 8px 15px;
+    border-radius:16px 0 0 16px;
+    color:#fff; text-decoration:none; cursor:pointer;
+    font-family:'Pretendard Variable','Pretendard',-apple-system,sans-serif;
+    font-weight:700; font-size:13px; letter-spacing:.01em; line-height:1;
+    border:1px solid rgba(255,255,255,.16); border-right:none;
+    box-shadow:-5px 6px 20px rgba(15,23,42,.18);
+    transition:padding-right .18s ease, transform .18s ease, box-shadow .18s ease, filter .18s ease;
+  }
+  .fnav-btn svg{ width:21px; height:21px; }
+  .fnav-btn .fnav-label{ font-size:13px; }
+  .fnav-btn:hover{
+    padding-right:16px; transform:translateX(-2px);
+    box-shadow:-8px 8px 26px rgba(15,23,42,.26); filter:brightness(1.05);
+  }
+  .fnav-brand{ background:#17498F; }
+  .fnav-kurly{ background:#5F0080; }
+  .fnav-btn .fnav-tag{
+    margin-top:2px; font-size:9.5px; font-weight:600; letter-spacing:.04em;
+    opacity:.78; text-transform:uppercase;
+  }
+  @media (max-width:768px){
+    .fnav-btn{ width:60px; padding:12px 6px; border-radius:13px 0 0 13px; font-size:12px; }
+    .fnav-btn svg{ width:18px; height:18px; }
+  }
+</style>
+
+<div class="floating-nav" role="navigation" aria-label="매출 상세 보고 바로가기">
+  <a class="fnav-btn fnav-brand"
+     href="https://memeiss.github.io/growth-dashboard/brand.html"
+     title="브랜드몰 매출 상세 보고로 이동">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/>
+      <path d="M9.5 20v-5h5v5"/><path d="M3 9h18"/>
+    </svg>
+    <span class="fnav-label">브랜드몰</span>
+  </a>
+
+  <a class="fnav-btn fnav-kurly"
+     href="#"
+     title="컬리 매출 상세 보고 (준비 중)"
+     onclick="alert('컬리 매출 상세 보고 페이지는 준비 중입니다.'); return false;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M6 7h12l1 13H5z"/><path d="M9 7V5.5a3 3 0 0 1 6 0V7"/>
+    </svg>
+    <span class="fnav-label">컬리</span>
+  </a>
+</div>
 
 </body>
 </html>
