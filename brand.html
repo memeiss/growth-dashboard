@@ -1,10 +1,11 @@
 
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>브랜드몰 대시보드</title>
+<title>Brand mall</title>
 
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
 
@@ -29,6 +30,9 @@
   --navy-pale:#A9C0DE;
   --cream-d:#F0E6D0;
   --cream-mid:#FCEFD2;
+  /* ── 주말·공휴일(빨강) ─────────────────── */
+  --red:#D6453D;
+  --red-pale:#FBEDEC;
   /* ── 중립 ──────────────────────────────── */
   --bg:#FAFAF7;
   --text:#2A2F38;
@@ -261,7 +265,7 @@ html,body{
 .gcal-wrap{width:100%;}
 .gcal-dow-row{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:2px solid var(--navy);}
 .gcal-dow-cell{padding:8px 0;text-align:center;font-size:11px;font-weight:800;letter-spacing:0.06em;color:var(--navy);background:var(--navy-light);}
-.gcal-dow-cell.off{color:var(--gray);background:var(--surface2);}
+.gcal-dow-cell.off{color:var(--red);background:var(--red-pale);}
 .gcal-weeks{display:flex;flex-direction:column;}
 .gcal-week{position:relative;border-bottom:1px solid var(--line);}
 .gcal-week:last-child{border-bottom:none;}
@@ -269,19 +273,20 @@ html,body{
 .gcal-day-hd{padding:6px 8px 0;min-height:30px;border-right:1px solid var(--line);cursor:pointer;}
 .gcal-day-hd:last-child{border-right:none;}
 .gcal-day-hd.empty{background:#FAFAF7;cursor:default;}
-.gcal-day-hd.off{background:var(--surface2);}
+.gcal-day-hd.off{background:var(--red-pale);}
 .gcal-day-hd.today{background:var(--cream);}
 .gcal-day-hd:hover:not(.empty){filter:brightness(.97);}
 .gday-num{font-size:12px;font-weight:700;color:var(--text);}
 .gday-hol{font-size:9.5px;font-weight:700;color:var(--gray);margin-left:5px;}
-.gcal-day-hd.off .gday-num{color:var(--gray);}
+.gcal-day-hd.off .gday-num{color:var(--red);}
+.gcal-day-hd.off .gday-hol{color:var(--red);}
 .gcal-day-hd.empty .gday-num{color:#ccc;}
 .gcal-day-hd.today .gday-num{color:var(--navy);}
 .gcal-evt-layer{position:relative;width:100%;}
 .gcal-evt-cols{display:grid;grid-template-columns:repeat(7,1fr);}
 .gcal-evt-col{border-right:1px solid var(--line);background:var(--white);}
 .gcal-evt-col:last-child{border-right:none;}
-.gcal-evt-col.off{background:var(--surface2);}
+.gcal-evt-col.off{background:var(--red-pale);}
 .gcal-evt-col.today-col{background:var(--cream);}
 .gcal-bars-wrap{position:absolute;top:0;left:0;right:0;pointer-events:none;}
 .gcal-bar{position:absolute;height:22px;line-height:22px;border-radius:5px;font-size:11px;font-weight:700;color:var(--navy-d);padding:0 7px;border-left:3px solid;cursor:pointer;pointer-events:auto;overflow:hidden;display:flex;align-items:center;transition:filter .12s;}
@@ -885,27 +890,47 @@ function dailyValueLabels(sales,newA,reA,cvrA){
     id:'dailyVals',
     afterDatasetsDraw(chart){
       const c=chart.ctx;
-      // 매출: 막대 안쪽(상단)에 표시
+      const drawn=[]; // 이미 그린 라벨 영역 (겹침 방지용)
+      const hit=r=>drawn.some(d=>!(r.x2<d.x1||r.x1>d.x2||r.y2<d.y1||r.y1>d.y2));
+      // textBaseline='bottom' 기준으로 글자를 그리되, 기존 라벨과 겹치면 건너뜀
+      const place=(txt,x,bottomY,color,size)=>{
+        c.font='bold '+size+'px Pretendard, sans-serif';
+        const w=c.measureText(txt).width, pad=1.5;
+        const r={x1:x-w/2-pad,y1:bottomY-size-pad,x2:x+w/2+pad,y2:bottomY+pad};
+        if(hit(r)) return false;            // ← 겹치면 라벨 생략
+        drawn.push(r);
+        c.save(); c.textAlign='center'; c.textBaseline='bottom';
+        c.lineWidth=2.6; c.strokeStyle='rgba(255,255,255,0.92)'; c.strokeText(txt,x,bottomY);
+        c.fillStyle=color; c.fillText(txt,x,bottomY); c.restore();
+        return true;
+      };
+
+      // 매출(막대 상단): 가장 먼저 자리 확보
       const bm=chart.getDatasetMeta(0);
       sales.forEach((v,i)=>{ if(v==null) return; const bar=bm.data[i]; if(!bar) return;
+        const txt=Math.round(v).toLocaleString();
+        c.font='bold 10px Pretendard, sans-serif';
+        const w=c.measureText(txt).width;
+        drawn.push({x1:bar.x-w/2-1,y1:bar.y+6,x2:bar.x+w/2+1,y2:bar.y+18});
         c.save(); c.font='bold 10px Pretendard, sans-serif'; c.fillStyle='#17498F';
         c.textAlign='center'; c.textBaseline='top';
-        c.fillText(Math.round(v).toLocaleString(), bar.x, bar.y+6); c.restore();
+        c.fillText(txt, bar.x, bar.y+6); c.restore();
       });
-      // 신규방문·재방문·전환율: 꺾은선 포인트 위쪽에 표시
+
+      // 꺾은선: 신규방문(위)·재방문(아래)·전환율(위)로 방향을 나눠 라벨 분산
+      //  dir = -1 → 점 위쪽,  +1 → 점 아래쪽
+      const GAP=7;
       const lines=[
-        {di:1,color:'#17498F',data:newA,fmt:v=>Math.round(v).toLocaleString()},
-        {di:2,color:'#A07D1E',data:reA, fmt:v=>Math.round(v).toLocaleString()},
-        {di:3,color:'#6B7280',data:cvrA,fmt:v=>v.toFixed(1)+'%'}
+        {di:1,color:'#17498F',data:newA,dir:-1,fmt:v=>Math.round(v).toLocaleString()},
+        {di:2,color:'#A07D1E',data:reA, dir:+1,fmt:v=>Math.round(v).toLocaleString()},
+        {di:3,color:'#6B7280',data:cvrA,dir:-1,fmt:v=>v.toFixed(1)+'%'}
       ];
       lines.forEach(L=>{
         const meta=chart.getDatasetMeta(L.di); if(!meta||meta.hidden) return;
-        L.data.forEach((v,i)=>{ if(v==null) return; const p=meta.data[i]; if(!p) return;
-          const txt=L.fmt(v);
-          c.save(); c.font='bold 9px Pretendard, sans-serif';
-          c.textAlign='center'; c.textBaseline='bottom';
-          c.lineWidth=2.6; c.strokeStyle='rgba(255,255,255,0.92)'; c.strokeText(txt,p.x,p.y-7);
-          c.fillStyle=L.color; c.fillText(txt,p.x,p.y-7); c.restore();
+        L.data.forEach((v,i)=>{ if(v==null||v===0) return;   // 0·빈값은 라벨 생략
+          const p=meta.data[i]; if(!p) return;
+          const bottomY = L.dir<0 ? (p.y-GAP) : (p.y+GAP+9);
+          place(L.fmt(v), p.x, bottomY, L.color, 9);
         });
       });
     }
