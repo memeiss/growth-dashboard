@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -2122,5 +2123,50 @@ function calBindUI(){
 })();
 
 </script>
+
+<!-- ===== Floating Nav Banner (Growth 대시보드 바로가기) ===== -->
+<style>
+  .floating-nav{
+    position:fixed; top:50%; right:0; transform:translateY(-50%);
+    z-index:9999; display:flex; flex-direction:column; gap:12px;
+    pointer-events:none;
+  }
+  .floating-nav .fnav-btn{ pointer-events:auto; }
+  .fnav-btn{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:6px; width:72px; padding:16px 8px 15px;
+    border-radius:16px 0 0 16px;
+    color:#fff; text-decoration:none; cursor:pointer;
+    font-family:'Pretendard Variable','Pretendard',-apple-system,sans-serif;
+    font-weight:700; font-size:13px; letter-spacing:.01em; line-height:1;
+    border:1px solid rgba(255,255,255,.16); border-right:none;
+    box-shadow:-5px 6px 20px rgba(15,23,42,.18);
+    transition:padding-right .18s ease, transform .18s ease, box-shadow .18s ease, filter .18s ease;
+  }
+  .fnav-btn svg{ width:21px; height:21px; }
+  .fnav-btn .fnav-label{ font-size:13px; }
+  .fnav-btn:hover{
+    padding-right:16px; transform:translateX(-2px);
+    box-shadow:-8px 8px 26px rgba(15,23,42,.26); filter:brightness(1.05);
+  }
+  .fnav-growth{ background:#17498F; }
+  @media (max-width:768px){
+    .fnav-btn{ width:60px; padding:12px 6px; border-radius:13px 0 0 13px; font-size:12px; }
+    .fnav-btn svg{ width:18px; height:18px; }
+  }
+</style>
+
+<div class="floating-nav" role="navigation" aria-label="Growth 대시보드 바로가기">
+  <a class="fnav-btn fnav-growth"
+     href="https://memeiss.github.io/growth-dashboard"
+     title="Growth 통합 매출 대시보드로 이동">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M3 17l6-6 4 4 7-7"/><path d="M17 7h4v4"/>
+    </svg>
+    <span class="fnav-label">Growth</span>
+  </a>
+</div>
+
 </body>
 </html>
