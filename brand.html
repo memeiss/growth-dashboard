@@ -1133,8 +1133,11 @@ function renderProductTable(){
 
   // 헤더
   let h1=`<tr><th rowspan="2" class="stick c1" style="text-align:left;">카테고리</th><th rowspan="2" class="stick c2" style="text-align:left;">상품명 (식단)</th>`;
+  // 종합(전체) 데이터 — 월별 값보다 앞으로 이동
+  h1+=`<th rowspan="2" style="min-width:62px;">합계<br>매출(만)</th><th rowspan="2">합계<br>조회</th><th rowspan="2" style="min-width:110px;">합계 CVR</th><th rowspan="2" class="msep">카테고리<br>대비</th>`;
+  // 월별
   for(let i=0;i<NM;i++){ h1+=`<th colspan="4" class="${i<NM-1?'msep':''}">${i+1}월</th>`; }
-  h1+=`<th rowspan="2" style="min-width:62px;">합계<br>매출(만)</th><th rowspan="2">합계<br>조회</th><th rowspan="2" style="min-width:110px;">합계 CVR</th><th rowspan="2">카테고리<br>대비</th></tr>`;
+  h1+=`</tr>`;
   let h2='<tr>';
   for(let i=0;i<NM;i++){ const sep=i<NM-1?' msep':''; h2+=`<th>조회</th><th>구매</th><th>전환율</th><th class="${sep}">매출</th>`; }
   h2+='</tr>';
@@ -1158,23 +1161,26 @@ function renderProductTable(){
   data.products.forEach(p=>{
     if(p.cat!==lastCat){ html+=`<tr class="row-cat"><td colspan="${2+NM*4+4}" class="stick c1">${p.cat}</td></tr>`; lastCat=p.cat; }
     let tView=0,tBuy=0,tSales=0;
-    let cells=`<td class="stick c1"><span class="cat-tag ${CAT_CLS[p.cat]||'cat-other'}">${p.cat}</span></td><td class="name-cell stick c2">${p.name}</td>`;
+    // 월별 셀을 먼저 만들면서 합계 누적
+    let monthCells='';
     for(let i=0;i<NM;i++){
       const mm=p.m[i]||[0,0,0,0];
       const [v,b,c,s]=mm;
       tView+=v||0; tBuy+=b||0; tSales+=s||0;
       const sep=i<NM-1?' msep':'';
-      cells+=`<td>${fmtN(v)}</td><td>${fmtN(b)}</td><td>${fmtP(c)}</td><td class="${sep}">${s>0?Math.round(s).toLocaleString('ko-KR'):'—'}</td>`;
+      monthCells+=`<td>${fmtN(v)}</td><td>${fmtN(b)}</td><td>${fmtP(c)}</td><td class="${sep}">${s>0?Math.round(s).toLocaleString('ko-KR'):'—'}</td>`;
     }
     const totCvr=tView>0?tBuy/tView:0;
     const cvrPct=Math.min(100,(totCvr/MAX_CVR)*100);
     const chgVal=(totCvr-(catCvr[p.cat]||0))*100; // %p
     const chg=(chgVal>=0?'+':'')+chgVal.toFixed(1)+'%p';
     const chipCls=chgVal>0.05?'ch-pos':chgVal<-0.05?'ch-neg':'ch-zer';
-    cells+=`<td><strong>${Math.round(tSales).toLocaleString('ko-KR')}</strong></td>`;
-    cells+=`<td>${fmtN(tView)}</td>`;
-    cells+=`<td><div class="cvr-wrap"><div class="cvr-bg"><div class="cvr-fill" style="width:${cvrPct.toFixed(1)}%"></div></div><span class="cvr-val">${fmtP(totCvr)}</span></div></td>`;
-    cells+=`<td><span class="chg-chip ${chipCls}">${chg}</span></td>`;
+    // 종합(전체) 데이터 셀 — 맨 앞으로 이동
+    let sumCells=`<td><strong>${Math.round(tSales).toLocaleString('ko-KR')}</strong></td>`;
+    sumCells+=`<td>${fmtN(tView)}</td>`;
+    sumCells+=`<td><div class="cvr-wrap"><div class="cvr-bg"><div class="cvr-fill" style="width:${cvrPct.toFixed(1)}%"></div></div><span class="cvr-val">${fmtP(totCvr)}</span></div></td>`;
+    sumCells+=`<td class="msep"><span class="chg-chip ${chipCls}">${chg}</span></td>`;
+    const cells=`<td class="stick c1"><span class="cat-tag ${CAT_CLS[p.cat]||'cat-other'}">${p.cat}</span></td><td class="name-cell stick c2">${p.name}</td>`+sumCells+monthCells;
     html+=`<tr>${cells}</tr>`;
     foots.view+=tView; foots.buy+=tBuy; foots.sales+=tSales;
   });
@@ -1183,13 +1189,16 @@ function renderProductTable(){
   // 합계 행
   const fCvr=foots.view>0?foots.buy/foots.view:0;
   let ft=`<tr><td colspan="2" class="stick c1" style="text-align:left;border-right:2px solid var(--cream-d);">전체 합계</td>`;
+  // 종합(전체) 데이터 — 맨 앞으로 이동
+  ft+=`<td>${Math.round(foots.sales).toLocaleString('ko-KR')}</td><td>${fmtN(foots.view)}</td><td>${fmtP(fCvr)}</td><td class="msep">—</td>`;
+  // 월별
   for(let i=0;i<NM;i++){
     let mv=0,mb=0,ms=0;
     data.products.forEach(p=>{ const mm=p.m[i]||[0,0,0,0]; mv+=mm[0]||0; mb+=mm[1]||0; ms+=mm[3]||0; });
     const mc=mv>0?mb/mv:0; const sep=i<NM-1?' msep':'';
     ft+=`<td>${fmtN(mv)}</td><td>${fmtN(mb)}</td><td>${fmtP(mc)}</td><td class="${sep}">${ms>0?Math.round(ms).toLocaleString('ko-KR'):'—'}</td>`;
   }
-  ft+=`<td>${Math.round(foots.sales).toLocaleString('ko-KR')}</td><td>${fmtN(foots.view)}</td><td>${fmtP(fCvr)}</td><td>—</td></tr>`;
+  ft+=`</tr>`;
   foot.innerHTML=ft;
 }
 
