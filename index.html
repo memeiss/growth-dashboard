@@ -4,6 +4,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -1866,45 +1867,67 @@ const initialData = {
     { date:'2026-05-19', B2B:5301570,  B2C:8038363,  D2C:7969730,  STORE:438000  },
     { date:'2026-05-20', B2B:6724740,  B2C:1953281,  D2C:7401350,  STORE:370375  }
   ],
+  // 하위 채널: 상위 채널과 동일하게 "월별 목표/실적" 배열을 사용한다.
+  //  - monthlyTarget[i] : i월 목표,  monthlyActual[i] : i월 실적 (0-indexed, 0=1월)
+  //  - 당월 목표/실적, 누적(YTD)은 조회 월(m)에 따라 자동 계산되므로 별도로 저장하지 않는다.
+  //  ※ 초기 샘플은 5월(index 4) 목표만 보유 → 다른 월 목표는 0. 엑셀 업로드 시 월별 목표가 채워진다.
   subChannels: [
-    { top:'B2B', sub:'웰스토리',       target:250000000,  actual:96430620,  ytd:572166400,  prevMay:0,
+    { top:'B2B', sub:'웰스토리',       prevMay:0,
+      monthlyTarget:[0,0,0,0,250000000,0,0,0,0,0,0,0],
       monthlyActual:[137865140,104581871,115185241,118103528,96430620,0,0,0,0,0,0,0] },
-    { top:'B2B', sub:'스타벅스',       target:270000000,  actual:0,         ytd:56003400,   prevMay:0,
+    { top:'B2B', sub:'스타벅스',       prevMay:0,
+      monthlyTarget:[0,0,0,0,270000000,0,0,0,0,0,0,0],
       monthlyActual:[0,0,0,56003400,0,0,0,0,0,0,0,0] },
-    { top:'B2B', sub:'CJ프레시웨이',   target:11100000,   actual:1508155,   ytd:9991625,    prevMay:0,
+    { top:'B2B', sub:'CJ프레시웨이',   prevMay:0,
+      monthlyTarget:[0,0,0,0,11100000,0,0,0,0,0,0,0],
       monthlyActual:[2202050,1304200,2398840,2578380,1508155,0,0,0,0,0,0,0] },
-    { top:'B2B', sub:'캠퍼스파트너스', target:74240000,   actual:0,         ytd:0,          prevMay:0,
+    { top:'B2B', sub:'캠퍼스파트너스', prevMay:0,
+      monthlyTarget:[0,0,0,0,74240000,0,0,0,0,0,0,0],
       monthlyActual:[0,0,0,0,0,0,0,0,0,0,0,0] },
-    { top:'B2B', sub:'기타',           target:8000000,    actual:170950,    ytd:41878035,   prevMay:0,
+    { top:'B2B', sub:'기타',           prevMay:0,
+      monthlyTarget:[0,0,0,0,8000000,0,0,0,0,0,0,0],
       monthlyActual:[2956300,1958791,1688920,35103074,170950,0,0,0,0,0,0,0] },
 
-    { top:'B2C', sub:'HSP',            target:6850000,    actual:0,         ytd:291709152,  prevMay:0,
+    { top:'B2C', sub:'HSP',            prevMay:0,
+      monthlyTarget:[0,0,0,0,6850000,0,0,0,0,0,0,0],
       monthlyActual:[270915172,7694354,6944444,6155182,0,0,0,0,0,0,0,0] },
-    { top:'B2C', sub:'컬리',           target:50000000,   actual:11247940,  ytd:87088024,   prevMay:0,
+    { top:'B2C', sub:'컬리',           prevMay:0,
+      monthlyTarget:[0,0,0,0,50000000,0,0,0,0,0,0,0],
       monthlyActual:[14859927,9380287,27314657,24285213,11247940,0,0,0,0,0,0,0] },
-    { top:'B2C', sub:'롯데마트',       target:9000000,    actual:8671820,   ytd:32388201,   prevMay:0,
+    { top:'B2C', sub:'롯데마트',       prevMay:0,
+      monthlyTarget:[0,0,0,0,9000000,0,0,0,0,0,0,0],
       monthlyActual:[5722500,5264700,5586721,7142460,8671820,0,0,0,0,0,0,0] },
-    { top:'B2C', sub:'이마트',         target:2000000,    actual:0,         ytd:0,          prevMay:0,
+    { top:'B2C', sub:'이마트',         prevMay:0,
+      monthlyTarget:[0,0,0,0,2000000,0,0,0,0,0,0,0],
       monthlyActual:[0,0,0,0,0,0,0,0,0,0,0,0] },
-    { top:'B2C', sub:'SSG-직매입',     target:51200000,   actual:0,         ytd:623700,     prevMay:0,
+    { top:'B2C', sub:'SSG-직매입',     prevMay:0,
+      monthlyTarget:[0,0,0,0,51200000,0,0,0,0,0,0,0],
       monthlyActual:[0,623700,0,0,0,0,0,0,0,0,0,0] },
-    { top:'B2C', sub:'GS리테일',       target:35200000,   actual:0,         ytd:0,          prevMay:0,
+    { top:'B2C', sub:'GS리테일',       prevMay:0,
+      monthlyTarget:[0,0,0,0,35200000,0,0,0,0,0,0,0],
       monthlyActual:[0,0,0,0,0,0,0,0,0,0,0,0] },
-    { top:'B2C', sub:'기타',           target:1000000,    actual:6688006,   ytd:42994636,   prevMay:0,
+    { top:'B2C', sub:'기타',           prevMay:0,
+      monthlyTarget:[0,0,0,0,1000000,0,0,0,0,0,0,0],
       monthlyActual:[11608534,7133428,8388443,9176225,6688006,0,0,0,0,0,0,0] },
 
-    { top:'D2C', sub:'브랜드몰',       target:207020000,  actual:132688530, ytd:640958284,  prevMay:0,
+    { top:'D2C', sub:'브랜드몰',       prevMay:0,
+      monthlyTarget:[0,0,0,0,207020000,0,0,0,0,0,0,0],
       monthlyActual:[124794444,100421460,131183470,151870380,132688530,0,0,0,0,0,0,0] },
-    { top:'D2C', sub:'네이버',         target:12992000,   actual:3356460,   ytd:29423540,   prevMay:0,
+    { top:'D2C', sub:'네이버',         prevMay:0,
+      monthlyTarget:[0,0,0,0,12992000,0,0,0,0,0,0,0],
       monthlyActual:[6876110,4919230,6825660,7446080,3356460,0,0,0,0,0,0,0] },
-    { top:'D2C', sub:'기타',           target:3248000,    actual:443700,    ytd:8708330,    prevMay:0,
+    { top:'D2C', sub:'기타',           prevMay:0,
+      monthlyTarget:[0,0,0,0,3248000,0,0,0,0,0,0,0],
       monthlyActual:[748080,6712700,358200,445650,443700,0,0,0,0,0,0,0] },
 
-    { top:'STORE', sub:'완반',         target:70000000,   actual:8213400,   ytd:74644490,   prevMay:0,
+    { top:'STORE', sub:'완반',         prevMay:0,
+      monthlyTarget:[0,0,0,0,70000000,0,0,0,0,0,0,0],
       monthlyActual:[17457000,14496909,16818000,17659181,8213400,0,0,0,0,0,0,0] },
-    { top:'STORE', sub:'신세계 강남',  target:7500000,    actual:2052660,   ytd:23679348,   prevMay:0,
+    { top:'STORE', sub:'신세계 강남',  prevMay:0,
+      monthlyTarget:[0,0,0,0,7500000,0,0,0,0,0,0,0],
       monthlyActual:[4640384,4030978,5214290,7741036,2052660,0,0,0,0,0,0,0] },
-    { top:'STORE', sub:'신세계 청담',  target:2500000,    actual:696530,    ytd:5243820,    prevMay:0,
+    { top:'STORE', sub:'신세계 청담',  prevMay:0,
+      monthlyTarget:[0,0,0,0,2500000,0,0,0,0,0,0,0],
       monthlyActual:[1040070,1093410,1485410,928400,696530,0,0,0,0,0,0,0] }
   ]
 };
@@ -3015,18 +3038,18 @@ function renderChannelDetail(){
     // 3) 하위 채널 rows
     const subs = data.subChannels.filter(s => s.top===ch);
     subs.forEach(s=>{
-      const sYtd = s.ytd || 0;
-      const sMay = s.actual || 0;
-      const sTgt = s.target || 0;
-      const sAch = sTgt>0 ? sMay/sTgt : 0;
+      // 상위 채널과 동일하게 "조회 월(m)" 기준으로 값을 산출한다.
       const monAct = s.monthlyActual || Array(12).fill(0);
+      const monTgt = s.monthlyTarget || Array(12).fill(0);
+      const sMay    = monAct[m] || 0;                                  // 당월(조회 월) 실적
+      const sTgt    = monTgt[m] || 0;                                  // 당월(조회 월) 목표
+      const sYtd    = monAct.slice(0, m+1).reduce((a,b)=>a+b, 0);      // 1~m월 누적 실적
+      const sYtdTgt = monTgt.slice(0, m+1).reduce((a,b)=>a+b, 0);      // 1~m월 누적 목표
+      const sAch    = sTgt>0 ? sMay/sTgt : 0;                          // 당월 달성률
 
       const childTr = document.createElement('tr');
       childTr.className = 'child-row' + (expandedState[ch] ? '' : ' collapsed');
       childTr.dataset.parent = ch;
-      // 하위 채널 ytdTgt: monthlyActual 기반으로 1~m월 목표 합산 (target이 없으므로 비례 추정)
-      // 없는 경우 0으로 처리
-      const sYtdTgt = (s.ytdTarget !== undefined) ? s.ytdTarget : 0;
       childTr.innerHTML = renderRowHTML({
         isParent: false,
         channel: ch,
@@ -3458,25 +3481,62 @@ function parseExcel(wb){
     const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName4], {header:1, defval:0});
     const headerIdx = rows.findIndex(r=>r && String(r[0]||'').includes('상위'));
     if(headerIdx>=0){
-      const newSub = [];
-      for(let i=headerIdx+1;i<rows.length;i++){
-        const r = rows[i];
-        if(!r || !r[0] || !r[1]) continue;
-        const monArr = [];
-        for(let j=0;j<12;j++){
-          monArr.push(Number(r[6+j])||0);
+      const header = rows[headerIdx] || [];
+      // 신규 양식 여부 판별: 헤더에 "구분" 칼럼이 있으면 월별(목표 row / 실적 row) 형식
+      const isMonthlyFormat = header.some(c => String(c||'').trim()==='구분');
+
+      if(isMonthlyFormat){
+        // 신규 양식: 하위 채널마다 [목표] row + [실적] row, 각 행 1~12월
+        const subMap = new Map(); // key: "top|sub" → subChannel 객체
+        const order  = [];
+        for(let i=headerIdx+1;i<rows.length;i++){
+          const r = rows[i];
+          if(!r || !r[0] || !r[1]) continue;
+          const top  = String(r[0]).trim();
+          const sub  = String(r[1]).trim();
+          const type = String(r[2]||'').trim();
+          const key  = top + '|' + sub;
+          if(!subMap.has(key)){
+            subMap.set(key, {
+              top, sub, prevMay:0,
+              monthlyTarget: Array(12).fill(0),
+              monthlyActual: Array(12).fill(0)
+            });
+            order.push(key);
+          }
+          const obj = subMap.get(key);
+          const arr = [];
+          for(let j=0;j<12;j++) arr.push(Number(r[3+j])||0);
+          if(type.includes('목표')) obj.monthlyTarget = arr;
+          else if(type.includes('실적')){
+            obj.monthlyActual = arr;
+            obj.prevMay = Number(r[15])||0; // 전년 5월 (실적 row 기준)
+          }
         }
-        newSub.push({
-          top: String(r[0]).trim(),
-          sub: String(r[1]).trim(),
-          target: Number(r[2])||0,
-          actual: Number(r[3])||0,
-          ytd: Number(r[4])||0,
-          prevMay: Number(r[5])||0,
-          monthlyActual: monArr
-        });
+        const newSub = order.map(k=>subMap.get(k));
+        if(newSub.length>0) data.subChannels = newSub;
+      } else {
+        // 구(舊) 양식 호환: [당월 목표, 당월 실적, YTD, 전년5월, 1~12월 실적]
+        // 단일 당월 목표값은 현재 조회 월 위치에 넣어 월별 목표 배열로 변환
+        const curIdx = data.currentMonthIndex || 0;
+        const newSub = [];
+        for(let i=headerIdx+1;i<rows.length;i++){
+          const r = rows[i];
+          if(!r || !r[0] || !r[1]) continue;
+          const monAct = [];
+          for(let j=0;j<12;j++) monAct.push(Number(r[6+j])||0);
+          const monTgt = Array(12).fill(0);
+          monTgt[curIdx] = Number(r[2])||0;
+          newSub.push({
+            top: String(r[0]).trim(),
+            sub: String(r[1]).trim(),
+            prevMay: Number(r[5])||0,
+            monthlyTarget: monTgt,
+            monthlyActual: monAct
+          });
+        }
+        if(newSub.length>0) data.subChannels = newSub;
       }
-      if(newSub.length>0) data.subChannels = newSub;
     }
   }
 }
@@ -3497,7 +3557,7 @@ document.getElementById('downloadTemplate').addEventListener('click', ()=>{
     ['  1. 월별 목표·실적: 채널별 월별 목표/실적/전년5월 (1월~12월 + 전년5월 row)'],
     ['  2. 주차별 실적: WK 단위 채널별 실적'],
     ['  3. 일자별 실적: 일자별 채널별 매출 추이'],
-    ['  4. 하위 채널별 실적: 하위 채널의 5월 목표/실적/누적/전년5월/월별 매출(1~12월)'],
+    ['  4. 하위 채널별 실적: 하위 채널마다 "목표" row와 "실적" row로 1~12월 월별 목표/실적 입력 (전년5월 포함)'],
     [],
     ['◾ 채널 구분: B2B / B2C / D2C / STORE'],
     ['◾ 데이터 입력 후 파일을 저장하고 "엑셀 업로드" 버튼으로 업로드 하세요.']
@@ -3531,18 +3591,20 @@ document.getElementById('downloadTemplate').addEventListener('click', ()=>{
   ws3['!cols'] = [{wch:14},{wch:16},{wch:16},{wch:16},{wch:16}];
   XLSX.utils.book_append_sheet(wb, ws3, '일자별 실적');
 
-  // 하위 (전년5월 + 1~12월 추가)
+  // 하위 (상위 채널별 "월별 목표·실적" 시트와 동일 형식: 채널마다 목표 row + 실적 row, 1~12월)
   const sRows = [
     ['하위 채널별 실적 (단위: 원)'],
-    [],
-    ['상위 채널','하위 채널','당월 목표','당월 실적','누적 실적(YTD)','전년 5월',...MONTHS]
+    ['※ 1월~12월 칼럼에 "해당 월의 목표/매출액"을 입력하세요. (조회 월에 따라 대시보드가 자동으로 당월·누적값으로 변환됨)'],
+    ['상위 채널','하위 채널','구분',...MONTHS,'전년 5월']
   ];
   data.subChannels.forEach(s=>{
-    const monArr = s.monthlyActual || Array(12).fill(0);
-    sRows.push([s.top,s.sub,s.target,s.actual,s.ytd,s.prevMay||0,...monArr]);
+    const monTgt = s.monthlyTarget || Array(12).fill(0);
+    const monAct = s.monthlyActual || Array(12).fill(0);
+    sRows.push([s.top, s.sub, '목표', ...monTgt, '']);
+    sRows.push([s.top, s.sub, '실적', ...monAct, s.prevMay||0]);
   });
   const ws4 = XLSX.utils.aoa_to_sheet(sRows);
-  ws4['!cols'] = [{wch:12},{wch:20},{wch:16},{wch:16},{wch:18},{wch:14},...Array(12).fill({wch:14})];
+  ws4['!cols'] = [{wch:12},{wch:20},{wch:10},...Array(12).fill({wch:14}),{wch:14}];
   XLSX.utils.book_append_sheet(wb, ws4, '하위 채널별 실적');
 
   XLSX.writeFile(wb, 'growth_data_template.xlsx');
