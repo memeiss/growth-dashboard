@@ -5,6 +5,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -2680,6 +2681,71 @@ function renderWeeklyChart(){
 }
 
 // ---------- 일자별 차트 ------------------------------------
+/* =========================================================
+ *  하위(테이블) 채널 기준 — 일자별 채널 매출 분해 유틸
+ *  · 단일 채널 탭의 "누적(스택) 막대" 표현에 사용
+ *  · daily 항목에 sub(실측값)가 있으면 우선 사용,
+ *    없으면 해당 월 하위채널 '실적' 비중으로 상위채널 일매출을 안분
+ *    (안분 시 합계는 상위채널 일매출과 정확히 일치)
+ * ======================================================= */
+function subChannelsOf(top){
+  return (data.subChannels || []).filter(s => s.top === top);
+}
+
+function dailySubBreakdown(dayEntry, top){
+  const subs = subChannelsOf(top);
+  if(subs.length === 0) return [];
+  const topVal = dayEntry[top] || 0;
+
+  // 1) 저장된 실측값 우선 (Excel 업로드/수기 기록)
+  const stored = dayEntry.sub && dayEntry.sub[top];
+  if(stored){
+    return subs.map(s => ({ sub: s.sub, value: Number(stored[s.sub]) || 0 }));
+  }
+
+  if(topVal === 0){
+    return subs.map(s => ({ sub: s.sub, value: 0 }));
+  }
+
+  // 2) 해당 월 하위채널 실적 비중으로 안분
+  const m = parseInt(dayEntry.date.split('-')[1], 10) - 1; // 0-indexed
+  const weights = subs.map(s => (s.monthlyActual && s.monthlyActual[m]) || 0);
+  const wSum = weights.reduce((a,b)=>a+b, 0);
+
+  if(wSum > 0){
+    let acc = 0;
+    return subs.map((s, i) => {
+      let v;
+      if(i === subs.length - 1){ v = topVal - acc; }       // 잔차 보정 → 합계 일치
+      else { v = Math.round(topVal * weights[i] / wSum); acc += v; }
+      return { sub: s.sub, value: v };
+    });
+  }
+
+  // 3) 비중 정보가 전혀 없으면 전액을 '기타'(없으면 첫 항목)에 귀속
+  let fb = subs.findIndex(s => s.sub === '기타');
+  if(fb < 0) fb = 0;
+  return subs.map((s, i) => ({ sub: s.sub, value: i === fb ? topVal : 0 }));
+}
+
+// 상위 채널 기준색을 흰색과 섞어 하위채널용 톤 단계 생성
+function mixWithWhite(hex, amt){
+  const h = hex.replace('#','');
+  const r = parseInt(h.slice(0,2),16), g = parseInt(h.slice(2,4),16), b = parseInt(h.slice(4,6),16);
+  const mix = c => Math.round(c + (255 - c) * amt);
+  const to2 = c => c.toString(16).padStart(2,'0');
+  return `#${to2(mix(r))}${to2(mix(g))}${to2(mix(b))}`;
+}
+function subChannelColors(top, n){
+  const base = { B2B:'#17498F', B2C:'#2E8B57', D2C:'#D9A441', STORE:'#6B6B6B' }[top] || '#17498F';
+  const cols = [];
+  for(let i=0;i<n;i++){
+    const t = (n<=1) ? 0 : (i/(n-1));   // 0(진함) → 1(연함)
+    cols.push(mixWithWhite(base, t*0.6));
+  }
+  return cols;
+}
+
 function renderDailyChart(){
   const ctx = document.getElementById('dailyChart');
 
@@ -2805,20 +2871,51 @@ function renderDailyChart(){
     }));
     datasets = [totalBarDataset, ...lineDatasets];
   } else {
-    datasets = [{
-      label: currentSeries,
-      data: filtered.map(d=>toMil(d[currentSeries])),
-      borderColor: channelColors[currentSeries],
-      backgroundColor: channelColors[currentSeries],
-      borderWidth: 2.2,
-      fill: false,
-      tension: 0,                  // 직선
-      pointRadius: 4,
-      pointHoverRadius: 6,
-      pointBackgroundColor: channelColors[currentSeries],
-      pointBorderWidth: 0,
-      spanGaps: false
-    }];
+    // 단일 채널 탭: 하위(테이블) 채널별 누적 세로 막대 (스택)
+    const subs = subChannelsOf(currentSeries);
+    const cols = subChannelColors(currentSeries, subs.length);
+
+    // 일자별 하위채널 분해값 사전 계산
+    const perDay = filtered.map(d => {
+      const map = {};
+      dailySubBreakdown(d, currentSeries).forEach(x => { map[x.sub] = x.value; });
+      return map;
+    });
+
+    if(subs.length === 0){
+      // 하위 채널이 없으면 상위채널 단일 막대로 표시
+      datasets = [{
+        type: 'bar',
+        label: currentSeries,
+        data: filtered.map(d=>toMil(d[currentSeries])),
+        backgroundColor: channelColors[currentSeries],
+        borderColor: channelColors[currentSeries],
+        borderWidth: 0,
+        borderRadius: 3,
+        barPercentage: 0.78,
+        categoryPercentage: 0.9,
+        stack: 'ch',
+        yAxisID: 'y'
+      }];
+    } else {
+      datasets = subs.map((s, i) => ({
+        type: 'bar',
+        label: s.sub,
+        data: perDay.map(mp => {
+          const v = mp[s.sub];
+          return (v==null) ? null : Math.round(v/1e4);
+        }),
+        backgroundColor: cols[i],
+        borderColor: cols[i],
+        borderWidth: 0,
+        borderRadius: (i === subs.length-1) ? {topLeft:3, topRight:3} : 0,
+        barPercentage: 0.78,
+        categoryPercentage: 0.9,
+        stack: 'ch',
+        yAxisID: 'y',
+        order: i
+      }));
+    }
   }
 
   // 일자별 차트 헤더 desc 업데이트
@@ -2830,14 +2927,16 @@ function renderDailyChart(){
       const fmt2 = s => { const [,m,d]=s.split('-'); return `${parseInt(m)}/${parseInt(d)}`; };
       descEl.textContent = a===b ? `${fmt2(a)} 하루 데이터` : `${fmt2(a)} ~ ${fmt2(b)} 기간 데이터`;
     } else {
-      descEl.textContent = '전체 및 채널별 일자별 매출 변화';
+      descEl.textContent = currentSeries==='all'
+        ? '전체 및 채널별 일자별 매출 변화'
+        : `${currentSeries} 하위 채널별 일자 누적 매출 (스택 막대)`;
     }
   }
 
   if(dailyChart) dailyChart.destroy();
 
   dailyChart = new Chart(ctx, {
-    type: currentSeries==='all' ? 'bar' : 'line',
+    type: 'bar',
     data: { labels, datasets },
     options: {
       responsive: true,
@@ -2846,7 +2945,7 @@ function renderDailyChart(){
       layout: { padding: { top: 28 } },
       plugins: {
         legend: {
-          display: currentSeries==='all',
+          display: true,
           position: 'top',
           align: 'end',
           labels: {
@@ -2859,17 +2958,23 @@ function renderDailyChart(){
           titleFont:{family:'Pretendard',weight:'700',size:12},
           bodyFont:{family:'Pretendard',size:12},
           padding:12, cornerRadius:6, boxPadding:6,
-          filter: (item) => item.parsed.y != null,
+          filter: (item) => item.parsed.y != null && !(currentSeries!=='all' && item.parsed.y === 0),
           callbacks:{
             label: c => {
               if(c.dataset.label === '전체') return null;
               return `${c.dataset.label}  ${c.parsed.y != null ? c.parsed.y.toLocaleString()+'만원' : '-'}`;
+            },
+            footer: items => {
+              if(currentSeries === 'all') return '';
+              const sum = items.reduce((a,it)=> a + (it.parsed.y || 0), 0);
+              return `합계  ${sum.toLocaleString()}만원`;
             }
           }
         }
       },
       scales: {
         x: {
+          stacked: currentSeries !== 'all',
           ticks:{
             font:{family:'Pretendard',size:10},
             color:'#9E9E9E',
@@ -2885,6 +2990,7 @@ function renderDailyChart(){
           border:{color:'#EAEAE4'}
         },
         y: {
+          stacked: currentSeries !== 'all',
           beginAtZero:true,
           ticks:{
             font:{family:'Pretendard',size:11}, color:'#9E9E9E',
@@ -2928,21 +3034,29 @@ function renderDailyChart(){
             ctx2.restore();
           }
         } else {
-          // 단일 채널: 해당 채널 값 표시
-          chart.data.datasets.forEach((dataset) => {
-            const meta = chart.getDatasetMeta(0);
-            meta.data.forEach((point, idx) => {
-              const v = dataset.data[idx];
-              if(v == null || v === 0) return;
-              ctx2.save();
-              ctx2.font = 'bold 9.5px Pretendard, sans-serif';
-              ctx2.fillStyle = channelColors[dataset.label] || '#17498F';
-              ctx2.textAlign = 'center';
-              ctx2.textBaseline = 'bottom';
-              ctx2.fillText(v.toLocaleString()+'만', point.x, point.y - 5);
-              ctx2.restore();
+          // 단일 채널: 하위채널 누적 막대 — 각 일자 막대 위에 합계 표시
+          const n = chart.data.labels.length;
+          for(let idx=0; idx<n; idx++){
+            let total = 0, hasAny = false, topY = Infinity, x = null;
+            chart.data.datasets.forEach((ds, di) => {
+              const v = ds.data[idx];
+              if(v != null){ total += v; if(v > 0) hasAny = true; }
+              const meta = chart.getDatasetMeta(di);
+              const bar = meta.data[idx];
+              if(bar){
+                if(bar.y < topY) topY = bar.y;
+                if(x == null) x = bar.x;
+              }
             });
-          });
+            if(!hasAny || x == null || topY === Infinity) continue;
+            ctx2.save();
+            ctx2.font = 'bold 9.5px Pretendard, sans-serif';
+            ctx2.fillStyle = channelColors[currentSeries] || '#17498F';
+            ctx2.textAlign = 'center';
+            ctx2.textBaseline = 'bottom';
+            ctx2.fillText(total.toLocaleString()+'만', x, topY - 4);
+            ctx2.restore();
+          }
         }
       }
     }]
@@ -3447,8 +3561,8 @@ function parseExcel(wb){
     }
   }
 
-  // 3. 일자별 실적
-  const sheetName3 = wb.SheetNames.find(n=>n.includes('일자'));
+  // 3. 일자별 실적 (상위 채널 합계)
+  const sheetName3 = wb.SheetNames.find(n=>n.includes('일자') && !n.includes('채널'));
   if(sheetName3){
     const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName3], {header:1, defval:0});
     const headerIdx = rows.findIndex(r=>r && r[0]==='일자');
@@ -3472,6 +3586,36 @@ function parseExcel(wb){
         });
       }
       if(newDaily.length>0) data.daily = newDaily;
+    }
+  }
+
+  // 3-1. 일자별 채널 실적 (하위채널 실측 기록) — long 포맷: 일자 | 상위채널 | 하위채널 | 매출액
+  //  존재할 경우 data.daily[i].sub[상위채널][하위채널] 에 저장 → 스택 막대에 실측값 우선 반영
+  const sheetName3b = wb.SheetNames.find(n=>n.includes('일자') && n.includes('채널'));
+  if(sheetName3b){
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName3b], {header:1, defval:0});
+    const headerIdx = rows.findIndex(r=>r && String(r[0]||'')==='일자');
+    if(headerIdx>=0){
+      const byDate = {};
+      data.daily.forEach(d => { byDate[d.date] = d; });
+      for(let i=headerIdx+1;i<rows.length;i++){
+        const r = rows[i];
+        if(!r || !r[0] || !r[1] || !r[2]) continue;
+        let date = r[0];
+        if(typeof date === 'number'){
+          const d = new Date(Math.round((date-25569)*86400*1000));
+          date = d.toISOString().slice(0,10);
+        }
+        date = String(date).slice(0,10);
+        const top = String(r[1]).trim();
+        const sub = String(r[2]).trim();
+        const val = Number(r[3])||0;
+        const day = byDate[date];
+        if(!day) continue;
+        if(!day.sub) day.sub = {};
+        if(!day.sub[top]) day.sub[top] = {};
+        day.sub[top][sub] = val;
+      }
     }
   }
 
@@ -3590,6 +3734,25 @@ document.getElementById('downloadTemplate').addEventListener('click', ()=>{
   const ws3 = XLSX.utils.aoa_to_sheet(dRows);
   ws3['!cols'] = [{wch:14},{wch:16},{wch:16},{wch:16},{wch:16}];
   XLSX.utils.book_append_sheet(wb, ws3, '일자별 실적');
+
+  // 일자별 채널 실적 (하위채널 단위 — 스택 막대용 / 실측 기록 양식)
+  //  · sub(실측)가 있으면 그 값을, 없으면 월 비중 안분값을 출력
+  //  · 이 시트를 수정 후 재업로드하면 해당 값이 '실측'으로 저장됩니다.
+  const dcRows = [
+    ['일자별 채널 실적 (단위: 원)'],
+    ['※ 일자 / 상위채널 / 하위채널 / 매출액 형식. 값 수정 후 재업로드 시 일자별 스택 막대에 실측값으로 반영됩니다.'],
+    ['일자','상위채널','하위채널','매출액']
+  ];
+  data.daily.forEach(d=>{
+    CHANNELS.forEach(top=>{
+      dailySubBreakdown(d, top).forEach(x=>{
+        dcRows.push([d.date, top, x.sub, x.value]);
+      });
+    });
+  });
+  const ws3b = XLSX.utils.aoa_to_sheet(dcRows);
+  ws3b['!cols'] = [{wch:14},{wch:12},{wch:20},{wch:16}];
+  XLSX.utils.book_append_sheet(wb, ws3b, '일자별 채널 실적');
 
   // 하위 (상위 채널별 "월별 목표·실적" 시트와 동일 형식: 채널마다 목표 row + 실적 row, 1~12월)
   const sRows = [
