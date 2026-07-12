@@ -208,9 +208,14 @@ html,body{
 .ch-zer{background:var(--surface2);color:var(--gray);}
 .prod-table tfoot td{background:var(--cream);font-weight:800;color:var(--navy);border-top:2px solid var(--cream-d);border-bottom:none;}
 /* 카테고리·상품명(식단) 2개 열 좌측 고정 */
+/* 카테고리·상품명 + 합계(매출/조회/CVR)·카테고리 대비 — 총 6개 열 고정 */
 .prod-table th.stick,.prod-table td.stick{position:sticky;z-index:3;}
 .prod-table th.c1,.prod-table td.c1{left:0;width:100px;min-width:100px;}
-.prod-table th.c2,.prod-table td.c2{left:100px;min-width:184px;border-right:2px solid var(--line-2);}
+.prod-table th.c2,.prod-table td.c2{left:100px;width:184px;min-width:184px;}
+.prod-table th.c3,.prod-table td.c3{left:284px;width:70px;min-width:70px;}
+.prod-table th.c4,.prod-table td.c4{left:354px;width:70px;min-width:70px;}
+.prod-table th.c5,.prod-table td.c5{left:424px;width:120px;min-width:120px;}
+.prod-table th.c6,.prod-table td.c6{left:544px;width:90px;min-width:90px;border-right:2px solid var(--line-2);}
 .prod-table thead th.stick{z-index:6;}
 .prod-table tbody td.stick{background:var(--white);}
 .prod-table tbody tr:hover td.stick{background:var(--surface2);}
@@ -999,29 +1004,6 @@ html,body{
     </div>
   </div>
 
-  <!-- TOP 11~20 (Normal) -->
-  <div class="tier-section" id="health-tier-normal">
-    <div class="tier-header normal">
-      <span class="tier-icon"></span>
-      <span>TOP 11~20 · 기타 메뉴</span>
-      <span class="tier-count">관심 메뉴</span>
-    </div>
-    <div class="tier-body">
-      <table class="menu-table">
-        <thead><tr>
-          <th style="width:52px">순위</th>
-          <th style="width:64px;text-align:center">전월 대비</th>
-          <th>메뉴명</th>
-          <th style="width:72px;text-align:right">수량</th>
-          <th style="width:90px;text-align:center">식단 구성</th>
-          <th style="width:200px">노출당 선택량</th>
-          <th style="width:90px;text-align:center">중요도</th>
-        </tr></thead>
-        <tbody id="health-body-normal"></tbody>
-      </table>
-    </div>
-  </div>
-
   <!-- ══════ 질환케어 ══════ -->
   <div class="best-section-title">
     <div class="best-section-icon" style="background:var(--red-pale)"></div>
@@ -1652,8 +1634,8 @@ function renderProductTable(){
 
   // 헤더
   let h1=`<tr><th rowspan="2" class="stick c1" style="text-align:left;">카테고리</th><th rowspan="2" class="stick c2" style="text-align:left;">상품명 (식단)</th>`;
-  // 종합(전체) 데이터 — 월별 값보다 앞으로 이동
-  h1+=`<th rowspan="2" style="min-width:62px;">합계<br>매출(만)</th><th rowspan="2">합계<br>조회</th><th rowspan="2" style="min-width:110px;">합계 CVR</th><th rowspan="2" class="msep">카테고리<br>대비</th>`;
+  // 종합(전체) 데이터 — 카테고리 대비까지 틀고정
+  h1+=`<th rowspan="2" class="stick c3">합계<br>매출(만)</th><th rowspan="2" class="stick c4">합계<br>조회</th><th rowspan="2" class="stick c5">합계 CVR</th><th rowspan="2" class="stick c6 msep">카테고리<br>대비</th>`;
   // 월별
   for(let i=0;i<NM;i++){ h1+=`<th colspan="4" class="${i<NM-1?'msep':''}">${i+1}월</th>`; }
   h1+=`</tr>`;
@@ -1694,11 +1676,11 @@ function renderProductTable(){
     const chgVal=(totCvr-(catCvr[p.cat]||0))*100; // %p
     const chg=(chgVal>=0?'+':'')+chgVal.toFixed(1)+'%p';
     const chipCls=chgVal>0.05?'ch-pos':chgVal<-0.05?'ch-neg':'ch-zer';
-    // 종합(전체) 데이터 셀 — 맨 앞으로 이동
-    let sumCells=`<td><strong>${Math.round(tSales).toLocaleString('ko-KR')}</strong></td>`;
-    sumCells+=`<td>${fmtN(tView)}</td>`;
-    sumCells+=`<td><div class="cvr-wrap"><div class="cvr-bg"><div class="cvr-fill" style="width:${cvrPct.toFixed(1)}%"></div></div><span class="cvr-val">${fmtP(totCvr)}</span></div></td>`;
-    sumCells+=`<td class="msep"><span class="chg-chip ${chipCls}">${chg}</span></td>`;
+    // 종합(전체) 데이터 셀 — 카테고리 대비까지 틀고정
+    let sumCells=`<td class="stick c3"><strong>${Math.round(tSales).toLocaleString('ko-KR')}</strong></td>`;
+    sumCells+=`<td class="stick c4">${fmtN(tView)}</td>`;
+    sumCells+=`<td class="stick c5"><div class="cvr-wrap"><div class="cvr-bg"><div class="cvr-fill" style="width:${cvrPct.toFixed(1)}%"></div></div><span class="cvr-val">${fmtP(totCvr)}</span></div></td>`;
+    sumCells+=`<td class="stick c6 msep"><span class="chg-chip ${chipCls}">${chg}</span></td>`;
     const cells=`<td class="stick c1"><span class="cat-tag ${CAT_CLS[p.cat]||'cat-other'}">${p.cat}</span></td><td class="name-cell stick c2">${p.name}</td>`+sumCells+monthCells;
     html+=`<tr>${cells}</tr>`;
     foots.view+=tView; foots.buy+=tBuy; foots.sales+=tSales;
@@ -1707,9 +1689,9 @@ function renderProductTable(){
 
   // 합계 행
   const fCvr=foots.view>0?foots.buy/foots.view:0;
-  let ft=`<tr><td colspan="2" class="stick c1" style="text-align:left;border-right:2px solid var(--cream-d);">전체 합계</td>`;
-  // 종합(전체) 데이터 — 맨 앞으로 이동
-  ft+=`<td>${Math.round(foots.sales).toLocaleString('ko-KR')}</td><td>${fmtN(foots.view)}</td><td>${fmtP(fCvr)}</td><td class="msep">—</td>`;
+  let ft=`<tr><td colspan="2" class="stick c1" style="text-align:left;">전체 합계</td>`;
+  // 종합(전체) 데이터 — 카테고리 대비까지 틀고정
+  ft+=`<td class="stick c3">${Math.round(foots.sales).toLocaleString('ko-KR')}</td><td class="stick c4">${fmtN(foots.view)}</td><td class="stick c5">${fmtP(fCvr)}</td><td class="stick c6 msep">—</td>`;
   // 월별
   for(let i=0;i<NM;i++){
     let mv=0,mb=0,ms=0;
@@ -1760,16 +1742,15 @@ function bestRenderHealth(cur, prevMap){
   const list = cur && cur.health ? cur.health : [];
   const goldEl=document.getElementById('health-body-gold');
   const silverEl=document.getElementById('health-body-silver');
-  const normalEl=document.getElementById('health-body-normal');
   if(!list.length){
     if(goldEl) goldEl.innerHTML=`<tr><td colspan="7" style="text-align:center;color:var(--gray);padding:32px;">엑셀 파일을 업로드하면 데이터가 표시됩니다</td></tr>`;
     if(silverEl) silverEl.innerHTML='';
-    if(normalEl) normalEl.innerHTML='';
     return;
   }
   const q=bestSearchQuery.trim().toLowerCase();
   const searching=q.length>0;
   const sortKey=bestSortMode==='expo'?'expo':'qty';
+  // 순위는 전체 목록(TOP 20) 기준으로 매깁니다 — 검색 시 11위 이후 메뉴도 찾을 수 있도록 순위 계산 자체는 자르지 않습니다.
   const ranked=[...list].sort((a,b)=>(b[sortKey]||0)-(a[sortKey]||0))
     .map((m,i)=>({ ...m, dynamicRank:i+1, prevRank: prevMap[m.name]!==undefined?prevMap[m.name]:null }));
   const maxExpo=Math.max(...list.map(m=>m.expo||0), 1);
@@ -1792,27 +1773,24 @@ function bestRenderHealth(cur, prevMap){
 
   const goldSec=document.getElementById('health-tier-gold');
   const silverSec=document.getElementById('health-tier-silver');
-  const normalSec=document.getElementById('health-tier-normal');
   const sortLabel = sortKey==='qty' ? '수량' : '노출당 선택량';
 
   if(searching){
+    // 검색 모드: TOP 20 전체(11~20위 포함)에서 검색해 단일 테이블에 표시
     goldEl.innerHTML = display.length
       ? display.map(rowHtml).join('')
       : `<tr><td colspan="7" style="text-align:center;color:var(--gray);padding:24px;">검색 결과가 없습니다</td></tr>`;
     silverSec.style.display='none';
-    normalSec.style.display='none';
     goldSec.querySelector('.tier-header span:nth-of-type(2)').textContent=` '${bestSearchQuery}' 검색 결과`;
     goldSec.querySelector('.tier-count').textContent=`${display.length}개`;
   } else {
+    // 기본 모드: TOP 10까지만 노출 (11~20위 · 기타 메뉴는 비노출)
     silverSec.style.display='';
-    normalSec.style.display='';
     goldSec.querySelector('.tier-header span:nth-of-type(2)').textContent=`TOP 5 · 최상위 선호 메뉴 (${sortLabel} 기준)`;
     goldSec.querySelector('.tier-count').textContent='가장 핵심 메뉴';
     silverSec.querySelector('.tier-header span:nth-of-type(2)').textContent='TOP 6~10 · 상위 메뉴';
-    normalSec.querySelector('.tier-header span:nth-of-type(2)').textContent='TOP 11~20 · 기타 메뉴';
     goldEl.innerHTML   = display.filter(m=>m.dynamicRank<=5).map(rowHtml).join('');
     silverEl.innerHTML = display.filter(m=>m.dynamicRank>5&&m.dynamicRank<=10).map(rowHtml).join('');
-    normalEl.innerHTML = display.filter(m=>m.dynamicRank>10).map(rowHtml).join('');
   }
 }
 
@@ -1820,7 +1798,9 @@ function bestRenderDiseaseList(key, list, prevMap){
   const body=document.getElementById(key+'-body');
   if(!body) return;
   const q=bestSearchQuery.trim().toLowerCase();
+  // 질환케어는 TOP 10 고정 — 11위 이후는 애초에 순위/노출 대상에서 제외합니다.
   const ranked=[...(list||[])].sort((a,b)=>(b.qty||0)-(a.qty||0))
+    .slice(0,10)
     .map((m,i)=>({ ...m, dynamicRank:i+1, prevRank: prevMap[m.name]!==undefined?prevMap[m.name]:null }));
   const filtered = q ? ranked.filter(m=>m.name.toLowerCase().includes(q)) : ranked;
 
@@ -2111,8 +2091,9 @@ function parseExcel(wb){
         for(let mi=0;mi<12;mi++){
           const base=2+mi*4;
           const v=num(r[base]), b=num(r[base+1]); let c=num(r[base+2]); const s=num(r[base+3]);
-          if(c>1) c=c/100; // % 입력 보정
-          if(c===0 && v>0 && b>0) c=b/v;
+          // 전환율은 항상 "%" 숫자 그대로 입력 (예: 1.6 → 1.6%, 0.87 → 0.87%). 빈 칸(0)이면 조회/구매로 자동 계산.
+          if(c===0 && v>0 && b>0) c=(b/v)*100;
+          c=c/100; // 내부 저장은 fraction(0~1)
           m.push([v,b,c,s]);
         }
         // 끝쪽 빈 월 잘라내기 (최소 4개월 유지)
@@ -2187,7 +2168,7 @@ document.getElementById('downloadTemplate').addEventListener('click', ()=>{
     ['  5. 고객 지표       : 월별 방문자/구매자/신규/재방문/주문/재구매/매출(원)'],
     ['  6. ⭐ 베스트메뉴   : 베스트 메뉴 셀렉션 TOP 랭킹. 월(月) 컬럼으로 여러 달을 한 시트에 누적 입력'],
     [],
-    ['◾ 전환율은 1.6 처럼 % 숫자로 입력하세요. (상품별 시트는 0.016 또는 1.6 모두 인식)'],
+    ['◾ 전환율은 항상 "%" 숫자 그대로 입력하세요. 예: 1.6 → 1.6%,  0.87 → 0.87%  (0.016처럼 소수로 입력하지 마세요)'],
     ['◾ ⭐ 베스트메뉴 시트는 각 행의 "월" 값을 기준으로 저장됩니다. 매달 데이터를 그 아래에'],
     ['   새 행으로 계속 추가해서 올리면 이전 달 데이터는 유지된 채로 누적됩니다 (기존 달을 지울 필요 없음).'],
     ['   같은 달 데이터를 다시 올리면 그 달만 최신 값으로 덮어씁니다.']
