@@ -2031,6 +2031,8 @@ function applyYearMonth(){
   setText('ymBadgeBtn', `${y}.${String(m).padStart(2,'0')} 기준`);
   setText('lastUpdated', `${y}년 ${m}월 기준`);
   renderAll();
+  // 달이 바뀌면 그 달에 저장된 메모(텍스트박스)로 다시 렌더 — 없으면 빈 상태로 표시
+  if(typeof MEMO_LABEL !== 'undefined') Object.keys(MEMO_LABEL).forEach(renderMemoView);
 }
 
 
@@ -2137,27 +2139,33 @@ function parseExcel(wb){
       data.customer[key]=arr;
     });
   }
-  // 6) 베스트 메뉴 셀렉션 (⭐ 베스트메뉴 — 월별 스냅샷, 해당 월 1개 시트 = 1개월치 랭킹)
+  // 6) 베스트 메뉴 셀렉션 (⭐ 베스트메뉴 — 월(月) 컬럼 기반 롱포맷)
+  //    한 시트 안에 여러 달의 행이 함께 들어갈 수 있고, 시트에 있는 달만 갱신됩니다.
+  //    (다른 달 데이터는 그대로 유지되므로, 매달 새 행을 추가해서 올리면 자동으로 누적됩니다)
   sn=wb.SheetNames.find(n=>n.includes('베스트'));
   if(sn){
-    const rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:0});
-    const infoRow=rows.find(r=>r&&String(r[0]).trim()==='연도');
-    const yr=infoRow?num(infoRow[1]):0;
-    const mo=infoRow?num(infoRow[3]):0;
-    const healthTotal=infoRow?num(infoRow[5]):0;
-    const hi=rows.findIndex(r=>r&&String(r[0]).trim()==='구분');
-    if(hi>=0 && mo>=1 && mo<=12){
-      const health=[],diabetes=[],kidney=[],cancer=[];
+    const rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:''});
+    const hi=rows.findIndex(r=>r&&String(r[0]).trim()==='월');
+    if(hi>=0){
+      const monthMap={}; // { 1: {healthTotal,health,diabetes,kidney,cancer}, ... } — 시트에 존재하는 달만 채움
       for(let i=hi+1;i<rows.length;i++){
-        const r=rows[i]; if(!r||!r[0]||!r[1]) continue;
-        const cat=String(r[0]).trim(), name=String(r[1]).trim();
-        const qty=num(r[2]), plans=num(r[3]), expo=num(r[4]), imp=num(r[5])||1;
-        if(cat.includes('건강'))      health.push({name,qty,plans,expo,importance:imp});
-        else if(cat.includes('당뇨')) diabetes.push({name,qty});
-        else if(cat.includes('신장')) kidney.push({name,qty});
-        else if(cat.includes('암'))   cancer.push({name,qty});
+        const r=rows[i]; if(!r||r[0]===''||r[0]===null||r[0]===undefined) continue;
+        const mo=num(r[0]); if(mo<1||mo>12) continue;
+        const cat=String(r[1]||'').trim(); if(!cat) continue;
+        if(!monthMap[mo]) monthMap[mo]={healthTotal:0,health:[],diabetes:[],kidney:[],cancer:[]};
+        if(cat.includes('전체')){ monthMap[mo].healthTotal=num(r[3]); continue; }
+        const name=String(r[2]||'').trim(); if(!name) continue;
+        const qty=num(r[3]), plans=num(r[4]), expo=num(r[5]), imp=num(r[6])||1;
+        if(cat.includes('건강'))      monthMap[mo].health.push({name,qty,plans,expo,importance:imp});
+        else if(cat.includes('당뇨')) monthMap[mo].diabetes.push({name,qty});
+        else if(cat.includes('신장')) monthMap[mo].kidney.push({name,qty});
+        else if(cat.includes('암'))   monthMap[mo].cancer.push({name,qty});
       }
-      data.bestMenu[mo-1] = { year:yr||null, healthTotal, health, diabetes, kidney, cancer };
+      // 시트에 포함된 달만 덮어쓰고, 그 외 달의 기존 데이터는 그대로 유지 → 누적
+      Object.keys(monthMap).forEach(moStr=>{
+        const mo=Number(moStr);
+        data.bestMenu[mo-1]=monthMap[mo];
+      });
     }
   }
 }
@@ -2177,11 +2185,12 @@ document.getElementById('downloadTemplate').addEventListener('click', ()=>{
     ['  3. 주차별 실적     : WK, 기간, 매출(만원), 유입(명), 전환율(%)'],
     ['  4. 상품별 상세     : 카테고리/상품명 + 월별(조회·구매·전환율·매출). 5월부터 입력'],
     ['  5. 고객 지표       : 월별 방문자/구매자/신규/재방문/주문/재구매/매출(원)'],
-    ['  6. ⭐ 베스트메뉴   : 베스트 메뉴 셀렉션 TOP 랭킹. 1개 시트 = 1개월 스냅샷'],
+    ['  6. ⭐ 베스트메뉴   : 베스트 메뉴 셀렉션 TOP 랭킹. 월(月) 컬럼으로 여러 달을 한 시트에 누적 입력'],
     [],
     ['◾ 전환율은 1.6 처럼 % 숫자로 입력하세요. (상품별 시트는 0.016 또는 1.6 모두 인식)'],
-    ['◾ ⭐ 베스트메뉴 시트는 시트 상단의 연도/월 값을 기준으로 해당 월 데이터만 갱신됩니다.'],
-    ['   다른 달 데이터를 함께 올리려면 시트를 복제해 연도/월만 바꾼 뒤 시트명에 "베스트"가 들어가게 저장하세요.']
+    ['◾ ⭐ 베스트메뉴 시트는 각 행의 "월" 값을 기준으로 저장됩니다. 매달 데이터를 그 아래에'],
+    ['   새 행으로 계속 추가해서 올리면 이전 달 데이터는 유지된 채로 누적됩니다 (기존 달을 지울 필요 없음).'],
+    ['   같은 달 데이터를 다시 올리면 그 달만 최신 값으로 덮어씁니다.']
   ];
   const ws0=XLSX.utils.aoa_to_sheet(guide); ws0['!cols']=[{wch:86}];
   XLSX.utils.book_append_sheet(wb,ws0,'안내');
@@ -2230,38 +2239,42 @@ document.getElementById('downloadTemplate').addEventListener('click', ()=>{
   const ws5=XLSX.utils.aoa_to_sheet(cRows); ws5['!cols']=[{wch:14},...Array(12).fill({wch:13})];
   XLSX.utils.book_append_sheet(wb,ws5,'고객 지표');
 
-  // 6. ⭐ 베스트메뉴 (베스트 메뉴 셀렉션 — 1시트 = 현재 선택 월 스냅샷)
-  const bmSel = data.bestMenu[data.currentMonthIndex];
-  const bmYear = parseInt(document.getElementById('selectYear').value)||2026;
-  const bmMonth = data.currentMonthIndex+1;
+  // 6. ⭐ 베스트메뉴 (베스트 메뉴 셀렉션 — 월(月) 컬럼 롱포맷, 업로드된 모든 달을 함께 내보냄)
   const bRows=[
-    ['⭐ 베스트메뉴 업로드 양식 — A:구분 B:메뉴명 C:수량 D:식단구성수 E:노출당선택량 F:중요도(1~4) · 1시트=1개월 스냅샷'],
+    ['⭐ 베스트메뉴 업로드 양식 — A:월(1~12) B:구분 C:메뉴명 D:수량 E:식단구성수 F:노출당선택량 G:중요도(1~4)'],
+    ['   구분: 건강케어전체(그 달 건강케어 메뉴 총 개수) / 건강케어 / 당뇨케어 / 신장케어 / 암케어'],
+    ['   매달 데이터를 아래에 새 행으로 계속 추가하세요. 기존 달 행은 지우지 않아도 됩니다 (자동 누적).'],
     [],
-    ['연도', bmYear, '월', bmMonth, '건강케어 전체 메뉴 수', (bmSel&&bmSel.healthTotal)||0],
-    [],
-    ['구분','메뉴명','수량','식단구성수','노출당선택량','중요도(1~4)']
+    ['월','구분','메뉴명','수량','식단구성수','노출당선택량','중요도(1~4)']
   ];
-  if(bmSel && bmSel.health && bmSel.health.length){
-    bmSel.health.forEach(m=>bRows.push(['건강케어', m.name, m.qty||0, m.plans||0, m.expo||0, m.importance||1]));
-    (bmSel.diabetes||[]).forEach(m=>bRows.push(['당뇨케어', m.name, m.qty||0, '', '', '']));
-    (bmSel.kidney||[]).forEach(m=>bRows.push(['신장케어', m.name, m.qty||0, '', '', '']));
-    (bmSel.cancer||[]).forEach(m=>bRows.push(['암케어', m.name, m.qty||0, '', '', '']));
-  } else {
-    // 작성 예시 (샘플)
+  let hasBestData=false;
+  data.bestMenu.forEach((bm, idx)=>{
+    if(!bm) return;
+    hasBestData=true;
+    const mo=idx+1;
+    bRows.push([mo,'건강케어전체','', bm.healthTotal||0, '', '', '']);
+    (bm.health||[]).forEach(m=>bRows.push([mo,'건강케어', m.name, m.qty||0, m.plans||0, m.expo||0, m.importance||1]));
+    (bm.diabetes||[]).forEach(m=>bRows.push([mo,'당뇨케어', m.name, m.qty||0, '', '', '']));
+    (bm.kidney||[]).forEach(m=>bRows.push([mo,'신장케어', m.name, m.qty||0, '', '', '']));
+    (bm.cancer||[]).forEach(m=>bRows.push([mo,'암케어', m.name, m.qty||0, '', '', '']));
+  });
+  if(!hasBestData){
+    // 작성 예시 (샘플 — 5월 기준, 이 아래에 6월・7월…을 계속 추가하면 됩니다)
     bRows.push(
-      ['건강케어','저속노화 현미채식도시락',482,3,24.1,4],
-      ['건강케어','장조림계란비빔밥',451,2,22.6,4],
-      ['건강케어','치킨커리라이스',398,2,19.9,3],
-      ['건강케어','연어스테이크샐러드',377,3,18.9,4],
-      ['건강케어','두부면팟타이',340,2,17.0,3],
-      ['당뇨케어','당뇨식 잡곡비빔밥',210,'','',''],
-      ['당뇨케어','저당 닭가슴살 샐러드',188,'','',''],
-      ['신장케어','저염 두부조림 정식',150,'','',''],
-      ['암케어','고단백 연어스테이크',132,'','','']
+      [5,'건강케어전체','',63,'','',''],
+      [5,'건강케어','저속노화 현미채식도시락',482,3,24.1,4],
+      [5,'건강케어','장조림계란비빔밥',451,2,22.6,4],
+      [5,'건강케어','치킨커리라이스',398,2,19.9,3],
+      [5,'건강케어','연어스테이크샐러드',377,3,18.9,4],
+      [5,'건강케어','두부면팟타이',340,2,17.0,3],
+      [5,'당뇨케어','당뇨식 잡곡비빔밥',210,'','',''],
+      [5,'당뇨케어','저당 닭가슴살 샐러드',188,'','',''],
+      [5,'신장케어','저염 두부조림 정식',150,'','',''],
+      [5,'암케어','고단백 연어스테이크',132,'','','']
     );
   }
   const ws6=XLSX.utils.aoa_to_sheet(bRows);
-  ws6['!cols']=[{wch:12},{wch:26},{wch:9},{wch:12},{wch:14},{wch:14}];
+  ws6['!cols']=[{wch:6},{wch:14},{wch:26},{wch:9},{wch:12},{wch:14},{wch:14}];
   XLSX.utils.book_append_sheet(wb,ws6,'⭐ 베스트메뉴');
 
   XLSX.writeFile(wb,'brand_data_template.xlsx');
@@ -2269,15 +2282,27 @@ document.getElementById('downloadTemplate').addEventListener('click', ()=>{
 
 /* =========================================================
  *  메모(코멘트) 시스템 — 항목별 입력/수정/삭제 · 볼드/밑줄
+ *  ⚠ 2026-07 개편: 메모는 이제 "연/월"별로 별도 저장됩니다.
+ *     저장 키 = `${섹션key}__${YYYY-MM}` (예: 'topsel__2026-05')
+ *     달을 바꾸면 그 달에 작성된 메모만 표시되고, 새 달은 빈 텍스트박스로 시작합니다.
  * ========================================================= */
-let memoData={};       // { key: html }
+let memoData={};       // { "섹션key__YYYY-MM": html }
 const MEMO_LABEL={cal:'브랜드몰 프로모션 캘린더',overview:'전체 매출 현황',daily:'일자별 매출 현황',weekly:'주차별 매출 현황',product:'상품별 상세 현황',topsel:'베스트 메뉴 셀렉션',customer:'핵심 고객 지표'};
+
+// 현재 선택된 연/월 문자열 (예: '2026-05')
+function memoYM(){
+  const {y,m}=selYM();
+  return `${y}-${String(m).padStart(2,'0')}`;
+}
+// 섹션key + 현재 연/월을 합친 실제 저장 키
+function memoKey(key){ return `${key}__${memoYM()}`; }
 
 function memoHost(key){ return document.querySelector(`.memo-host[data-memo-host="${key}"]`); }
 function renderMemoView(key){
   const host=memoHost(key); if(!host) return;
   const btn=document.querySelector(`.memo-add-btn[data-memo="${key}"]`);
-  const content=memoData[key];
+  const storeKey=memoKey(key);
+  const content=memoData[storeKey];
   if(content && content.trim()){
     host.innerHTML=`<div class="memo-area"><div class="memo-view-wrap">
       <div class="memo-view">${content}</div>
@@ -2287,7 +2312,10 @@ function renderMemoView(key){
       </div></div></div>`;
     if(btn) btn.classList.remove('is-open');
     host.querySelector('[data-act="edit"]').addEventListener('click',()=>openMemoEditor(key,content));
-    host.querySelector('[data-act="del"]').addEventListener('click',()=>{ if(confirm(`'${MEMO_LABEL[key]}' 메모를 삭제할까요?`)){ delete memoData[key]; renderMemoView(key); saveMemos(); } });
+    host.querySelector('[data-act="del"]').addEventListener('click',()=>{
+      const {y,m}=selYM();
+      if(confirm(`'${MEMO_LABEL[key]}' ${y}년 ${m}월 메모를 삭제할까요?`)){ delete memoData[storeKey]; renderMemoView(key); saveMemos(); }
+    });
   } else {
     host.innerHTML='';
     if(btn) btn.classList.remove('is-open');
@@ -2297,20 +2325,22 @@ function openMemoEditor(key, preset){
   const host=memoHost(key); if(!host) return;
   const btn=document.querySelector(`.memo-add-btn[data-memo="${key}"]`);
   if(btn) btn.classList.add('is-open');
+  const {y,m}=selYM();
+  const storeKey=memoKey(key);
   host.innerHTML=`<div class="memo-area">
     <div class="memo-toolbar">
       <button class="memo-btn b" data-cmd="bold" title="굵게">B</button>
       <button class="memo-btn u" data-cmd="underline" title="밑줄">U</button>
       <button class="memo-save" data-act="save">저장</button>
     </div>
-    <div class="memo-editor" contenteditable="true" data-ph="${MEMO_LABEL[key]||''} 항목에 대한 리뷰/메모를 입력하세요. (굵게·밑줄 가능)">${preset||''}</div>
+    <div class="memo-editor" contenteditable="true" data-ph="${MEMO_LABEL[key]||''} (${y}년 ${m}월) 항목에 대한 리뷰/메모를 입력하세요. (굵게·밑줄 가능)">${preset||''}</div>
   </div>`;
   const editor=host.querySelector('.memo-editor');
   editor.focus();
   host.querySelectorAll('.memo-btn').forEach(b=>b.addEventListener('mousedown',e=>{ e.preventDefault(); document.execCommand(b.dataset.cmd,false,null); editor.focus(); }));
   host.querySelector('[data-act="save"]').addEventListener('click',()=>{
     const html=editor.innerHTML.trim();
-    if(!html || html==='<br>'){ delete memoData[key]; } else { memoData[key]=html; }
+    if(!html || html==='<br>'){ delete memoData[storeKey]; } else { memoData[storeKey]=html; }
     renderMemoView(key); saveMemos();
   });
 }
@@ -2320,7 +2350,7 @@ function bindMemoButtons(){
       const key=btn.dataset.memo;
       const host=memoHost(key);
       if(btn.classList.contains('is-open')){ renderMemoView(key); }   // 토글 닫기
-      else openMemoEditor(key, memoData[key]||'');
+      else openMemoEditor(key, memoData[memoKey(key)]||'');
     });
   });
 }
