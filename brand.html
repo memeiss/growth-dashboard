@@ -1,6 +1,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -345,6 +346,313 @@ html,body{
   .header-left h1 .accent{display:block;margin-left:0;margin-top:4px;font-size:16px;}
   .kpi-grid,.cust-grid{grid-template-columns:1fr;}
 }
+
+/* ══════════════════════════════════════════════════════════════
+   TOP SEL (베스트 메뉴 셀렉션) — 대시보드 (index.html 이식)
+══════════════════════════════════════════════════════════════ */
+  /* ── Top Sel 이식 CSS (index.html #own-slide → #topsel-section) ── */
+  /* ── Summary KPI ── */
+  #topsel-section .best-kpi-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px; }
+  #topsel-section .best-kpi {
+    background:var(--white);border:1px solid var(--line);border-radius:11px;
+    padding:16px 18px;position:relative;overflow:hidden;
+  }
+  #topsel-section .best-kpi::before {
+    content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--navy);
+  }
+  #topsel-section .best-kpi.gold::before { background:#F59E0B; }
+  #topsel-section .best-kpi.silver::before { background:#94A3B8; }
+  #topsel-section .best-kpi.bronze::before { background:#D97706; }
+  #topsel-section .best-kpi-label { font-size:10px;color:var(--gray);font-weight:700;letter-spacing:.4px;text-transform:uppercase;margin-bottom:7px; }
+  #topsel-section .best-kpi-val { font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.4px;line-height:1.1; }
+  #topsel-section .best-kpi-sub { font-size:11px;color:var(--gray);margin-top:4px; }
+
+  /* ── 검색/필터 바 ── */
+  #topsel-section .best-toolbar {
+    background:var(--white);border:1px solid var(--line);border-radius:10px;
+    padding:10px 14px;display:flex;gap:14px;align-items:center;
+    margin-bottom:10px;flex-wrap:wrap;
+  }
+  #topsel-section .best-search {
+    flex:0 0 320px;min-width:260px;display:flex;align-items:center;gap:8px;
+    background:var(--surface2);border:1px solid var(--line);border-radius:8px;
+    padding:7px 12px;transition:border-color .15s;
+  }
+  #topsel-section .best-search:focus-within { border-color:var(--navy); background:#fff; }
+  #topsel-section .best-search svg { width:14px;height:14px;color:var(--gray);flex-shrink:0; }
+  #topsel-section .best-search input {
+    flex:1;border:none;outline:none;background:transparent;
+    font-size:13px;font-family:inherit;color:var(--text);
+  }
+  #topsel-section .best-search input::placeholder { color:var(--gray); }
+  #topsel-section .best-health-search {
+    display:flex;align-items:center;gap:8px;flex:0 0 260px;min-width:200px;
+    background:var(--surface2);border:1px solid var(--line);border-radius:8px;
+    padding:7px 12px;transition:border-color .15s;
+  }
+  #topsel-section .best-health-search:focus-within { border-color:var(--navy); background:#fff; }
+  #topsel-section .best-health-search svg { width:14px;height:14px;color:var(--gray);flex-shrink:0; }
+  #topsel-section .best-health-search input {
+    flex:1;border:none;outline:none;background:transparent;
+    font-size:13px;font-family:inherit;color:var(--text);min-width:0;
+  }
+  #topsel-section .best-health-search input::placeholder { color:var(--gray); }
+
+  /* ── 검색 힌트 ── */
+  #topsel-section .best-search-hint {
+    display:flex;align-items:center;gap:6px;
+    font-size:11.5px;color:var(--gray);font-weight:500;
+    padding:0 4px;
+  }
+  #topsel-section .best-search-hint-icon {
+    font-size:13px;flex-shrink:0;
+  }
+
+  /* ── 순위 변동 배지 ── */
+  #topsel-section .chg-badge {
+    display:inline-flex;align-items:center;gap:2px;
+    padding:2px 7px;border-radius:5px;
+    font-size:11px;font-weight:800;line-height:1;min-width:34px;justify-content:center;
+    font-family:'DM Mono',Menlo,monospace;
+  }
+  #topsel-section .chg-badge.up {
+    background:#DCFCE7;color:#15803D;border:1px solid #86EFAC;
+  }
+  #topsel-section .chg-badge.down {
+    background:var(--red-pale);color:var(--red);border:1px solid var(--red);
+  }
+  #topsel-section .chg-badge.same {
+    background:var(--navy-light);color:var(--navy);border:1px solid var(--navy-pale);
+  }
+  #topsel-section .chg-badge.new {
+    background:var(--surface2);color:var(--gray);border:1px solid var(--line-2);font-weight:700;
+  }
+  #topsel-section .chg-arrow {
+    font-size:9px;line-height:1;
+  }
+  #topsel-section .best-filter-label { font-size:11px;color:var(--gray);font-weight:700; }
+  #topsel-section .best-sort-btn {
+    padding:7px 14px;border-radius:7px;border:1px solid var(--line);
+    background:var(--white);color:var(--gray);font-size:12px;font-weight:600;
+    font-family:inherit;cursor:pointer;transition:all .15s;
+  }
+  #topsel-section .best-sort-btn:hover { border-color:var(--navy);color:var(--navy);background:var(--navy-light); }
+  #topsel-section .best-sort-btn.active { background:var(--navy);color:#fff;border-color:var(--navy); }
+
+  /* ── 순위 기준 선택 패널 (강조) ── */
+  #topsel-section .best-sort-panel {
+    background:linear-gradient(135deg, var(--navy-light) 0%, var(--cream) 100%);
+    border:1.5px solid var(--navy-pale);border-radius:12px;
+    padding:14px 18px;margin-bottom:20px;
+    display:flex;align-items:center;gap:18px;
+    box-shadow:0 2px 6px rgba(23,73,143,0.06);
+    flex-wrap:wrap;
+  }
+  #topsel-section .best-sort-panel-left {
+    display:flex;align-items:center;gap:12px;flex:1;min-width:220px;
+  }
+  #topsel-section .best-sort-icon {
+    width:42px;height:42px;border-radius:10px;
+    background:var(--navy);color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-size:20px;flex-shrink:0;
+    box-shadow:0 3px 8px rgba(23,73,143,0.3);
+  }
+  #topsel-section .best-sort-panel-title {
+    font-size:14px;font-weight:800;color:var(--navy);
+    letter-spacing:-0.2px;margin-bottom:2px;
+  }
+  #topsel-section .best-sort-panel-desc {
+    font-size:11px;color:var(--gray);font-weight:500;
+  }
+  #topsel-section .best-sort-options {
+    display:flex;gap:8px;flex-wrap:wrap;
+  }
+  #topsel-section .best-sort-big {
+    padding:10px 18px;border-radius:10px;
+    border:1.5px solid var(--line);background:#fff;
+    font-family:inherit;cursor:pointer;transition:all .18s;
+    text-align:left;min-width:160px;
+  }
+  #topsel-section .best-sort-big:hover {
+    border-color:var(--navy);background:var(--navy-light);
+    transform:translateY(-1px);
+    box-shadow:0 4px 10px rgba(23,73,143,0.12);
+  }
+  #topsel-section .best-sort-big.active {
+    background:var(--navy);border-color:var(--navy);
+    box-shadow:0 4px 12px rgba(23,73,143,0.3);
+  }
+  #topsel-section .best-sort-big-title {
+    font-size:13px;font-weight:800;color:var(--text);
+    letter-spacing:-0.2px;margin-bottom:2px;
+  }
+  #topsel-section .best-sort-big.active .best-sort-big-title { color:#fff; }
+  #topsel-section .best-sort-big-sub {
+    font-size:10px;color:var(--gray);font-weight:500;
+  }
+  #topsel-section .best-sort-big.active .best-sort-big-sub { color:rgba(255,255,255,.85); }
+
+  /* ── 섹션 타이틀 ── */
+  #topsel-section .best-section-title {
+    display:flex;align-items:center;gap:10px;
+    margin:22px 0 14px;padding-bottom:12px;
+    border-bottom:1px solid var(--line);
+  }
+  #topsel-section .best-section-icon {
+    width:34px;height:34px;border-radius:9px;
+    display:flex;align-items:center;justify-content:center;font-size:15px;
+    background:var(--navy-light);
+  }
+  #topsel-section .best-section-title h3 { font-size:16px;font-weight:800;letter-spacing:-0.3px;color:var(--text); }
+  #topsel-section .best-section-title p { font-size:11px;color:var(--gray);margin-top:2px; }
+  #topsel-section .best-section-badge {
+    margin-left:auto;background:var(--navy);color:#fff;
+    padding:4px 11px;border-radius:6px;font-size:11px;font-weight:700;
+  }
+
+  /* ── 티어 섹션 (TOP 5/10/20) ── */
+  #topsel-section .tier-section { margin-bottom:14px; }
+  #topsel-section .tier-header {
+    display:flex;align-items:center;gap:10px;
+    padding:10px 14px;border-radius:9px 9px 0 0;
+    font-size:12px;font-weight:800;letter-spacing:.3px;
+  }
+  #topsel-section .tier-header.gold {
+    background:linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+    color:#92400E;border:1px solid #FCD34D;border-bottom:none;
+  }
+  #topsel-section .tier-header.silver {
+    background:linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%);
+    color:#475569;border:1px solid #CBD5E0;border-bottom:none;
+  }
+  #topsel-section .tier-header.normal {
+    background:var(--surface2);color:var(--gray);
+    border:1px solid var(--line);border-bottom:none;
+  }
+  #topsel-section .tier-icon { font-size:15px; }
+  #topsel-section .tier-count {
+    margin-left:auto;font-size:11px;font-weight:700;opacity:.8;
+  }
+
+  #topsel-section .tier-body {
+    background:var(--white);border:1px solid var(--line);border-top:none;
+    border-radius:0 0 9px 9px;overflow:hidden;
+  }
+  #topsel-section .tier-body.gold { border-color:#FCD34D; }
+  #topsel-section .tier-body.silver { border-color:#CBD5E0; }
+
+  /* ── 메뉴 테이블 ── */
+  #topsel-section .menu-table { width:100%;border-collapse:collapse; }
+  #topsel-section .menu-table thead th {
+    font-size:10px;color:var(--gray);font-weight:700;
+    text-transform:uppercase;letter-spacing:.3px;
+    padding:9px 12px;text-align:left;
+    background:var(--surface2);border-bottom:2px solid var(--line);
+    white-space:nowrap;
+  }
+  #topsel-section .menu-table tbody td {
+    padding:9px 12px;font-size:12px;
+    border-bottom:1px solid var(--line);
+    vertical-align:middle;
+  }
+  #topsel-section .menu-table tbody tr:last-child td { border-bottom:none; }
+  #topsel-section .menu-table tbody tr:hover td { background:var(--navy-light); }
+
+  /* ── 골드 티어 row ── */
+  #topsel-section tr.row-gold td {
+    background:linear-gradient(90deg, #FFFBEB 0%, #FFFFFF 100%);
+    font-weight:600;
+  }
+  #topsel-section tr.row-gold:hover td { background:#FEF3C7 !important; }
+  #topsel-section tr.row-silver td { background:#FAFBFC; }
+  #topsel-section tr.row-silver:hover td { background:var(--surface2) !important; }
+
+  /* ── 순위 배지 ── */
+  #topsel-section .rank-b {
+    display:inline-flex;align-items:center;justify-content:center;
+    width:26px;height:26px;border-radius:8px;
+    font-size:11px;font-weight:800;
+    background:var(--surface2);color:var(--gray);border:1px solid var(--line);
+  }
+  #topsel-section .rank-b.gold {
+    background:linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    color:#fff;border-color:#D97706;
+    box-shadow:0 2px 6px rgba(245,158,11,0.35);
+  }
+  #topsel-section .rank-b.silver {
+    background:linear-gradient(135deg, #CBD5E0 0%, #94A3B8 100%);
+    color:#fff;border-color:#94A3B8;
+    box-shadow:0 2px 4px rgba(148,163,184,0.3);
+  }
+  #topsel-section .rank-b.bronze {
+    background:linear-gradient(135deg, #FCD34D 0%, #F59E0B 100%);
+    color:#92400E;border-color:#F59E0B;
+  }
+
+  /* 메뉴명 */
+  #topsel-section .menu-name { font-weight:700;color:var(--text); }
+  #topsel-section tr.row-gold .menu-name { color:#78350F; }
+
+  /* 수량 */
+  #topsel-section .qty-val { font-family:'DM Mono',Menlo,monospace;font-weight:700;color:var(--text); }
+
+  /* 노출당 선택량 막대 */
+  #topsel-section .expo-cell { min-width:160px;display:flex;align-items:center;gap:8px; }
+  #topsel-section .expo-bar-wrap { flex:1;height:7px;background:var(--bg);border-radius:4px;overflow:hidden;border:1px solid var(--line); }
+  #topsel-section .expo-bar-fill {
+    height:100%;border-radius:4px;
+    background:linear-gradient(90deg, var(--navy) 0%, var(--navy-mid) 100%);
+    transition:width .6s ease;
+  }
+  #topsel-section tr.row-gold .expo-bar-fill {
+    background:linear-gradient(90deg, #D97706 0%, #F59E0B 100%);
+  }
+  #topsel-section tr.row-silver .expo-bar-fill {
+    background:linear-gradient(90deg, #64748B 0%, #94A3B8 100%);
+  }
+  #topsel-section .expo-val { font-size:11px;font-weight:700;color:var(--gray);min-width:42px;text-align:right; }
+  #topsel-section tr.row-gold .expo-val { color:#92400E; }
+
+  /* 식단 구성 / 중요도 */
+  #topsel-section .plan-pill {
+    display:inline-block;padding:2px 8px;border-radius:10px;
+    font-size:11px;font-weight:700;
+    background:var(--navy-light);color:var(--navy);
+  }
+  #topsel-section tr.row-gold .plan-pill { background:#FEF3C7;color:#92400E; }
+  #topsel-section .star-rating { font-size:11px;letter-spacing:1px;color:#F59E0B; }
+  #topsel-section .star-dim { color:#E2E8F0; }
+
+  /* ── 질환케어 탭 ── */
+  #topsel-section .disease-tabs {
+    display:flex;gap:5px;background:var(--white);
+    border:1px solid var(--line);border-radius:10px;padding:4px;
+    width:fit-content;margin-bottom:14px;
+  }
+  #topsel-section .disease-tab {
+    padding:7px 18px;border-radius:7px;border:none;background:transparent;
+    color:var(--gray);font-family:inherit;font-size:13px;font-weight:600;
+    cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px;
+  }
+  #topsel-section .disease-tab:hover:not(.on) { color:var(--navy);background:var(--navy-light); }
+  #topsel-section .disease-tab.on { background:var(--navy);color:#fff;font-weight:700; }
+  #topsel-section .disease-tab .pill {
+    background:rgba(255,255,255,.3);padding:1px 7px;border-radius:10px;font-size:10px;font-weight:700;
+  }
+  #topsel-section .disease-tab:not(.on) .pill { background:var(--bg);color:var(--gray); }
+
+  #topsel-section .disease-page { display:none; }
+  #topsel-section .disease-page.on { display:block; }
+
+  /* 하이라이트 (검색) */
+  #topsel-section .hl { background:#FEF3C7;padding:0 2px;border-radius:2px;font-weight:800; }
+
+  @media(max-width:768px) {
+    #topsel-section .best-kpi-grid { grid-template-columns:repeat(2,1fr); }
+    #topsel-section .menu-table thead th:nth-child(4),
+    #topsel-section .menu-table tbody td:nth-child(4) { display:none; } /* 식단 구성 숨김 */
+  }
 </style>
 </head>
 <body>
@@ -571,7 +879,214 @@ html,body{
     </div>
   </section>
 
-  <!-- ===== 6. 핵심 고객 지표 (ARPU / ARPPU) ===== -->
+  <!-- ===== 베스트 메뉴 셀렉션 (Top Sel, index.html 이식) ===== -->
+  <section class="section" id="topsel-section">
+    <div class="section-title">
+      <div class="bar"></div>
+      <h2>베스트 메뉴 셀렉션 리스트</h2>
+      <div class="meta" id="topselMonthLabel">자사몰 선택형 메뉴 선호도 · Top Sel</div>
+      <button class="memo-add-btn" data-memo="topsel" title="메모 추가" type="button" style="margin-left:auto;">+</button>
+    </div>
+    <div class="memo-host" data-memo-host="topsel"></div>
+
+  <!-- Top Sel 본문 (index.html own-page-topsel 이식) -->
+  <div class="topsel-body">
+
+  <!-- Summary KPI (앞 2개: 필터에 따라 변경 / 뒤 2개: 고정) -->
+  <div class="best-kpi-grid">
+    <div class="best-kpi gold">
+      <div class="best-kpi-label">TOP 1 메뉴</div>
+      <div class="best-kpi-val" id="best-kpi-top1">–</div>
+      <div class="best-kpi-sub" id="best-kpi-top1-sub">–</div>
+    </div>
+    <div class="best-kpi bronze">
+      <div class="best-kpi-label">TOP 5 점유율</div>
+      <div class="best-kpi-val" id="best-kpi-share">–</div>
+      <div class="best-kpi-sub" id="best-kpi-share-sub">–</div>
+    </div>
+    <div class="best-kpi">
+      <div class="best-kpi-label">전체 건강케어 메뉴</div>
+      <div class="best-kpi-val" id="best-kpi-total">–</div>
+      <div class="best-kpi-sub">상위 20개 노출 중</div>
+    </div>
+    <div class="best-kpi silver">
+      <div class="best-kpi-label">평균 노출당 선택량</div>
+      <div class="best-kpi-val" id="best-kpi-avg-expo">–</div>
+      <div class="best-kpi-sub">건강케어 TOP 20</div>
+    </div>
+  </div>
+
+  <!-- 순위 기준 선택 영역 (강조) -->
+  <div class="best-sort-panel">
+    <div class="best-sort-panel-left">
+      <div class="best-sort-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <div class="best-sort-panel-text">
+        <div class="best-sort-panel-title">순위 기준 선택</div>
+        <div class="best-sort-panel-desc">선택한 기준으로 메뉴 순위가 매겨집니다</div>
+      </div>
+    </div>
+    <div class="best-sort-options">
+      <button class="best-sort-big active" data-sort="qty" onclick="bestSetSort('qty', this)">
+        <div class="best-sort-big-title">수량 순</div>
+        <div class="best-sort-big-sub">총 판매 수량이 많은 순</div>
+      </button>
+      <button class="best-sort-big" data-sort="expo" onclick="bestSetSort('expo', this)">
+        <div class="best-sort-big-title">노출당 순</div>
+        <div class="best-sort-big-sub">노출 대비 선택량이 높은 순</div>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════ 건강케어 ══════ -->
+  <div class="best-section-title" style="flex-wrap:wrap;gap:12px;align-items:center;">
+    <div class="best-section-icon" style="display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#17498F" stroke-width="2" width="16" height="16"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+    </div>
+    <div style="flex:1;min-width:0;">
+      <h3>건강케어</h3>
+      <p>식단 구성 수에 따른 노출당 선택량의 메뉴 선호도 분석</p>
+    </div>
+    <div class="best-section-badge" style="flex-shrink:0;">TOP 20</div>
+    <div class="best-health-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="best-search-input" placeholder="건강케어 메뉴 검색...">
+    </div>
+  </div>
+
+  <!-- TOP 5 (Gold) -->
+  <div class="tier-section" id="health-tier-gold">
+    <div class="tier-header gold">
+      <span class="tier-icon"></span>
+      <span>TOP 5 · 최상위 선호 메뉴</span>
+      <span class="tier-count">가장 핵심 메뉴</span>
+    </div>
+    <div class="tier-body gold">
+      <table class="menu-table">
+        <thead><tr>
+          <th style="width:52px">순위</th>
+          <th style="width:64px;text-align:center">전월 대비</th>
+          <th>메뉴명</th>
+          <th style="width:72px;text-align:right">수량</th>
+          <th style="width:90px;text-align:center">식단 구성</th>
+          <th style="width:200px">노출당 선택량</th>
+          <th style="width:90px;text-align:center">중요도</th>
+        </tr></thead>
+        <tbody id="health-body-gold"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TOP 6~10 (Silver) -->
+  <div class="tier-section" id="health-tier-silver">
+    <div class="tier-header silver">
+      <span class="tier-icon"></span>
+      <span>TOP 6~10 · 상위 메뉴</span>
+      <span class="tier-count">안정적 선호</span>
+    </div>
+    <div class="tier-body silver">
+      <table class="menu-table">
+        <thead><tr>
+          <th style="width:52px">순위</th>
+          <th style="width:64px;text-align:center">전월 대비</th>
+          <th>메뉴명</th>
+          <th style="width:72px;text-align:right">수량</th>
+          <th style="width:90px;text-align:center">식단 구성</th>
+          <th style="width:200px">노출당 선택량</th>
+          <th style="width:90px;text-align:center">중요도</th>
+        </tr></thead>
+        <tbody id="health-body-silver"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TOP 11~20 (Normal) -->
+  <div class="tier-section" id="health-tier-normal">
+    <div class="tier-header normal">
+      <span class="tier-icon"></span>
+      <span>TOP 11~20 · 기타 메뉴</span>
+      <span class="tier-count">관심 메뉴</span>
+    </div>
+    <div class="tier-body">
+      <table class="menu-table">
+        <thead><tr>
+          <th style="width:52px">순위</th>
+          <th style="width:64px;text-align:center">전월 대비</th>
+          <th>메뉴명</th>
+          <th style="width:72px;text-align:right">수량</th>
+          <th style="width:90px;text-align:center">식단 구성</th>
+          <th style="width:200px">노출당 선택량</th>
+          <th style="width:90px;text-align:center">중요도</th>
+        </tr></thead>
+        <tbody id="health-body-normal"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════ 질환케어 ══════ -->
+  <div class="best-section-title">
+    <div class="best-section-icon" style="background:var(--red-pale)"></div>
+    <div>
+      <h3>질환케어</h3>
+      <p>당뇨 · 신장 · 암 케어 메뉴별 선호도 TOP 10</p>
+    </div>
+    <div class="best-section-badge" style="background:var(--red)">TOP 10</div>
+  </div>
+
+  <!-- 질환 탭 -->
+  <div class="disease-tabs">
+    <button class="disease-tab on" onclick="bestSwDisease('dia', this)">당뇨케어</button>
+    <button class="disease-tab" onclick="bestSwDisease('kid', this)">신장케어</button>
+    <button class="disease-tab" onclick="bestSwDisease('can', this)">암케어</button>
+  </div>
+
+  <!-- 당뇨 -->
+  <div class="disease-page on" id="disease-dia">
+    <div class="tier-body" style="border-radius:10px;border:1px solid var(--line);">
+      <table class="menu-table">
+        <thead><tr>
+          <th style="width:52px">순위</th>
+          <th style="width:64px;text-align:center">전월 대비</th>
+          <th>메뉴명</th>
+          <th style="width:90px;text-align:right">수량</th>
+        </tr></thead>
+        <tbody id="dia-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 신장 -->
+  <div class="disease-page" id="disease-kid">
+    <div class="tier-body" style="border-radius:10px;border:1px solid var(--line);">
+      <table class="menu-table">
+        <thead><tr>
+          <th style="width:52px">순위</th>
+          <th style="width:64px;text-align:center">전월 대비</th>
+          <th>메뉴명</th>
+          <th style="width:90px;text-align:right">수량</th>
+        </tr></thead>
+        <tbody id="kid-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 암 -->
+  <div class="disease-page" id="disease-can">
+    <div class="tier-body" style="border-radius:10px;border:1px solid var(--line);">
+      <table class="menu-table">
+        <thead><tr>
+          <th style="width:52px">순위</th>
+          <th style="width:64px;text-align:center">전월 대비</th>
+          <th>메뉴명</th>
+          <th style="width:90px;text-align:right">수량</th>
+        </tr></thead>
+        <tbody id="can-body"></tbody>
+      </table>
+    </div>
+  </div>
+  </div><!-- topsel-body end -->
+  </section>
+
+  <!-- ===== 7. 핵심 고객 지표 (ARPU / ARPPU) ===== -->
   <section class="section">
     <div class="section-title">
       <div class="bar"></div>
@@ -724,7 +1239,10 @@ const initialData = {
     orders:      [0,0,0,0,3207,0,0,0,0,0,0,0],
     repeatBuyers:[0,0,0,0,1145,0,0,0,0,0,0,0],
     sales:       [0,0,0,0,380400000,0,0,0,0,0,0,0]
-  }
+  },
+  // 베스트 메뉴 셀렉션 (월별 스냅샷) — index 0~11, 미업로드 월은 null
+  // { healthTotal, health:[{name,qty,plans,expo,importance}], diabetes:[{name,qty}], kidney:[...], cancer:[...] }
+  bestMenu: Array(12).fill(null)
 };
 
 let data = JSON.parse(JSON.stringify(initialData));
@@ -780,13 +1298,14 @@ function mergeData(parsed){
   data.weekly   = parsed.weekly   || data.weekly;
   data.products = parsed.products || data.products;
   data.customer = parsed.customer || data.customer;
+  data.bestMenu = parsed.bestMenu || data.bestMenu;
 }
 async function saveDataToFirebase(fileName){
   if(!firebaseReady){ setSyncStatus('로컬 모드 (서버 저장 안 됨)','err'); return false; }
   setSyncStatus('서버 저장 중…','busy');
   try{
     await db.collection(FS_COLLECTION).doc(FS_DOC_ID).set({
-      payload: JSON.stringify({monthly:data.monthly,daily:data.daily,weekly:data.weekly,products:data.products,customer:data.customer}),
+      payload: JSON.stringify({monthly:data.monthly,daily:data.daily,weekly:data.weekly,products:data.products,customer:data.customer,bestMenu:data.bestMenu}),
       fileName: fileName||'', updatedAt: Date.now()
     });
     setSyncStatus('서버 저장 완료','ok'); return true;
@@ -1202,6 +1721,194 @@ function renderProductTable(){
   foot.innerHTML=ft;
 }
 
+/* ---------- 5-1. 베스트 메뉴 셀렉션 (Top Sel, index.html 이식) ----------
+ * data.bestMenu[monthIndex] = { year, healthTotal, health:[{name,qty,plans,expo,importance}],
+ *                                diabetes:[{name,qty}], kidney:[...], cancer:[...] } | null
+ * 전월 순위(prevRank)는 저장하지 않고, 직전 달 스냅샷과 비교해 렌더 시점에 계산합니다.
+ * ------------------------------------------------------------------------ */
+let bestSortMode = 'qty';      // 'qty' | 'expo'
+let bestSearchQuery = '';
+
+function bestFmtNum(n){ return (n||0).toLocaleString('ko-KR'); }
+function bestStars(level){
+  const lv=Math.max(1,Math.min(4,level||1));
+  const full='★'.repeat(lv), dim='★'.repeat(4-lv);
+  return `<span class="star-rating">${full}<span class="star-dim">${dim}</span></span>`;
+}
+function bestEscapeReg(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+function bestHighlight(text, query){
+  if(!query) return text;
+  const re=new RegExp('('+bestEscapeReg(query)+')','gi');
+  return text.replace(re,'<span class="hl">$1</span>');
+}
+function bestChgBadge(currentRank, prevRank){
+  if(prevRank===null||prevRank===undefined) return `<span class="chg-badge new" title="전월 데이터 없음">–</span>`;
+  const diff=prevRank-currentRank;
+  if(diff===0) return `<span class="chg-badge same" title="전월과 동일 순위">−</span>`;
+  if(diff>0)  return `<span class="chg-badge up" title="${diff}단계 상승"><span class="chg-arrow">▲</span>${diff}</span>`;
+  return `<span class="chg-badge down" title="${-diff}단계 하락"><span class="chg-arrow">▼</span>${-diff}</span>`;
+}
+// 이전 달 스냅샷(qty 내림차순)으로 메뉴명→순위 맵 생성
+function bestPrevRankMap(prevArr){
+  const map={};
+  if(!prevArr) return map;
+  [...prevArr].sort((a,b)=>(b.qty||0)-(a.qty||0)).forEach((m,i)=>{ map[m.name]=i+1; });
+  return map;
+}
+
+function bestRenderHealth(cur, prevMap){
+  const list = cur && cur.health ? cur.health : [];
+  const goldEl=document.getElementById('health-body-gold');
+  const silverEl=document.getElementById('health-body-silver');
+  const normalEl=document.getElementById('health-body-normal');
+  if(!list.length){
+    if(goldEl) goldEl.innerHTML=`<tr><td colspan="7" style="text-align:center;color:var(--gray);padding:32px;">엑셀 파일을 업로드하면 데이터가 표시됩니다</td></tr>`;
+    if(silverEl) silverEl.innerHTML='';
+    if(normalEl) normalEl.innerHTML='';
+    return;
+  }
+  const q=bestSearchQuery.trim().toLowerCase();
+  const searching=q.length>0;
+  const sortKey=bestSortMode==='expo'?'expo':'qty';
+  const ranked=[...list].sort((a,b)=>(b[sortKey]||0)-(a[sortKey]||0))
+    .map((m,i)=>({ ...m, dynamicRank:i+1, prevRank: prevMap[m.name]!==undefined?prevMap[m.name]:null }));
+  const maxExpo=Math.max(...list.map(m=>m.expo||0), 1);
+  const display = searching ? ranked.filter(m=>m.name.toLowerCase().includes(q)) : ranked;
+
+  const rowHtml=(m)=>{
+    const rowCls  = m.dynamicRank<=5?'row-gold':m.dynamicRank<=10?'row-silver':'';
+    const rankCls = m.dynamicRank<=5?'gold':m.dynamicRank<=10?'silver':'';
+    const pct=((m.expo||0)/maxExpo)*100;
+    return `<tr class="${rowCls}">
+      <td><span class="rank-b ${rankCls}">${m.dynamicRank}</span></td>
+      <td style="text-align:center">${bestChgBadge(m.dynamicRank,m.prevRank)}</td>
+      <td><span class="menu-name">${bestHighlight(m.name,bestSearchQuery)}</span></td>
+      <td style="text-align:right"><span class="qty-val">${bestFmtNum(m.qty)}</span></td>
+      <td style="text-align:center"><span class="plan-pill">${m.plans||0}</span></td>
+      <td><div class="expo-cell"><div class="expo-bar-wrap"><div class="expo-bar-fill" style="width:${pct}%"></div></div><span class="expo-val">${m.expo||0}</span></div></td>
+      <td style="text-align:center">${bestStars(m.importance)}</td>
+    </tr>`;
+  };
+
+  const goldSec=document.getElementById('health-tier-gold');
+  const silverSec=document.getElementById('health-tier-silver');
+  const normalSec=document.getElementById('health-tier-normal');
+  const sortLabel = sortKey==='qty' ? '수량' : '노출당 선택량';
+
+  if(searching){
+    goldEl.innerHTML = display.length
+      ? display.map(rowHtml).join('')
+      : `<tr><td colspan="7" style="text-align:center;color:var(--gray);padding:24px;">검색 결과가 없습니다</td></tr>`;
+    silverSec.style.display='none';
+    normalSec.style.display='none';
+    goldSec.querySelector('.tier-header span:nth-of-type(2)').textContent=` '${bestSearchQuery}' 검색 결과`;
+    goldSec.querySelector('.tier-count').textContent=`${display.length}개`;
+  } else {
+    silverSec.style.display='';
+    normalSec.style.display='';
+    goldSec.querySelector('.tier-header span:nth-of-type(2)').textContent=`TOP 5 · 최상위 선호 메뉴 (${sortLabel} 기준)`;
+    goldSec.querySelector('.tier-count').textContent='가장 핵심 메뉴';
+    silverSec.querySelector('.tier-header span:nth-of-type(2)').textContent='TOP 6~10 · 상위 메뉴';
+    normalSec.querySelector('.tier-header span:nth-of-type(2)').textContent='TOP 11~20 · 기타 메뉴';
+    goldEl.innerHTML   = display.filter(m=>m.dynamicRank<=5).map(rowHtml).join('');
+    silverEl.innerHTML = display.filter(m=>m.dynamicRank>5&&m.dynamicRank<=10).map(rowHtml).join('');
+    normalEl.innerHTML = display.filter(m=>m.dynamicRank>10).map(rowHtml).join('');
+  }
+}
+
+function bestRenderDiseaseList(key, list, prevMap){
+  const body=document.getElementById(key+'-body');
+  if(!body) return;
+  const q=bestSearchQuery.trim().toLowerCase();
+  const ranked=[...(list||[])].sort((a,b)=>(b.qty||0)-(a.qty||0))
+    .map((m,i)=>({ ...m, dynamicRank:i+1, prevRank: prevMap[m.name]!==undefined?prevMap[m.name]:null }));
+  const filtered = q ? ranked.filter(m=>m.name.toLowerCase().includes(q)) : ranked;
+
+  if(!filtered.length){
+    body.innerHTML=`<tr><td colspan="4" style="text-align:center;color:var(--gray);padding:24px;">${(list&&list.length)?'검색 결과가 없습니다':'엑셀 파일을 업로드하면 데이터가 표시됩니다'}</td></tr>`;
+    return;
+  }
+  body.innerHTML = filtered.map(m=>{
+    const rankCls = m.dynamicRank<=3?'bronze':'';
+    return `<tr>
+      <td><span class="rank-b ${rankCls}">${m.dynamicRank}</span></td>
+      <td style="text-align:center">${bestChgBadge(m.dynamicRank,m.prevRank)}</td>
+      <td><span class="menu-name">${bestHighlight(m.name,bestSearchQuery)}</span></td>
+      <td style="text-align:right"><span class="qty-val">${bestFmtNum(m.qty)}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function bestRenderKpi(cur){
+  const list = cur && cur.health ? cur.health : [];
+  if(!list.length){
+    ['best-kpi-top1','best-kpi-top1-sub','best-kpi-avg-expo','best-kpi-share','best-kpi-share-sub'].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.textContent='–';
+    });
+    const totalEl=document.getElementById('best-kpi-total'); if(totalEl) totalEl.textContent='–';
+    return;
+  }
+  const sortKey=bestSortMode==='expo'?'expo':'qty';
+  const ranked=[...list].sort((a,b)=>(b[sortKey]||0)-(a[sortKey]||0));
+  const top1=ranked[0];
+
+  document.getElementById('best-kpi-top1').textContent=top1.name;
+  const sortLabel=sortKey==='qty'?'수량순':'노출당순';
+  document.getElementById('best-kpi-top1-sub').textContent=`${sortLabel} 1위 · 수량 ${bestFmtNum(top1.qty)} · 노출당 ${top1.expo||0}`;
+  document.getElementById('best-kpi-total').textContent=(cur.healthTotal||0)+'개';
+
+  const avgExpo=Math.round(list.reduce((s,m)=>s+(m.expo||0),0)/list.length);
+  document.getElementById('best-kpi-avg-expo').textContent=avgExpo;
+
+  const top5=ranked.slice(0,5).reduce((s,m)=>s+(m[sortKey]||0),0);
+  const total=ranked.reduce((s,m)=>s+(m[sortKey]||0),0);
+  document.getElementById('best-kpi-share').textContent=(total?(top5/total*100).toFixed(1):'0.0')+'%';
+  document.getElementById('best-kpi-share-sub').textContent = sortKey==='qty' ? '총 수량 기준' : '총 노출당 선택량 기준';
+}
+
+function bestSetSort(mode, btn){
+  bestSortMode=mode;
+  document.querySelectorAll('#topsel-section .best-sort-big').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBestMenu();
+}
+function bestSwDisease(key, btn){
+  document.querySelectorAll('#topsel-section .disease-tab').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('#topsel-section .disease-page').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('disease-'+key).classList.add('on');
+}
+
+// 선택된 연/월(data.currentMonthIndex) 기준으로 베스트 메뉴 셀렉션 전체 렌더
+function renderBestMenu(){
+  const mi = data.currentMonthIndex;
+  const cur  = data.bestMenu[mi];
+  const prev = mi>0 ? data.bestMenu[mi-1] : null;
+
+  const label=document.getElementById('topselMonthLabel');
+  if(label){
+    label.textContent = cur
+      ? `${MONTHS[mi]} 기준 · 건강케어 TOP 20 · 질환케어 TOP 10`
+      : `${MONTHS[mi]} 데이터 없음 — 엑셀 업로드 대기 중`;
+  }
+
+  bestRenderKpi(cur);
+  bestRenderHealth(cur, bestPrevRankMap(prev && prev.health));
+  bestRenderDiseaseList('dia', cur && cur.diabetes, bestPrevRankMap(prev && prev.diabetes));
+  bestRenderDiseaseList('kid', cur && cur.kidney,   bestPrevRankMap(prev && prev.kidney));
+  bestRenderDiseaseList('can', cur && cur.cancer,   bestPrevRankMap(prev && prev.cancer));
+}
+
+// 건강케어 메뉴 검색 (1회 바인딩)
+(function bestBindSearch(){
+  const input=document.getElementById('best-search-input');
+  if(!input) return;
+  input.addEventListener('input', e=>{
+    bestSearchQuery=e.target.value;
+    renderBestMenu();
+  });
+})();
+
 /* ---------- 6. 핵심 고객 지표 (ARPU/ARPPU) ---------- */
 let arpuChart=null;
 function renderCustomer(){
@@ -1314,6 +2021,7 @@ function renderAll(){
   renderDailyChart();
   renderWeeklyChart();
   renderProductTable();
+  renderBestMenu();
   renderCustomer();
   renderCalendar();
 }
@@ -1429,6 +2137,29 @@ function parseExcel(wb){
       data.customer[key]=arr;
     });
   }
+  // 6) 베스트 메뉴 셀렉션 (⭐ 베스트메뉴 — 월별 스냅샷, 해당 월 1개 시트 = 1개월치 랭킹)
+  sn=wb.SheetNames.find(n=>n.includes('베스트'));
+  if(sn){
+    const rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:0});
+    const infoRow=rows.find(r=>r&&String(r[0]).trim()==='연도');
+    const yr=infoRow?num(infoRow[1]):0;
+    const mo=infoRow?num(infoRow[3]):0;
+    const healthTotal=infoRow?num(infoRow[5]):0;
+    const hi=rows.findIndex(r=>r&&String(r[0]).trim()==='구분');
+    if(hi>=0 && mo>=1 && mo<=12){
+      const health=[],diabetes=[],kidney=[],cancer=[];
+      for(let i=hi+1;i<rows.length;i++){
+        const r=rows[i]; if(!r||!r[0]||!r[1]) continue;
+        const cat=String(r[0]).trim(), name=String(r[1]).trim();
+        const qty=num(r[2]), plans=num(r[3]), expo=num(r[4]), imp=num(r[5])||1;
+        if(cat.includes('건강'))      health.push({name,qty,plans,expo,importance:imp});
+        else if(cat.includes('당뇨')) diabetes.push({name,qty});
+        else if(cat.includes('신장')) kidney.push({name,qty});
+        else if(cat.includes('암'))   cancer.push({name,qty});
+      }
+      data.bestMenu[mo-1] = { year:yr||null, healthTotal, health, diabetes, kidney, cancer };
+    }
+  }
 }
 
 document.getElementById('downloadTemplate').addEventListener('click', ()=>{
@@ -1446,8 +2177,11 @@ document.getElementById('downloadTemplate').addEventListener('click', ()=>{
     ['  3. 주차별 실적     : WK, 기간, 매출(만원), 유입(명), 전환율(%)'],
     ['  4. 상품별 상세     : 카테고리/상품명 + 월별(조회·구매·전환율·매출). 5월부터 입력'],
     ['  5. 고객 지표       : 월별 방문자/구매자/신규/재방문/주문/재구매/매출(원)'],
+    ['  6. ⭐ 베스트메뉴   : 베스트 메뉴 셀렉션 TOP 랭킹. 1개 시트 = 1개월 스냅샷'],
     [],
-    ['◾ 전환율은 1.6 처럼 % 숫자로 입력하세요. (상품별 시트는 0.016 또는 1.6 모두 인식)']
+    ['◾ 전환율은 1.6 처럼 % 숫자로 입력하세요. (상품별 시트는 0.016 또는 1.6 모두 인식)'],
+    ['◾ ⭐ 베스트메뉴 시트는 시트 상단의 연도/월 값을 기준으로 해당 월 데이터만 갱신됩니다.'],
+    ['   다른 달 데이터를 함께 올리려면 시트를 복제해 연도/월만 바꾼 뒤 시트명에 "베스트"가 들어가게 저장하세요.']
   ];
   const ws0=XLSX.utils.aoa_to_sheet(guide); ws0['!cols']=[{wch:86}];
   XLSX.utils.book_append_sheet(wb,ws0,'안내');
@@ -1496,6 +2230,40 @@ document.getElementById('downloadTemplate').addEventListener('click', ()=>{
   const ws5=XLSX.utils.aoa_to_sheet(cRows); ws5['!cols']=[{wch:14},...Array(12).fill({wch:13})];
   XLSX.utils.book_append_sheet(wb,ws5,'고객 지표');
 
+  // 6. ⭐ 베스트메뉴 (베스트 메뉴 셀렉션 — 1시트 = 현재 선택 월 스냅샷)
+  const bmSel = data.bestMenu[data.currentMonthIndex];
+  const bmYear = parseInt(document.getElementById('selectYear').value)||2026;
+  const bmMonth = data.currentMonthIndex+1;
+  const bRows=[
+    ['⭐ 베스트메뉴 업로드 양식 — A:구분 B:메뉴명 C:수량 D:식단구성수 E:노출당선택량 F:중요도(1~4) · 1시트=1개월 스냅샷'],
+    [],
+    ['연도', bmYear, '월', bmMonth, '건강케어 전체 메뉴 수', (bmSel&&bmSel.healthTotal)||0],
+    [],
+    ['구분','메뉴명','수량','식단구성수','노출당선택량','중요도(1~4)']
+  ];
+  if(bmSel && bmSel.health && bmSel.health.length){
+    bmSel.health.forEach(m=>bRows.push(['건강케어', m.name, m.qty||0, m.plans||0, m.expo||0, m.importance||1]));
+    (bmSel.diabetes||[]).forEach(m=>bRows.push(['당뇨케어', m.name, m.qty||0, '', '', '']));
+    (bmSel.kidney||[]).forEach(m=>bRows.push(['신장케어', m.name, m.qty||0, '', '', '']));
+    (bmSel.cancer||[]).forEach(m=>bRows.push(['암케어', m.name, m.qty||0, '', '', '']));
+  } else {
+    // 작성 예시 (샘플)
+    bRows.push(
+      ['건강케어','저속노화 현미채식도시락',482,3,24.1,4],
+      ['건강케어','장조림계란비빔밥',451,2,22.6,4],
+      ['건강케어','치킨커리라이스',398,2,19.9,3],
+      ['건강케어','연어스테이크샐러드',377,3,18.9,4],
+      ['건강케어','두부면팟타이',340,2,17.0,3],
+      ['당뇨케어','당뇨식 잡곡비빔밥',210,'','',''],
+      ['당뇨케어','저당 닭가슴살 샐러드',188,'','',''],
+      ['신장케어','저염 두부조림 정식',150,'','',''],
+      ['암케어','고단백 연어스테이크',132,'','','']
+    );
+  }
+  const ws6=XLSX.utils.aoa_to_sheet(bRows);
+  ws6['!cols']=[{wch:12},{wch:26},{wch:9},{wch:12},{wch:14},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws6,'⭐ 베스트메뉴');
+
   XLSX.writeFile(wb,'brand_data_template.xlsx');
 });
 
@@ -1503,7 +2271,7 @@ document.getElementById('downloadTemplate').addEventListener('click', ()=>{
  *  메모(코멘트) 시스템 — 항목별 입력/수정/삭제 · 볼드/밑줄
  * ========================================================= */
 let memoData={};       // { key: html }
-const MEMO_LABEL={cal:'브랜드몰 프로모션 캘린더',overview:'전체 매출 현황',daily:'일자별 매출 현황',weekly:'주차별 매출 현황',product:'상품별 상세 현황',customer:'핵심 고객 지표'};
+const MEMO_LABEL={cal:'브랜드몰 프로모션 캘린더',overview:'전체 매출 현황',daily:'일자별 매출 현황',weekly:'주차별 매출 현황',product:'상품별 상세 현황',topsel:'베스트 메뉴 셀렉션',customer:'핵심 고객 지표'};
 
 function memoHost(key){ return document.querySelector(`.memo-host[data-memo-host="${key}"]`); }
 function renderMemoView(key){
