@@ -2,6 +2,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -2938,6 +2939,14 @@ function calBindUI(){
     box-shadow:-8px 8px 26px rgba(15,23,42,.26); filter:brightness(1.05);
   }
   .fnav-growth{ background:#17498F; }
+  .fnav-growth.is-disabled{
+    background:#9E9E9E; cursor:not-allowed; pointer-events:none;
+    box-shadow:-5px 6px 20px rgba(15,23,42,.10); filter:none;
+  }
+  .fnav-growth.is-disabled:hover{
+    padding-right:8px; transform:none;
+    box-shadow:-5px 6px 20px rgba(15,23,42,.10); filter:none;
+  }
   @media (max-width:768px){
     .fnav-btn{ width:60px; padding:12px 6px; border-radius:13px 0 0 13px; font-size:12px; }
     .fnav-btn svg{ width:18px; height:18px; }
@@ -2945,9 +2954,12 @@ function calBindUI(){
 </style>
 
 <div class="floating-nav" role="navigation" aria-label="Growth 대시보드 바로가기">
-  <a class="fnav-btn fnav-growth"
+  <a class="fnav-btn fnav-growth is-disabled"
      href="https://memeiss.github.io/growth-dashboard"
-     title="Growth 통합 매출 대시보드로 이동">
+     title="현재 이용할 수 없습니다"
+     aria-disabled="true"
+     tabindex="-1"
+     onclick="return false;">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M3 17l6-6 4 4 7-7"/><path d="M17 7h4v4"/>
