@@ -3,6 +3,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -180,6 +181,31 @@ html,body{
 .chip{border:1px solid var(--line);background:var(--white);padding:5px 12px;font-size:12px;font-weight:600;color:var(--gray);border-radius:6px;cursor:pointer;font-family:inherit;transition:all .15s;}
 .chip:hover{border-color:var(--navy);color:var(--navy);}
 .chip.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+
+/* ===== 상품별 TOP3 카드 (매출 기준) ===== */
+.prod-top3-wrap{margin-bottom:18px;}
+.prod-top3-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
+.prod-top3-head h3{font-size:15px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:8px;}
+.prod-top3-badge{font-size:10px;font-weight:700;color:var(--navy);background:var(--navy-light);padding:3px 9px;border-radius:20px;letter-spacing:.2px;}
+.prod-top3-month{font-size:12px;color:var(--gray);font-weight:600;}
+.prod-top3-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.prod-top3-card{position:relative;background:var(--white);border:1px solid var(--line);border-radius:12px;padding:20px 20px 18px;overflow:hidden;}
+.prod-top3-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--navy-pale);}
+.prod-top3-card.rank-1::before{background:#F59E0B;}
+.prod-top3-card.rank-2::before{background:#94A3B8;}
+.prod-top3-card.rank-3::before{background:#D97706;}
+.prod-top3-rank{position:absolute;top:14px;right:18px;font-size:26px;font-weight:800;color:var(--navy-pale);letter-spacing:-1px;line-height:1;}
+.prod-top3-card.rank-1 .prod-top3-rank{color:#F59E0B;}
+.prod-top3-card.rank-2 .prod-top3-rank{color:#94A3B8;}
+.prod-top3-card.rank-3 .prod-top3-rank{color:#D97706;}
+.prod-top3-cat{margin-bottom:9px;}
+.prod-top3-name{font-size:15px;font-weight:800;color:var(--text);line-height:1.35;margin-bottom:16px;padding-right:36px;min-height:40px;}
+.prod-top3-metrics{display:flex;flex-direction:column;gap:10px;padding-top:14px;border-top:1px dashed var(--line-2);}
+.p3-metric{display:flex;align-items:baseline;justify-content:space-between;}
+.p3-metric-label{font-size:11.5px;color:var(--gray);font-weight:600;}
+.p3-metric-val{font-size:16px;font-weight:800;color:var(--navy);}
+.p3-metric-val .u{font-size:11px;font-weight:600;color:var(--gray);margin-left:2px;}
+@media (max-width:900px){ .prod-top3-grid{grid-template-columns:1fr;} }
 
 /* ===== 상품별 상세 테이블 ===== */
 .prod-table-wrap{overflow-x:auto;}
@@ -891,6 +917,14 @@ html,body{
       <button class="memo-add-btn" data-memo="product" title="메모 추가" type="button" style="margin-left:auto;">+</button>
     </div>
     <div class="memo-host" data-memo-host="product"></div>
+
+    <div class="prod-top3-wrap">
+      <div class="prod-top3-head">
+        <h3>TOP 3 식단 <span class="prod-top3-badge">매출 기준</span></h3>
+        <div class="prod-top3-month" id="prodTop3Month">–</div>
+      </div>
+      <div class="prod-top3-grid" id="prodTop3Grid"></div>
+    </div>
 
     <div class="card">
       <div class="prod-table-wrap">
@@ -1651,15 +1685,18 @@ function renderProductTable(){
   const body=document.getElementById('prodBody');
   const foot=document.getElementById('prodFoot');
 
+  // 월 표시 순서: 최근월 → 과거월 역순 (예: 6월 > 5월 > 4월 > 3월 ...)
+  const monthOrder=[]; for(let i=NM-1;i>=0;i--) monthOrder.push(i);
+
   // 헤더
   let h1=`<tr><th rowspan="2" class="stick c1" style="text-align:left;">카테고리</th><th rowspan="2" class="stick c2" style="text-align:left;">상품명 (식단)</th>`;
   // 종합(전체) 데이터 — 카테고리 대비까지 틀고정
   h1+=`<th rowspan="2" class="stick c3">합계<br>매출(만)</th><th rowspan="2" class="stick c4">합계<br>조회</th><th rowspan="2" class="stick c5">합계 CVR</th><th rowspan="2" class="stick c6 msep">카테고리<br>대비</th>`;
-  // 월별
-  for(let i=0;i<NM;i++){ h1+=`<th colspan="4" class="${i<NM-1?'msep':''}">${i+1}월</th>`; }
+  // 월별 (역순)
+  for(let pos=0;pos<monthOrder.length;pos++){ const i=monthOrder[pos]; h1+=`<th colspan="4" class="${pos<monthOrder.length-1?'msep':''}">${i+1}월</th>`; }
   h1+=`</tr>`;
   let h2='<tr>';
-  for(let i=0;i<NM;i++){ const sep=i<NM-1?' msep':''; h2+=`<th>조회</th><th>구매</th><th>전환율</th><th class="${sep}">매출</th>`; }
+  for(let pos=0;pos<monthOrder.length;pos++){ const sep=pos<monthOrder.length-1?' msep':''; h2+=`<th>조회</th><th>구매</th><th>전환율</th><th class="${sep}">매출</th>`; }
   h2+='</tr>';
   head.innerHTML=h1+h2;
 
@@ -1681,13 +1718,15 @@ function renderProductTable(){
   data.products.forEach(p=>{
     if(p.cat!==lastCat){ html+=`<tr class="row-cat"><td colspan="${2+NM*4+4}" class="stick c1">${p.cat}</td></tr>`; lastCat=p.cat; }
     let tView=0,tBuy=0,tSales=0;
-    // 월별 셀을 먼저 만들면서 합계 누적
+    // 합계는 월 순서와 무관하게 전체 누적
+    for(let i=0;i<NM;i++){ const mm=p.m[i]||[0,0,0,0]; tView+=mm[0]||0; tBuy+=mm[1]||0; tSales+=mm[3]||0; }
+    // 월별 셀은 역순(최근월 → 과거월)으로 표시
     let monthCells='';
-    for(let i=0;i<NM;i++){
+    for(let pos=0;pos<monthOrder.length;pos++){
+      const i=monthOrder[pos];
       const mm=p.m[i]||[0,0,0,0];
       const [v,b,c,s]=mm;
-      tView+=v||0; tBuy+=b||0; tSales+=s||0;
-      const sep=i<NM-1?' msep':'';
+      const sep=pos<monthOrder.length-1?' msep':'';
       monthCells+=`<td>${fmtN(v)}</td><td>${fmtN(b)}</td><td>${fmtP(c)}</td><td class="${sep}">${s>0?Math.round(s).toLocaleString('ko-KR'):'—'}</td>`;
     }
     const totCvr=tView>0?tBuy/tView:0;
@@ -1711,15 +1750,61 @@ function renderProductTable(){
   let ft=`<tr><td colspan="2" class="stick c1" style="text-align:left;">전체 합계</td>`;
   // 종합(전체) 데이터 — 카테고리 대비까지 틀고정
   ft+=`<td class="stick c3">${Math.round(foots.sales).toLocaleString('ko-KR')}</td><td class="stick c4">${fmtN(foots.view)}</td><td class="stick c5">${fmtP(fCvr)}</td><td class="stick c6 msep">—</td>`;
-  // 월별
-  for(let i=0;i<NM;i++){
+  // 월별 (역순)
+  for(let pos=0;pos<monthOrder.length;pos++){
+    const i=monthOrder[pos];
     let mv=0,mb=0,ms=0;
     data.products.forEach(p=>{ const mm=p.m[i]||[0,0,0,0]; mv+=mm[0]||0; mb+=mm[1]||0; ms+=mm[3]||0; });
-    const mc=mv>0?mb/mv:0; const sep=i<NM-1?' msep':'';
+    const mc=mv>0?mb/mv:0; const sep=pos<monthOrder.length-1?' msep':'';
     ft+=`<td>${fmtN(mv)}</td><td>${fmtN(mb)}</td><td>${fmtP(mc)}</td><td class="${sep}">${ms>0?Math.round(ms).toLocaleString('ko-KR'):'—'}</td>`;
   }
   ft+=`</tr>`;
   foot.innerHTML=ft;
+}
+
+/* ---------- 5-0. 상품별 TOP3 카드 (매출 기준) ----------
+ * 상품별 상세 테이블에서 가장 최근 데이터가 있는 월(해당월)을 기준으로
+ * 매출 상위 3개 식단을 카드로 보여준다. (매출액 / 비중 / 전환율)
+ * -------------------------------------------------------------------- */
+function renderProdTop3Cards(){
+  const NM=maxMonthWithData();
+  const idx=NM-1; // 해당월(가장 최근 데이터가 있는 월), 0-indexed
+  const grid=document.getElementById('prodTop3Grid');
+  const monthLbl=document.getElementById('prodTop3Month');
+  if(!grid) return;
+  if(monthLbl) monthLbl.textContent=`${MONTHS[idx]} 매출 기준`;
+
+  let totalSales=0;
+  const rows=data.products.map(p=>{
+    const mm=p.m[idx]||[0,0,0,0];
+    const [v,b,c,s]=mm;
+    totalSales+=s||0;
+    return {cat:p.cat,name:p.name,sales:s||0,cvr:c||0};
+  }).filter(r=>r.sales>0);
+
+  rows.sort((a,b)=>b.sales-a.sales);
+  const top3=rows.slice(0,3);
+
+  if(top3.length===0){
+    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;color:var(--gray);font-size:13px;padding:30px 0;">표시할 매출 데이터가 없습니다.</div>`;
+    return;
+  }
+
+  const fmtN=v=>Math.round(v).toLocaleString('ko-KR');
+  grid.innerHTML=top3.map((r,i)=>{
+    const rank=i+1;
+    const share=totalSales>0?(r.sales/totalSales*100):0;
+    return `<div class="prod-top3-card rank-${rank}">
+      <div class="prod-top3-rank">${rank}</div>
+      <div class="prod-top3-cat"><span class="cat-tag ${CAT_CLS[r.cat]||'cat-other'}">${r.cat}</span></div>
+      <div class="prod-top3-name">${r.name}</div>
+      <div class="prod-top3-metrics">
+        <div class="p3-metric"><div class="p3-metric-label">매출액</div><div class="p3-metric-val">${fmtN(r.sales)}<span class="u">만원</span></div></div>
+        <div class="p3-metric"><div class="p3-metric-label">비중</div><div class="p3-metric-val">${share.toFixed(1)}<span class="u">%</span></div></div>
+        <div class="p3-metric"><div class="p3-metric-label">전환율</div><div class="p3-metric-val">${(r.cvr*100).toFixed(1)}<span class="u">%</span></div></div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 /* ---------- 5-1. 베스트 메뉴 셀렉션 (Top Sel, index.html 이식) ----------
@@ -2020,6 +2105,7 @@ function renderAll(){
   renderDailyChart();
   renderWeeklyChart();
   renderProductTable();
+  renderProdTop3Cards();
   renderBestMenu();
   renderCustomer();
   renderCalendar();
