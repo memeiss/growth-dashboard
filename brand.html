@@ -4,6 +4,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -188,7 +189,7 @@ html,body{
 .prod-top3-head h3{font-size:15px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:8px;}
 .prod-top3-badge{font-size:10px;font-weight:700;color:var(--navy);background:var(--navy-light);padding:3px 9px;border-radius:20px;letter-spacing:.2px;}
 .prod-top3-month{font-size:12px;color:var(--gray);font-weight:600;}
-.prod-top3-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.prod-top3-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
 .prod-top3-card{position:relative;background:var(--white);border:1px solid var(--line);border-radius:12px;padding:20px 20px 18px;overflow:hidden;}
 .prod-top3-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--navy-pale);}
 .prod-top3-card.rank-1::before{background:#F59E0B;}
@@ -205,7 +206,47 @@ html,body{
 .p3-metric-label{font-size:11.5px;color:var(--gray);font-weight:600;}
 .p3-metric-val{font-size:16px;font-weight:800;color:var(--navy);}
 .p3-metric-val .u{font-size:11px;font-weight:600;color:var(--gray);margin-left:2px;}
-@media (max-width:900px){ .prod-top3-grid{grid-template-columns:1fr;} }
+@media (max-width:1100px){ .prod-top3-grid{grid-template-columns:repeat(2,1fr);} }
+@media (max-width:640px){ .prod-top3-grid{grid-template-columns:1fr;} }
+
+/* ── 건강케어·질환케어 매출 비중 통합 카드 (TOP3와 한 줄에 배치) ── */
+.prod-cat-combined{display:flex;flex-direction:column;padding:18px 20px 16px;}
+.prod-cat-combined::before{background:linear-gradient(to right,var(--navy) 50%,var(--navy-pale) 50%);}
+.cat-combined-block{padding:2px 0;}
+.cat-combined-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;gap:8px;}
+.cat-combined-share{font-size:21px;font-weight:800;color:var(--navy);line-height:1;}
+.cat-combined-share .u{font-size:12px;font-weight:600;color:var(--gray);margin-left:2px;}
+.cat-combined-sales{margin-top:5px;font-size:11px;color:var(--gray);}
+.cat-combined-divider{border-top:1px dashed var(--line-2);margin:12px 0 11px;}
+.prod-cat-summary-mom{display:flex;align-items:center;gap:6px;}
+.prod-cat-summary-mom-label{font-size:10.5px;color:var(--gray);font-weight:600;}
+
+/* ── 증감(전월비) 공통 표시: 상승/하락/신규/변동없음 ── */
+.mom-pos{color:#178A52;background:rgba(23,138,82,.09);}
+.mom-neg{color:var(--red);background:var(--red-pale);}
+.mom-zero{color:var(--gray);background:var(--surface2);}
+.mom-new{color:var(--navy);background:var(--navy-light);}
+
+/* ===== 판매 순위 TOP 10 / BOTTOM 10 ===== */
+.prod-rank-wrap{margin-bottom:20px;}
+.prod-rank-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.prod-rank-card{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:18px 20px 14px;}
+.prod-rank-card-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.prod-rank-card-head h4{font-size:14px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:7px;}
+.prod-rank-card-head h4::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--navy);display:inline-block;}
+.prod-rank-card.bottom .prod-rank-card-head h4::before{background:var(--gray);}
+.prod-rank-month{font-size:11px;color:var(--gray);font-weight:600;}
+.prod-rank-table{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums;}
+.prod-rank-table th{font-size:10px;font-weight:700;color:var(--gray);letter-spacing:.2px;text-align:right;padding:6px 6px;background:var(--surface2);border-bottom:2px solid var(--line-2);white-space:nowrap;}
+.prod-rank-table th:first-child,.prod-rank-table th:nth-child(2){text-align:left;}
+.prod-rank-table td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;}
+.prod-rank-table td:first-child,.prod-rank-table td:nth-child(2){text-align:left;}
+.prod-rank-table tbody tr:hover td{background:var(--surface2);}
+.prod-rank-num{display:inline-flex;align-items:center;justify-content:center;min-width:18px;font-weight:800;color:var(--navy-mid);}
+.prod-rank-name{font-weight:700;color:var(--text);}
+.rank-chg{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10.5px;font-weight:700;}
+.rank-amt{margin-left:4px;font-size:10.5px;color:var(--gray);}
+@media (max-width:900px){ .prod-rank-grid{grid-template-columns:1fr;} }
 
 /* ===== 상품별 상세 테이블 ===== */
 .prod-table-wrap{overflow-x:auto;}
@@ -225,10 +266,7 @@ html,body{
 .cat-sub    {background:var(--cream);color:var(--navy);border:1px solid var(--cream-d);}
 .cat-dawn   {background:var(--surface2);color:var(--gray);border:1px solid var(--line);}
 .cat-other  {background:#F0F0EC;color:var(--gray);}
-.cvr-wrap{display:flex;align-items:center;gap:6px;justify-content:flex-end;}
-.cvr-bg{width:50px;height:6px;background:var(--surface2);border-radius:99px;overflow:hidden;flex-shrink:0;}
-.cvr-fill{height:100%;border-radius:99px;background:var(--navy);transition:width .4s ease;}
-.cvr-val{font-size:11px;font-weight:700;color:var(--text);min-width:40px;text-align:right;}
+.cvr-val{font-size:12px;font-weight:700;color:var(--text);}
 .chg-chip{display:inline-flex;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700;}
 .ch-pos{background:var(--navy-light);color:var(--navy);}
 .ch-neg{background:var(--surface2);color:var(--gray);}
@@ -241,8 +279,8 @@ html,body{
 .prod-table th.c2,.prod-table td.c2{left:100px;width:184px;min-width:184px;}
 .prod-table th.c3,.prod-table td.c3{left:284px;width:70px;min-width:70px;}
 .prod-table th.c4,.prod-table td.c4{left:354px;width:70px;min-width:70px;}
-.prod-table th.c5,.prod-table td.c5{left:424px;width:120px;min-width:120px;}
-.prod-table th.c6,.prod-table td.c6{left:544px;width:90px;min-width:90px;border-right:2px solid var(--line-2);}
+.prod-table th.c5,.prod-table td.c5{left:424px;width:80px;min-width:80px;}
+.prod-table th.c6,.prod-table td.c6{left:504px;width:90px;min-width:90px;border-right:2px solid var(--line-2);}
 .prod-table thead th.stick{z-index:6;}
 .prod-table tbody td.stick{background:var(--white);}
 .prod-table tbody tr:hover td.stick{background:var(--surface2);}
@@ -924,6 +962,32 @@ html,body{
         <div class="prod-top3-month" id="prodTop3Month">–</div>
       </div>
       <div class="prod-top3-grid" id="prodTop3Grid"></div>
+    </div>
+
+    <div class="prod-rank-wrap">
+      <div class="prod-rank-grid">
+        <div class="prod-rank-card top">
+          <div class="prod-rank-card-head">
+            <h4>판매 순위 TOP 10</h4>
+            <div class="prod-rank-month" id="prodRankMonthTop">–</div>
+          </div>
+          <table class="prod-rank-table">
+            <thead><tr><th>순위</th><th>식단</th><th>매출(만)</th><th>비중</th><th>구매<br>전환율</th><th>전월비<br>(금액)</th></tr></thead>
+            <tbody id="prodRankTopBody"></tbody>
+          </table>
+        </div>
+        <div class="prod-rank-card bottom">
+          <div class="prod-rank-card-head">
+            <h4>판매 BOTTOM 10</h4>
+            <div class="prod-rank-month" id="prodRankMonthBottom">–</div>
+          </div>
+          <table class="prod-rank-table">
+            <thead><tr><th>순위</th><th>식단</th><th>매출(만)</th><th>비중</th><th>구매<br>전환율</th><th>전월비<br>(금액)</th></tr></thead>
+            <tbody id="prodRankBottomBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="chart-note">※ 매출 상위·하위 10개 식단 · 정기결제 카테고리 상품은 합산하여 1개 상품으로 집계 · 비중은 전체 매출 대비, 전월비는 매출 증감률(금액)</div>
     </div>
 
     <div class="card">
@@ -1713,7 +1777,6 @@ function renderProductTable(){
   const fmtP=v=>((v==null?0:Number(v))*100).toFixed(1)+'%';
   let lastCat='', html='';
   const foots={view:0,buy:0,sales:0};
-  const MAX_CVR=0.17;
 
   data.products.forEach(p=>{
     if(p.cat!==lastCat){ html+=`<tr class="row-cat"><td colspan="${2+NM*4+4}" class="stick c1">${p.cat}</td></tr>`; lastCat=p.cat; }
@@ -1730,14 +1793,13 @@ function renderProductTable(){
       monthCells+=`<td>${fmtN(v)}</td><td>${fmtN(b)}</td><td>${fmtP(c)}</td><td class="${sep}">${s>0?Math.round(s).toLocaleString('ko-KR'):'—'}</td>`;
     }
     const totCvr=tView>0?tBuy/tView:0;
-    const cvrPct=Math.min(100,(totCvr/MAX_CVR)*100);
     const chgVal=(totCvr-(catCvr[p.cat]||0))*100; // %p
     const chg=(chgVal>=0?'+':'')+chgVal.toFixed(1)+'%p';
     const chipCls=chgVal>0.05?'ch-pos':chgVal<-0.05?'ch-neg':'ch-zer';
     // 종합(전체) 데이터 셀 — 카테고리 대비까지 틀고정
     let sumCells=`<td class="stick c3"><strong>${Math.round(tSales).toLocaleString('ko-KR')}</strong></td>`;
     sumCells+=`<td class="stick c4">${fmtN(tView)}</td>`;
-    sumCells+=`<td class="stick c5"><div class="cvr-wrap"><div class="cvr-bg"><div class="cvr-fill" style="width:${cvrPct.toFixed(1)}%"></div></div><span class="cvr-val">${fmtP(totCvr)}</span></div></td>`;
+    sumCells+=`<td class="stick c5"><span class="cvr-val">${fmtP(totCvr)}</span></td>`;
     sumCells+=`<td class="stick c6 msep"><span class="chg-chip ${chipCls}">${chg}</span></td>`;
     const cells=`<td class="stick c1"><span class="cat-tag ${CAT_CLS[p.cat]||'cat-other'}">${p.cat}</span></td><td class="name-cell stick c2">${p.name}</td>`+sumCells+monthCells;
     html+=`<tr>${cells}</tr>`;
@@ -1762,18 +1824,62 @@ function renderProductTable(){
   foot.innerHTML=ft;
 }
 
-/* ---------- 5-0. 상품별 TOP3 카드 (매출 기준) ----------
- * 상품별 상세 테이블에서 가장 최근 데이터가 있는 월(해당월)을 기준으로
- * 매출 상위 3개 식단을 카드로 보여준다. (매출액 / 비중 / 전환율)
+/* ---------- 5-0. 상품별 TOP3 카드 (매출 기준) + 건강케어/질환케어 통합 비중 카드 ----------
+ * 상품별 상세 테이블에서 가장 최근 데이터가 있는 월(해당월)을 기준으로,
+ * 맨 앞에 건강케어·질환케어 매출 비중을 한 장에 모은 카드를 놓고
+ * 이어서 매출 상위 3개 식단 카드를 같은 줄(4카드)에 보여준다.
  * -------------------------------------------------------------------- */
 function renderProdTop3Cards(){
   const NM=maxMonthWithData();
   const idx=NM-1; // 해당월(가장 최근 데이터가 있는 월), 0-indexed
+  const prevIdx=idx-1;
   const grid=document.getElementById('prodTop3Grid');
   const monthLbl=document.getElementById('prodTop3Month');
   if(!grid) return;
   if(monthLbl) monthLbl.textContent=`${MONTHS[idx]} 매출 기준`;
 
+  // ---- ① 건강케어 / 질환케어 매출 비중 통합 카드 ----
+  function catSales(catName, mIdx){
+    let sales=0;
+    data.products.forEach(p=>{
+      if(p.cat!==catName) return;
+      const mm=p.m[mIdx]; if(mm) sales+=mm[3]||0;
+    });
+    return sales;
+  }
+  function totalSalesOf(mIdx){
+    let s=0; data.products.forEach(p=>{ const mm=p.m[mIdx]; if(mm) s+=mm[3]||0; }); return s;
+  }
+  const totalThis=totalSalesOf(idx);
+  const totalPrev=prevIdx>=0?totalSalesOf(prevIdx):0;
+  const catDefs=[{key:'건강케어',cls:'health'},{key:'질환케어',cls:'disease'}];
+
+  const combinedBlocks=catDefs.map(c=>{
+    const salesThis=catSales(c.key, idx);
+    const shareThis=totalThis>0?(salesThis/totalThis*100):0;
+
+    let momHtml=`<span class="rank-chg mom-zero">—</span>`;
+    if(prevIdx>=0 && totalPrev>0){
+      const sharePrev=(catSales(c.key, prevIdx)/totalPrev*100);
+      const diff=shareThis-sharePrev;
+      const cls=diff>0.05?'mom-pos':diff<-0.05?'mom-neg':'mom-zero';
+      const label=(diff>=0?'+':'')+diff.toFixed(1)+'%p';
+      momHtml=`<span class="rank-chg ${cls}">${label}</span>`;
+    }
+
+    return `<div class="cat-combined-block ${c.cls}">
+      <div class="cat-combined-head">
+        <span class="cat-tag ${CAT_CLS[c.key]||'cat-other'}">${c.key}</span>
+        <div class="prod-cat-summary-mom"><span class="prod-cat-summary-mom-label">전월비</span>${momHtml}</div>
+      </div>
+      <div class="cat-combined-share">${shareThis.toFixed(1)}<span class="u">%</span></div>
+      <div class="cat-combined-sales">매출 ${Math.round(salesThis).toLocaleString('ko-KR')}만원 · 전체 매출 대비 비중</div>
+    </div>`;
+  }).join('<div class="cat-combined-divider"></div>');
+
+  const combinedCardHtml=`<div class="prod-top3-card prod-cat-combined">${combinedBlocks}</div>`;
+
+  // ---- ② TOP3 식단 카드 ----
   let totalSales=0;
   const rows=data.products.map(p=>{
     const mm=p.m[idx]||[0,0,0,0];
@@ -1785,26 +1891,112 @@ function renderProdTop3Cards(){
   rows.sort((a,b)=>b.sales-a.sales);
   const top3=rows.slice(0,3);
 
+  const fmtN=v=>Math.round(v).toLocaleString('ko-KR');
+  let top3Html='';
   if(top3.length===0){
-    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;color:var(--gray);font-size:13px;padding:30px 0;">표시할 매출 데이터가 없습니다.</div>`;
-    return;
+    top3Html=`<div style="grid-column:span 3;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--gray);font-size:13px;">표시할 매출 데이터가 없습니다.</div>`;
+  } else {
+    top3Html=top3.map((r,i)=>{
+      const rank=i+1;
+      const share=totalSales>0?(r.sales/totalSales*100):0;
+      return `<div class="prod-top3-card rank-${rank}">
+        <div class="prod-top3-rank">${rank}</div>
+        <div class="prod-top3-cat"><span class="cat-tag ${CAT_CLS[r.cat]||'cat-other'}">${r.cat}</span></div>
+        <div class="prod-top3-name">${r.name}</div>
+        <div class="prod-top3-metrics">
+          <div class="p3-metric"><div class="p3-metric-label">매출액</div><div class="p3-metric-val">${fmtN(r.sales)}<span class="u">만원</span></div></div>
+          <div class="p3-metric"><div class="p3-metric-label">비중</div><div class="p3-metric-val">${share.toFixed(1)}<span class="u">%</span></div></div>
+          <div class="p3-metric"><div class="p3-metric-label">전환율</div><div class="p3-metric-val">${(r.cvr*100).toFixed(1)}<span class="u">%</span></div></div>
+        </div>
+      </div>`;
+    }).join('');
   }
 
-  const fmtN=v=>Math.round(v).toLocaleString('ko-KR');
-  grid.innerHTML=top3.map((r,i)=>{
-    const rank=i+1;
-    const share=totalSales>0?(r.sales/totalSales*100):0;
-    return `<div class="prod-top3-card rank-${rank}">
-      <div class="prod-top3-rank">${rank}</div>
-      <div class="prod-top3-cat"><span class="cat-tag ${CAT_CLS[r.cat]||'cat-other'}">${r.cat}</span></div>
-      <div class="prod-top3-name">${r.name}</div>
-      <div class="prod-top3-metrics">
-        <div class="p3-metric"><div class="p3-metric-label">매출액</div><div class="p3-metric-val">${fmtN(r.sales)}<span class="u">만원</span></div></div>
-        <div class="p3-metric"><div class="p3-metric-label">비중</div><div class="p3-metric-val">${share.toFixed(1)}<span class="u">%</span></div></div>
-        <div class="p3-metric"><div class="p3-metric-label">전환율</div><div class="p3-metric-val">${(r.cvr*100).toFixed(1)}<span class="u">%</span></div></div>
-      </div>
-    </div>`;
-  }).join('');
+  // ① 통합 카드 + ② TOP3 카드 3개 = 한 줄 4카드
+  grid.innerHTML=combinedCardHtml+top3Html;
+}
+
+/* ---------- 5-0-2. 판매 순위 TOP 10 / BOTTOM 10 ----------
+ * '상품별 상세' 시트 데이터를 기준으로, 기준월 매출 상/하위 10개 식단을 보여준다.
+ * 정기결제 카테고리 상품은 모두 합산해 1개 상품(정기결제)으로 집계한다.
+ * -------------------------------------------------------------------- */
+function renderProdRanking(){
+  const NM=maxMonthWithData();
+  const idx=NM-1;
+  const prevIdx=idx-1;
+  const topBody=document.getElementById('prodRankTopBody');
+  const botBody=document.getElementById('prodRankBottomBody');
+  const mTop=document.getElementById('prodRankMonthTop');
+  const mBot=document.getElementById('prodRankMonthBottom');
+  if(!topBody||!botBody) return;
+  if(mTop) mTop.textContent=`${MONTHS[idx]} 매출 기준`;
+  if(mBot) mBot.textContent=`${MONTHS[idx]} 매출 기준`;
+
+  // 개별 상품 목록 + 정기결제 카테고리는 합산하여 1개 상품으로 처리
+  const rows=[];
+  const sub={thisSales:0,thisView:0,thisBuy:0,prevSales:0,hasCur:false,hasPrev:false};
+
+  data.products.forEach(p=>{
+    const mm=p.m[idx]||[0,0,0,0];
+    const pm=prevIdx>=0?p.m[prevIdx]:undefined;
+    if(p.cat==='정기결제'){
+      sub.thisSales+=mm[3]||0; sub.thisView+=mm[0]||0; sub.thisBuy+=mm[1]||0;
+      if(p.m[idx]) sub.hasCur=true;
+      if(pm){ sub.prevSales+=pm[3]||0; sub.hasPrev=true; }
+      return;
+    }
+    rows.push({
+      name:p.name,
+      thisSales:mm[3]||0, thisView:mm[0]||0, thisBuy:mm[1]||0,
+      prevSales: pm?(pm[3]||0):null
+    });
+  });
+  if(sub.hasCur){
+    rows.push({
+      name:'정기결제 (전 상품 합산)',
+      thisSales:sub.thisSales, thisView:sub.thisView, thisBuy:sub.thisBuy,
+      prevSales: sub.hasPrev?sub.prevSales:null
+    });
+  }
+
+  const totalSales=rows.reduce((s,r)=>s+r.thisSales,0);
+  const active=rows.filter(r=>r.thisSales>0);
+
+  function fmtChg(cur, prev){
+    if(prevIdx<0) return {label:'—', amt:0, cls:'mom-zero'};
+    if(prev==null || prev<=0){
+      if(cur>0) return {label:'신규', amt:cur, cls:'mom-new'};
+      return {label:'—', amt:0, cls:'mom-zero'};
+    }
+    const pct=(cur-prev)/prev*100;
+    const amt=cur-prev;
+    const cls=pct>0.05?'mom-pos':pct<-0.05?'mom-neg':'mom-zero';
+    const label=(pct>=0?'+':'')+pct.toFixed(1)+'%';
+    return {label, amt, cls};
+  }
+
+  function rowHtml(r,rank){
+    const share=totalSales>0?(r.thisSales/totalSales*100):0;
+    const cvr=r.thisView>0?(r.thisBuy/r.thisView*100):0;
+    const chg=fmtChg(r.thisSales, r.prevSales);
+    const amtTxt=(chg.amt>=0?'+':'')+Math.round(chg.amt).toLocaleString('ko-KR');
+    return `<tr>
+      <td><span class="prod-rank-num">${rank}</span></td>
+      <td class="prod-rank-name">${r.name}</td>
+      <td>${Math.round(r.thisSales).toLocaleString('ko-KR')}</td>
+      <td>${share.toFixed(1)}%</td>
+      <td>${cvr.toFixed(1)}%</td>
+      <td><span class="rank-chg ${chg.cls}">${chg.label}</span><span class="rank-amt">(${amtTxt})</span></td>
+    </tr>`;
+  }
+
+  const emptyRow=`<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:16px 0;">표시할 매출 데이터가 없습니다.</td></tr>`;
+
+  const top10=[...active].sort((a,b)=>b.thisSales-a.thisSales).slice(0,10);
+  const bottom10=[...active].sort((a,b)=>a.thisSales-b.thisSales).slice(0,10);
+
+  topBody.innerHTML= top10.length? top10.map((r,i)=>rowHtml(r,i+1)).join('') : emptyRow;
+  botBody.innerHTML= bottom10.length? bottom10.map((r,i)=>rowHtml(r,i+1)).join('') : emptyRow;
 }
 
 /* ---------- 5-1. 베스트 메뉴 셀렉션 (Top Sel, index.html 이식) ----------
@@ -2106,6 +2298,7 @@ function renderAll(){
   renderWeeklyChart();
   renderProductTable();
   renderProdTop3Cards();
+  renderProdRanking();
   renderBestMenu();
   renderCustomer();
   renderCalendar();
