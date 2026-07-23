@@ -2046,11 +2046,11 @@ function bestRenderHealth(cur, prevMap){
   const q=bestSearchQuery.trim().toLowerCase();
   const searching=q.length>0;
   const sortKey=bestSortMode==='expo'?'expo':'qty';
-  // 건강케어는 TOP 10 고정 노출 — 순위 계산과 검색 대상 모두 상위 10개로 제한합니다.
+  // 순위는 전체 건강케어 메뉴 목록 기준으로 매깁니다 — 검색은 순위와 무관하게 전체 목록을 대상으로 하되,
+  // 검색어가 없는 기본 화면에서는 아래에서 상위 10개(Gold 1~5 · Silver 6~10)만 노출합니다.
   const ranked=[...list].sort((a,b)=>(b[sortKey]||0)-(a[sortKey]||0))
-    .slice(0,10)
     .map((m,i)=>({ ...m, dynamicRank:i+1, prevRank: prevMap[m.name]!==undefined?prevMap[m.name]:null }));
-  const maxExpo=Math.max(...ranked.map(m=>m.expo||0), 1);
+  const maxExpo=Math.max(...list.map(m=>m.expo||0), 1);
   const display = searching ? ranked.filter(m=>m.name.toLowerCase().includes(q)) : ranked;
 
   const rowHtml=(m)=>{
@@ -2073,7 +2073,7 @@ function bestRenderHealth(cur, prevMap){
   const sortLabel = sortKey==='qty' ? '수량' : '노출당 선택량';
 
   if(searching){
-    // 검색 모드: 건강케어 TOP 10 전체에서 검색해 단일 테이블에 표시
+    // 검색 모드: 순위·노출 구간과 무관하게 전체 건강케어 메뉴 목록에서 검색해 단일 테이블에 표시
     goldEl.innerHTML = display.length
       ? display.map(rowHtml).join('')
       : `<tr><td colspan="7" style="text-align:center;color:var(--gray);padding:24px;">검색 결과가 없습니다</td></tr>`;
