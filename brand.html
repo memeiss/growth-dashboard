@@ -1029,12 +1029,12 @@ html,body{
     <div class="best-kpi">
       <div class="best-kpi-label">전체 건강케어 메뉴</div>
       <div class="best-kpi-val" id="best-kpi-total">–</div>
-      <div class="best-kpi-sub">상위 20개 노출 중</div>
+      <div class="best-kpi-sub">상위 10개 노출 중</div>
     </div>
     <div class="best-kpi silver">
       <div class="best-kpi-label">평균 노출당 선택량</div>
       <div class="best-kpi-val" id="best-kpi-avg-expo">–</div>
-      <div class="best-kpi-sub">건강케어 TOP 20</div>
+      <div class="best-kpi-sub">건강케어 TOP 10</div>
     </div>
   </div>
 
@@ -1068,7 +1068,7 @@ html,body{
       <h3>건강케어</h3>
       <p>식단 구성 수에 따른 노출당 선택량의 메뉴 선호도 분석</p>
     </div>
-    <div class="best-section-badge" style="flex-shrink:0;">TOP 20</div>
+    <div class="best-section-badge" style="flex-shrink:0;">TOP 10</div>
     <div class="best-health-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input type="text" id="best-search-input" placeholder="건강케어 메뉴 검색...">
@@ -2046,10 +2046,11 @@ function bestRenderHealth(cur, prevMap){
   const q=bestSearchQuery.trim().toLowerCase();
   const searching=q.length>0;
   const sortKey=bestSortMode==='expo'?'expo':'qty';
-  // 순위는 전체 목록(TOP 20) 기준으로 매깁니다 — 검색 시 11위 이후 메뉴도 찾을 수 있도록 순위 계산 자체는 자르지 않습니다.
+  // 건강케어는 TOP 10 고정 노출 — 순위 계산과 검색 대상 모두 상위 10개로 제한합니다.
   const ranked=[...list].sort((a,b)=>(b[sortKey]||0)-(a[sortKey]||0))
+    .slice(0,10)
     .map((m,i)=>({ ...m, dynamicRank:i+1, prevRank: prevMap[m.name]!==undefined?prevMap[m.name]:null }));
-  const maxExpo=Math.max(...list.map(m=>m.expo||0), 1);
+  const maxExpo=Math.max(...ranked.map(m=>m.expo||0), 1);
   const display = searching ? ranked.filter(m=>m.name.toLowerCase().includes(q)) : ranked;
 
   const rowHtml=(m)=>{
@@ -2072,7 +2073,7 @@ function bestRenderHealth(cur, prevMap){
   const sortLabel = sortKey==='qty' ? '수량' : '노출당 선택량';
 
   if(searching){
-    // 검색 모드: TOP 20 전체(11~20위 포함)에서 검색해 단일 테이블에 표시
+    // 검색 모드: 건강케어 TOP 10 전체에서 검색해 단일 테이블에 표시
     goldEl.innerHTML = display.length
       ? display.map(rowHtml).join('')
       : `<tr><td colspan="7" style="text-align:center;color:var(--gray);padding:24px;">검색 결과가 없습니다</td></tr>`;
@@ -2080,7 +2081,7 @@ function bestRenderHealth(cur, prevMap){
     goldSec.querySelector('.tier-header span:nth-of-type(2)').textContent=` '${bestSearchQuery}' 검색 결과`;
     goldSec.querySelector('.tier-count').textContent=`${display.length}개`;
   } else {
-    // 기본 모드: TOP 10까지만 노출 (11~20위 · 기타 메뉴는 비노출)
+    // 기본 모드: TOP 10을 5+5로 나누어 노출 (Gold 1~5 · Silver 6~10)
     silverSec.style.display='';
     goldSec.querySelector('.tier-header span:nth-of-type(2)').textContent=`TOP 5 · 최상위 선호 메뉴 (${sortLabel} 기준)`;
     goldSec.querySelector('.tier-count').textContent='가장 핵심 메뉴';
@@ -2093,23 +2094,22 @@ function bestRenderHealth(cur, prevMap){
 function bestRenderDiseaseList(key, list, prevMap){
   const body=document.getElementById(key+'-body');
   if(!body) return;
-  const q=bestSearchQuery.trim().toLowerCase();
-  // 질환케어는 TOP 10 고정 — 11위 이후는 애초에 순위/노출 대상에서 제외합니다.
+  // 질환케어는 건강케어 검색어와 무관하게 항상 TOP 10 고정 노출됩니다.
+  // (건강케어 메뉴 검색 결과에 따라 질환케어 리스트가 사라지거나 필터링되지 않도록 검색어를 전혀 반영하지 않습니다.)
   const ranked=[...(list||[])].sort((a,b)=>(b.qty||0)-(a.qty||0))
     .slice(0,10)
     .map((m,i)=>({ ...m, dynamicRank:i+1, prevRank: prevMap[m.name]!==undefined?prevMap[m.name]:null }));
-  const filtered = q ? ranked.filter(m=>m.name.toLowerCase().includes(q)) : ranked;
 
-  if(!filtered.length){
-    body.innerHTML=`<tr><td colspan="4" style="text-align:center;color:var(--gray);padding:24px;">${(list&&list.length)?'검색 결과가 없습니다':'엑셀 파일을 업로드하면 데이터가 표시됩니다'}</td></tr>`;
+  if(!ranked.length){
+    body.innerHTML=`<tr><td colspan="4" style="text-align:center;color:var(--gray);padding:24px;">엑셀 파일을 업로드하면 데이터가 표시됩니다</td></tr>`;
     return;
   }
-  body.innerHTML = filtered.map(m=>{
+  body.innerHTML = ranked.map(m=>{
     const rankCls = m.dynamicRank<=3?'bronze':'';
     return `<tr>
       <td><span class="rank-b ${rankCls}">${m.dynamicRank}</span></td>
       <td style="text-align:center">${bestChgBadge(m.dynamicRank,m.prevRank)}</td>
-      <td><span class="menu-name">${bestHighlight(m.name,bestSearchQuery)}</span></td>
+      <td><span class="menu-name">${m.name}</span></td>
       <td style="text-align:right"><span class="qty-val">${bestFmtNum(m.qty)}</span></td>
     </tr>`;
   }).join('');
@@ -2164,7 +2164,7 @@ function renderBestMenu(){
   const label=document.getElementById('topselMonthLabel');
   if(label){
     label.textContent = cur
-      ? `${MONTHS[mi]} 기준 · 건강케어 TOP 20 · 질환케어 TOP 10`
+      ? `${MONTHS[mi]} 기준 · 건강케어 TOP 10 · 질환케어 TOP 10`
       : `${MONTHS[mi]} 데이터 없음 — 엑셀 업로드 대기 중`;
   }
 
